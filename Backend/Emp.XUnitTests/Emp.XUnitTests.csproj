@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Emp.Api\Emp.Api.csproj" />
+    <ProjectReference Include="..\Emp.Application\Emp.Application.csproj" />
+    <ProjectReference Include="..\Emp.Infrastructure\Emp.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

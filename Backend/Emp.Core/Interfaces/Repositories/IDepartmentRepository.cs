@@ -1,6 +1,6 @@
 ﻿using Emp.Core.Entities;
 
-namespace Emp.Core.RepositoryInterfaces;
+namespace Emp.Core.Interfaces.Repositories;
 
 public interface IDepartmentRepository : IGenericRepository<Department>
 {

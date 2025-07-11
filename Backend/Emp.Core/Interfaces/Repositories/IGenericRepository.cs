@@ -1,7 +1,7 @@
 ﻿using Emp.Core.Entities;
 using System.Linq.Expressions;
 
-namespace Emp.Core.RepositoryInterfaces;
+namespace Emp.Core.Interfaces.Repositories;
 
 public interface IGenericRepository<T> where T : BaseEntity
 {

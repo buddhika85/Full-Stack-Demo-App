@@ -1,5 +1,12 @@
-﻿namespace Emp.Core;
+﻿using Emp.Core.Interfaces.Repositories;
 
-public interface IUnitOfWork
+namespace Emp.Core;
+
+public interface IUnitOfWork : IDisposable
 {
+    public IEmployeeRepository EmployeeRepository { get; }
+
+    public IDepartmentRepository DepartmentRepository { get; }
+
+    Task<int> CompleteAsync();
 }

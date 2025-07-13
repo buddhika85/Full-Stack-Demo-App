@@ -8,8 +8,8 @@ namespace Emp.Infrastructure.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
-    private readonly ApplicationDbContext context;
-    private readonly DbSet<T> dbSet;
+    protected readonly ApplicationDbContext context;
+    protected readonly DbSet<T> dbSet;
 
     public GenericRepository(ApplicationDbContext context)
     {

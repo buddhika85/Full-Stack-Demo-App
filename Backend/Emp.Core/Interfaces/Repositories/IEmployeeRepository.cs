@@ -5,5 +5,5 @@ namespace Emp.Core.Interfaces.Repositories;
 public interface IEmployeeRepository : IGenericRepository<Employee>
 {
     Task<IEnumerable<Employee>> GetAllEmployeesWithDepartmentAsync();
-    Task<Employee> GetEmployeeWithDepartment(int id);
+    Task<Employee?> GetEmployeeWithDepartment(int id);
 }

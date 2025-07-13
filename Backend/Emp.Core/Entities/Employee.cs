@@ -16,11 +16,11 @@ public class Employee : BaseEntity
     [Required]
     [EmailAddress]
     [MaxLength(100)]
-    public required string EmailAddress { get; set; }
+    public required string Email { get; set; }
 
     [Required]
     [ForeignKey("DepartmentId")]
     public int DepartmentId { get; set; }
 
-    public virtual required Department Department { get; set; }
+    public virtual Department Department { get; set; } = null!;
 }

@@ -18,7 +18,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await dbSet.AsNoTracking().ToListAsync();        // not for editing - as no tracking
+        return await dbSet.AsNoTracking().ToListAsync();        // not for editing - as no tracking //
     }
 
     public async Task<T?> GetByIdAsync(int id)

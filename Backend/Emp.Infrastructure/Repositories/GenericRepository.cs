@@ -2,6 +2,7 @@
 using Emp.Core.Interfaces.Repositories;
 using Emp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Emp.Infrastructure.Repositories;
 
@@ -42,7 +43,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         context.Remove(entity);
     }
 
-    public async Task<IEnumerable<T>> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
     {
         return await dbSet.Where(predicate).ToListAsync();
     }

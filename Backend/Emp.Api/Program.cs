@@ -1,23 +1,88 @@
+using Emp.Api.Filters;
+using Emp.Api.Middleware;
+using Emp.Application.Services;
+using Emp.Core;
+using Emp.Core.Interfaces.Repositories;
+using Emp.Core.Interfaces.Services;
+using Emp.Infrastructure;
+using Emp.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// services
+builder.Services.AddScoped<CustomExceptionMiddleware>();     // scoped as it needs be accessed by multiple threads for multiple requests
+builder.Services.AddScoped<ConsoleLoggerFilter>();
+
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(IGenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
-var app = builder.Build();
+builder.Services.AddOpenApi();
+// using swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// caching
+builder.Services.AddOutputCache(options =>
+{
+    options.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(15);
+});
+
+
+
+
+
+
+var app = builder.Build();  // RUNS ONCE PER APPLICATION CYCLE - This compiles everything into a runnable app
+
+
+
+
+
+#region MIDDLEWARE_PIPELINE
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //app.UseDeveloperExceptionPage();            // using built in developer exception page - stack trace, error code scection, route values, headers, cookies
+
+    app.UseMiddleware<CustomExceptionMiddleware>(); // custom middleware to tackle exceptions
+
+    // using swagger
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    // redirect to production exception page
+    app.UseExceptionHandler("/error");
 }
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 
-app.MapControllers();
 
-app.Run();
+app.UseRouting();
+
+app.UseCors();
+
+app.UseOutputCache();                   // use outputcache middleware
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization(); // auth should be done before mapping controllers middleware
+
+app.MapControllers();   // HIGH LEVEL MIDDLEWARE - Route registration and Filter pipeline execution, and then End Point Execution 
+
+#endregion #region MIDDLEWARE_PIPELINE
+
+app.Run();  // RUNS ONCE PER APPLICATION CYCLE - Hosts application on Kestral and it starts listening for HTTP Requests, DOES NOT EXECUTE PER REQUEST

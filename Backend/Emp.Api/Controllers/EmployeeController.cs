@@ -114,6 +114,7 @@ public class EmployeeController : BaseController
         }
     }
 
+    [EndpointSummary("Deletes an employee")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteEmployees(int id)
     {

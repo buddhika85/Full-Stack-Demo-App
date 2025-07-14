@@ -22,5 +22,5 @@ public class Employee : BaseEntity
     [ForeignKey("DepartmentId")]
     public int DepartmentId { get; set; }
 
-    public virtual Department Department { get; set; } = null!;
+    public virtual Department? Department { get; set; }
 }

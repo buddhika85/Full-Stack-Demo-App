@@ -24,10 +24,8 @@ public static class MappingExtensions
         return employees.Select(ToDto);     // same as x => ToDto(x)
     }
 
-    public static Employee? ToEntity(this CreateEmployeeDto createEployeeDto)
+    public static Employee ToEntity(this CreateEmployeeDto createEployeeDto)
     {
-        if (createEployeeDto == null) return null;
-
         return new Employee
         {
             FirstName = createEployeeDto.FirstName,
@@ -60,7 +58,7 @@ public static class MappingExtensions
         };
     }
 
-    public static IEnumerable<DepartmentDto> ToDto(this IEnumerable<Department> departments)
+    public static IEnumerable<DepartmentDto> ToDtos(this IEnumerable<Department> departments)
     {
         return departments.Select(ToDto);
     }

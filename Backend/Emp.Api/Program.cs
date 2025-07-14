@@ -5,7 +5,10 @@ using Emp.Core;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
 using Emp.Infrastructure;
+using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +16,42 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<CustomExceptionMiddleware>();     // scoped as it needs be accessed by multiple threads for multiple requests
 builder.Services.AddScoped<ConsoleLoggerFilter>();
 
+//builder.Services.AddSingleton<IInMemoryRepository, InMemoryRepository>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
+});
+
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(IGenericRepository<>));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+// CORS
+var allowedOrigins = builder.Configuration["AllowedOrgings"]?.ToString().Split(",") ?? [];
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader();
+        //policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();      // allowing any one to access this API
+    });
+});
+
+
+
+// Seri Log Logger
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/apiLog-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Services.AddSerilog();
+
 
 
 builder.Services.AddControllers();

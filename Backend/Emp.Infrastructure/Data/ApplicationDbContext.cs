@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emp.Infrastructure.Data;
 
+// dotnet ef migrations add InitialCreate --project  ..\Emp.Infrastructure --startup-project .
+// dotnet ef database update --project ..\Emp.Infrastructure --startup-project .
 public class ApplicationDbContext : DbContext
 {
     public DbSet<Department> Departments { get; set; }

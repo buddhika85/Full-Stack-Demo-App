@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
@@ -10,11 +10,21 @@
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
 		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+
+		<!-- Required for Entity Framework Core Tools to work with this as the startup project -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+			<PrivateAssets>all</PrivateAssets>
+
+			<!-- it's used only for design-time tools and doesn't get deployed with the final application. -->
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Emp.Application\Emp.Application.csproj" />
 		<ProjectReference Include="..\Emp.Core\Emp.Core.csproj" />
+		<ProjectReference Include="..\Emp.Infrastructure\Emp.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

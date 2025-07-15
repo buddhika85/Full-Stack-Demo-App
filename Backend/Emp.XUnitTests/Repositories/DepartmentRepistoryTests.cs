@@ -93,7 +93,7 @@ public class DepartmentRepistoryTests
     }
 
     [Fact]
-    public async Task AddAsync_AddsNewRecordToDB_WhenCalled()
+    public async Task AddAsync_AddsNewDepartmentToDB_WhenCalled()
     {
         // arrange
         var testDbContext = GetInMemoryDbContext("AddAsync_AddsNewRecordToDB_WhenCalled");
@@ -112,5 +112,25 @@ public class DepartmentRepistoryTests
         newDepartment.Name.Should().Be(testDepartment.Name);
     }
 
+    [Fact]
+    public async Task Update_UpdatesDepartment_IfExists()
+    {
+        // arrange
+        var testDbContext = GetInMemoryDbContext("Update_UpdatesDepartment_IfExists");
+        var repository = new DepartmentRepository(testDbContext);
+        var departmentToUpdate = await repository.GetByIdAsync(1);
 
+        departmentToUpdate.Should().NotBeNull();
+
+        // act
+        departmentToUpdate.Name = $"{departmentToUpdate.Name} updated";
+        repository.Update(departmentToUpdate);
+        await testDbContext.SaveChangesAsync();
+
+        // assert
+        var departmentUpdated = await repository.GetByIdAsync(departmentToUpdate.Id);
+        departmentUpdated.Should().NotBeNull();
+        departmentUpdated.Id.Should().Be(departmentToUpdate.Id);
+        departmentUpdated.Name.Should().Be(departmentToUpdate.Name);
+    }
 }

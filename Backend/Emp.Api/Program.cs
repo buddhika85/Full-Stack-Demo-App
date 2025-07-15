@@ -102,9 +102,9 @@ app.UseHttpsRedirection();
 
 
 
-app.UseRouting();
+app.UseRouting();                       // Route resolution
 
-app.UseCors();
+app.UseCors();                          // adding ACCESS-CONTROL-ALLOW-ORIGIN header
 
 app.UseOutputCache();                   // use outputcache middleware
 
@@ -112,7 +112,37 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization(); // auth should be done before mapping controllers middleware
 
+
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == 404 && !response.HasStarted)
+    {
+        response.ContentType = "text/plain";
+        await response.WriteAsync(
+            $"404 from UseStatusCodePages: {context.HttpContext.Request.Path}");
+    }
+});
+
+
+
 app.MapControllers();   // HIGH LEVEL MIDDLEWARE - Route registration and Filter pipeline execution, and then End Point Execution 
+
+
+// Inline custom middleware for 404s
+//app.Use(async (context, next) =>
+//{
+//    await next(); // Let the pipeline finish first
+
+//    if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+//    {
+//        context.Response.ContentType = "text/plain";
+//        await context.Response.WriteAsync(
+//            $"404: {context.Request.Method} {context.Request.Path}");
+//    }
+//});
+
 
 #endregion #region MIDDLEWARE_PIPELINE
 

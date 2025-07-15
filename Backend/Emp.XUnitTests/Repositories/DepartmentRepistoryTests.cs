@@ -91,4 +91,24 @@ public class DepartmentRepistoryTests
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public async Task AddAsync_AddsNewRecordToDB_WhenCalled()
+    {
+        // arrange
+        var testDbContext = GetInMemoryDbContext("AddAsync_AddsNewRecordToDB_WhenCalled");
+        var repository = new DepartmentRepository(testDbContext);
+        var testDepartment = new Department { Name = "Test Department" };
+
+        // act
+        await repository.AddAsync(testDepartment);
+        await testDbContext.SaveChangesAsync();
+
+        // assert        
+        testDbContext.Departments.Should().HaveCount(4 + 1);                      // seeded 4, with newly added 1 it should be 5
+        var newDepartment = await repository.GetByIdAsync(testDepartment.Id);
+        newDepartment.Should().NotBeNull();
+        newDepartment.Id.Should().Be(testDepartment.Id);
+        newDepartment.Name.Should().Be(testDepartment.Name);
+    }
 }

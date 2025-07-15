@@ -78,6 +78,8 @@ var app = builder.Build();  // RUNS ONCE PER APPLICATION CYCLE - This compiles e
 
 
 
+
+
 #region MIDDLEWARE_PIPELINE
 
 
@@ -130,7 +132,7 @@ app.UseStatusCodePages(async context =>
 app.MapControllers();   // HIGH LEVEL MIDDLEWARE - Route registration and Filter pipeline execution, and then End Point Execution 
 
 
-// Inline custom middleware for 404s
+// Inline custom middleware for 404s --> no need as - app.UseStatusCodePages used
 //app.Use(async (context, next) =>
 //{
 //    await next(); // Let the pipeline finish first
@@ -145,5 +147,10 @@ app.MapControllers();   // HIGH LEVEL MIDDLEWARE - Route registration and Filter
 
 
 #endregion #region MIDDLEWARE_PIPELINE
+
+
+
+
+
 
 app.Run();  // RUNS ONCE PER APPLICATION CYCLE - Hosts application on Kestral and it starts listening for HTTP Requests, DOES NOT EXECUTE PER REQUEST

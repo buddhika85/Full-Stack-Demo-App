@@ -155,4 +155,34 @@ public class DepartmentRepistoryTests
         afterDelete.Should().BeNull();
         departmentCountAfterDelete.Should().Be(departmentCount - 1);
     }
+
+    [Fact]
+    public async Task FindAsync_ReturnsFilteredDepartments_IfExistsForPredicate()
+    {
+        // arrange
+        var testDbContext = GetInMemoryDbContext("FindAsync_ReturnsFilteredDepartments_IfExistsForPredicate");
+        var repository = new DepartmentRepository(testDbContext);
+
+        // act
+        var filteredDepartments = await repository.FindAsync(x => x.Name.Equals("human Resources", StringComparison.OrdinalIgnoreCase));
+
+        // assert
+        filteredDepartments.Should().NotBeNull();
+        filteredDepartments.Should().ContainSingle();             // as per seeded data there is only 1 Human Resources
+        filteredDepartments.ToList()[0].Name.ToLower().Should().BeEquivalentTo("human resources");
+    }
+
+    [Fact]
+    public async Task FindAsync_ReturnsZeroDepartments_IfNonExistsForPredicate()
+    {
+        // arrange
+        var testDbContext = GetInMemoryDbContext("FindAsync_ReturnsZeroDepartments_IfNonExistsForPredicate");
+        var repository = new DepartmentRepository(testDbContext);
+
+        // act
+        var filteredDepartments = await repository.FindAsync(x => x.Name.Equals("xyz", StringComparison.OrdinalIgnoreCase));
+
+        // assert
+        filteredDepartments.Should().HaveCount(0);
+    }
 }

@@ -133,4 +133,26 @@ public class DepartmentRepistoryTests
         departmentUpdated.Id.Should().Be(departmentToUpdate.Id);
         departmentUpdated.Name.Should().Be(departmentToUpdate.Name);
     }
+
+    [Fact]
+    public async Task Delete_DeletesDepartment_IfExists()
+    {
+        // arrange
+        var testDbContext = GetInMemoryDbContext("Delete_DeletesDepartment_IfExists");
+        var repository = new DepartmentRepository(testDbContext);
+        var departmentToDelete = await repository.GetByIdAsync(1);
+        var departmentCount = (await repository.GetAllAsync()).Count();
+
+        departmentToDelete.Should().NotBeNull();
+
+        // act
+        repository.Delete(departmentToDelete);
+        await testDbContext.SaveChangesAsync();
+
+        // assert
+        var departmentCountAfterDelete = (await repository.GetAllAsync()).Count();
+        var afterDelete = await repository.GetByIdAsync(1);
+        afterDelete.Should().BeNull();
+        departmentCountAfterDelete.Should().Be(departmentCount - 1);
+    }
 }

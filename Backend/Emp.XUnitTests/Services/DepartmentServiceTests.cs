@@ -271,4 +271,26 @@ public class DepartmentServiceTests
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == entityToDelete)), Times.Once());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
     }
+
+    //[Theory]
+    //[InlineData(100, "HR")]
+    //[InlineData(1011, "IT")]
+    //public async Task DeleteDepartmentAsync_ReturnsFalse_WhenDepartmentHasAtleastOneEmployee(int id, string name)
+    //{
+    //    // arrange
+    //    var entityToDelete = new Department
+    //    {
+    //        Id = id,
+    //        Name = name,
+    //        Employees = new List<Employee> {
+    //            new Employee { Id = 1, Email = "test@gmail.com", FirstName = "John", LastName = "Doe" }
+    //        }
+    //    };
+    //    mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployees())
+
+    //    // act
+
+
+    //    // assert
+    //}
 }

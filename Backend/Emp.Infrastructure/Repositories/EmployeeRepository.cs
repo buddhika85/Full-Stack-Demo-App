@@ -16,7 +16,7 @@ public class EmployeeRepository : GenericRepository<Employee>, IEmployeeReposito
         return await dbSet.Include(x => x.Department).ToListAsync();
     }
 
-    public async Task<Employee?> GetEmployeeWithDepartment(int id)
+    public async Task<Employee?> GetEmployeeWithDepartmentAsync(int id)
     {
         return await dbSet.Include(x => x.Department).SingleOrDefaultAsync(x => x.Id == id);
     }

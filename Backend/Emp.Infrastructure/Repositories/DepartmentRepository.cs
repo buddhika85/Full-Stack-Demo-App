@@ -11,12 +11,12 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
     {
     }
 
-    public async Task<IEnumerable<Department>> GetAllDepartmentsWithEmployees()
+    public async Task<IEnumerable<Department>> GetAllDepartmentsWithEmployeesAsync()
     {
         return await dbSet.Include(x => x.Employees).ToListAsync();
     }
 
-    public async Task<Department?> GetDepartmentWithEmployees(int id)
+    public async Task<Department?> GetDepartmentWithEmployeesAsync(int id)
     {
         return await dbSet.Include(x => x.Employees).SingleOrDefaultAsync(x => x.Id == id);
     }

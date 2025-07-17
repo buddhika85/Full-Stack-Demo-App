@@ -1,10 +1,10 @@
 ﻿using Emp.Application.Services;
 using Emp.Core;
+using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
-using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -91,5 +91,26 @@ public class DepartmentServiceTests
         department.Should().BeNull();
         mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get a department with ID {nonExitentId}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Warning, $"Department with id {nonExitentId} unavailable", Times.Once());
+    }
+
+    [Theory]
+    [InlineData("HR")]
+    [InlineData("Engineering")]
+    [InlineData("IT")]
+    public async Task CreateDepartmentAsync_ReturnsCreatedDepartment_WhenCalledWithValidDepartment(string deptName)
+    {
+        // arrange       
+        var createDepartmentDto = new CreateDepartmentDto { Name = deptName };
+        mockDepartmentRepository.Setup(x => x.AddAsync(new Department { Name = deptName })).Returns(Task.CompletedTask);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
+
+        // act
+        var departmentCreated = await departmentService.CreateDepartmentAsync(createDepartmentDto);
+
+        // assert
+        departmentCreated.Should().NotBeNull();
+        departmentCreated.Name.Should().Be(deptName);
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to create department with name: {deptName}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Department '{deptName}' (ID: 0) created successfully.", Times.Once());
     }
 }

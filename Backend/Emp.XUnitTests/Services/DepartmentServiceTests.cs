@@ -3,6 +3,7 @@ using Emp.Core;
 using Emp.Core.Entities;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
+using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -48,5 +49,12 @@ public class DepartmentServiceTests
         // assert
         result.Should().NotBeNull();
         result.Should().HaveCount(departments.Count());
+
+        // asserting on log messages
+        mockLogger.VerifyMessage(LogLevel.Information, "Attempting to get all departments", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Retrived {departments.Count()} departments", Times.Once());
     }
+
+
+
 }

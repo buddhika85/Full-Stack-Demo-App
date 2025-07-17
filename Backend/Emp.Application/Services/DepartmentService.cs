@@ -120,9 +120,14 @@ public class DepartmentService : IDepartmentService
             }
 
             unitOfWork.DepartmentRepository.Delete(entity);
-            await unitOfWork.CompleteAsync();
-            logger.LogInformation("Department with ID {id} deleted successfully.", id);
-            return true;
+            if (await unitOfWork.CompleteAsync() > 0)
+            {
+                logger.LogInformation("Department with ID {id} deleted successfully.", id);
+                return true;
+            }
+
+            logger.LogError("Department with ID {id} deletion unsuccessful.", id);
+            return false;
         }
         catch (Exception ex)
         {

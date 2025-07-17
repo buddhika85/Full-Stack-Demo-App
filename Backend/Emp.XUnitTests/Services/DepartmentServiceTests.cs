@@ -200,4 +200,30 @@ public class DepartmentServiceTests
         mockDepartmentRepository.Verify(x => x.Update(It.Is<Department>(x => x.Id == id && x.Name == name)), Times.Once());          // repository Update was called once
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());        // UOW complete async called once
     }
+
+
+    [Theory]
+    [InlineData(100, "HR")]
+    [InlineData(1011, "IT")]
+    public async Task DeleteDepartmentAsync_ReturnsTrue_IfUpdateSuccess(int id, string name)
+    {
+        // arrange
+        var entityToDelete = new Department { Id = id, Name = name };
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToDelete);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
+
+        // act
+        var status = await departmentService.DeleteDepartmentAsync(id);
+
+        // assert
+        status.Should().BeTrue();
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Department with ID {id} deleted successfully.", Times.Once());
+
+
+        mockDepartmentRepository.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x.Id == id && x.Name == name)), Times.Once());
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
+    }
 }

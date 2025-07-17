@@ -54,6 +54,9 @@ public class DepartmentServiceTests
         // asserting on log messages
         mockLogger.VerifyMessage(LogLevel.Information, "Attempting to get all departments", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Retrived {testData.Count()} departments", Times.Once());
+
+        // verify repository GetAllAsync was called once
+        mockDepartmentRepository.Verify(x => x.GetAllAsync(), Times.Once());
     }
 
     [Theory]
@@ -74,6 +77,9 @@ public class DepartmentServiceTests
         departmentDto.Name.Should().Be(deptName);
         mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get a department with ID {deptId}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Department with id {deptId} retrieved", Times.Once());
+
+        // verify repository GetByIdAsync was called once
+        mockDepartmentRepository.Verify(x => x.GetByIdAsync(It.Is<int>(id => id == deptId)), Times.Once());
     }
 
     [Fact]
@@ -91,6 +97,11 @@ public class DepartmentServiceTests
         department.Should().BeNull();
         mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get a department with ID {nonExitentId}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Warning, $"Department with id {nonExitentId} unavailable", Times.Once());
+
+        // verify repository GetByIdAsync was called once
+        mockDepartmentRepository.Verify(x =>
+                                            x.GetByIdAsync(It.Is<int>(id => id == nonExitentId)),
+                                            Times.Once());
     }
 
     [Theory]
@@ -110,6 +121,12 @@ public class DepartmentServiceTests
         // assert
         departmentCreated.Should().NotBeNull();
         departmentCreated.Name.Should().Be(deptName);
+
+        // verify repository addAsync was called once
+        mockDepartmentRepository.Verify(x => x.AddAsync(It.Is<Department>(d => d.Name == deptName)), Times.Once);
+        // verify UOW completeAsync was called once
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once);
+
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to create department with name: {deptName}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Department '{deptName}' (ID: 0) created successfully.", Times.Once());
     }
@@ -120,16 +137,43 @@ public class DepartmentServiceTests
     public async Task UpdateDepartmentAsync_ReturnsTrue_IfUpdateSuccess(int id, string name, string updatedName)
     {
         // arrange
+        var updateDto = new UpdateDepartmentDto { Id = id, Name = updatedName };
         var entityToUpdate = new Department { Id = id, Name = name };
         mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToUpdate);
         mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
 
         // act
-        var status = await departmentService.UpdateDepartmentAsync(id, new UpdateDepartmentDto { Id = id, Name = updatedName });
+        var status = await departmentService.UpdateDepartmentAsync(id, updateDto);
 
         // assert
-        status.Should().Be(true);
+        status.Should().BeTrue();
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update an department with ID {id}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Department with ID {id} updated successfully.", Times.Once());
+
+        // verify 
+        mockDepartmentRepository.Verify(x => x.Update(It.Is<Department>(x => x.Id == id && x.Name == updatedName)), Times.Once());          // repository Update was called once
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());        // UOW complete async called once
+    }
+
+    [Fact]
+    public async Task UpdateDepartmentAsync_ReturnsFalse_IfDepartmentNonExistent()
+    {
+        // arrange
+        var nonExistentId = 99;
+        var updatedName = "updated name";
+        Department? departmentNullResult = null;
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(nonExistentId)).ReturnsAsync(departmentNullResult);
+
+        // act
+        var status = await departmentService.UpdateDepartmentAsync(nonExistentId, new UpdateDepartmentDto { Id = nonExistentId, Name = updatedName });
+
+        // assert
+        status.Should().BeFalse();
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update an department with ID {nonExistentId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Updated Failed: Department with id {nonExistentId} unavailable", Times.Once());
+
+        // verify never called
+        mockDepartmentRepository.Verify(x => x.Update(It.Is<Department>(x => x.Id == nonExistentId && x.Name == updatedName)), Times.Never());          // repository Update was never called
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());        // UOW complete async was never called
     }
 }

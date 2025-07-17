@@ -208,7 +208,7 @@ public class DepartmentServiceTests
     {
         // arrange
         var entityToDelete = new Department { Id = id, Name = name };
-        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToDelete);
+        mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployeesAsync(id)).ReturnsAsync(entityToDelete);
         mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
 
         // act
@@ -221,7 +221,7 @@ public class DepartmentServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"Department with ID {id} deleted successfully.", Times.Once());
 
 
-        mockDepartmentRepository.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentRepository.Verify(x => x.GetDepartmentWithEmployeesAsync(It.Is<int>(x => x == id)), Times.Once());
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x.Id == id && x.Name == name)), Times.Once());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
     }
@@ -234,7 +234,7 @@ public class DepartmentServiceTests
     {
         // arrange
         Department? nullDepartment = null;
-        mockDepartmentRepository.Setup(x => x.GetByIdAsync(nonExistentId)).ReturnsAsync(nullDepartment);
+        mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployeesAsync(nonExistentId)).ReturnsAsync(nullDepartment);
 
         // act
         var status = await departmentService.DeleteDepartmentAsync(nonExistentId);
@@ -245,6 +245,7 @@ public class DepartmentServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {nonExistentId}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Warning, $"Delete failed: Department with ID {nonExistentId} not found.", Times.Once());
 
+        mockDepartmentRepository.Verify(x => x.GetDepartmentWithEmployeesAsync(It.Is<int>(x => x == nonExistentId)), Times.Once());
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == nullDepartment)), Times.Never());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());
     }
@@ -256,7 +257,7 @@ public class DepartmentServiceTests
     {
         // arrange
         var entityToDelete = new Department { Id = id, Name = name };
-        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToDelete);
+        mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployeesAsync(id)).ReturnsAsync(entityToDelete);
         mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(0);                               // no rows affected
 
         // act
@@ -268,29 +269,38 @@ public class DepartmentServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {id}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Error, $"Department with ID {id} deletion unsuccessful.", Times.Once());
 
+        mockDepartmentRepository.Verify(x => x.GetDepartmentWithEmployeesAsync(It.Is<int>(x => x == id)), Times.Once());
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == entityToDelete)), Times.Once());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
     }
 
-    //[Theory]
-    //[InlineData(100, "HR")]
-    //[InlineData(1011, "IT")]
-    //public async Task DeleteDepartmentAsync_ReturnsFalse_WhenDepartmentHasAtleastOneEmployee(int id, string name)
-    //{
-    //    // arrange
-    //    var entityToDelete = new Department
-    //    {
-    //        Id = id,
-    //        Name = name,
-    //        Employees = new List<Employee> {
-    //            new Employee { Id = 1, Email = "test@gmail.com", FirstName = "John", LastName = "Doe" }
-    //        }
-    //    };
-    //    mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployees())
+    [Theory]
+    [InlineData(100, "HR")]
+    [InlineData(1011, "IT")]
+    public async Task DeleteDepartmentAsync_ReturnsFalse_WhenDepartmentHasAtleastOneEmployee(int id, string name)
+    {
+        // arrange
+        var entityToDelete = new Department
+        {
+            Id = id,
+            Name = name,
+            Employees = new List<Employee> {
+                new Employee { Id = 1, Email = "test@gmail.com", FirstName = "John", LastName = "Doe" }
+            }
+        };
+        mockDepartmentRepository.Setup(x => x.GetDepartmentWithEmployeesAsync(id)).ReturnsAsync(entityToDelete);
 
-    //    // act
+        // act
+        var status = await departmentService.DeleteDepartmentAsync(id);
 
+        // assert
+        status.Should().BeFalse();
 
-    //    // assert
-    //}
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Deletion of Department ID {id} restricted: Department still has {entityToDelete.Employees.Count()} associated employees.", Times.Once());
+
+        mockDepartmentRepository.Verify(x => x.GetDepartmentWithEmployeesAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == entityToDelete)), Times.Never());
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());
+    }
 }

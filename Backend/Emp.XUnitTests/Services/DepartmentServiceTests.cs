@@ -8,6 +8,7 @@ using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Emp.XUnitTests.Services;
 
@@ -175,5 +176,28 @@ public class DepartmentServiceTests
         // verify never called
         mockDepartmentRepository.Verify(x => x.Update(It.Is<Department>(x => x.Id == nonExistentId && x.Name == updatedName)), Times.Never());          // repository Update was never called
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());        // UOW complete async was never called
+    }
+
+    [Theory]
+    [InlineData(1, "HR")]
+    [InlineData(101, "IT")]
+    public async Task UpdateDepartmentAsync_ReturnsFalse_IfNoRowsAffected(int id, string name)
+    {
+        // arrange       
+        var entityToUpdate = new Department { Id = id, Name = name };
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToUpdate);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(0);                           // set up to return 0 - EF - no rows effected on DB
+
+        // act
+        var status = await departmentService.UpdateDepartmentAsync(id, new UpdateDepartmentDto { Id = id, Name = name });
+
+        // assert
+        status.Should().BeFalse();
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update an department with ID {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Department with ID {id} update unsuccessful.", Times.Once());
+
+        // verify 
+        mockDepartmentRepository.Verify(x => x.Update(It.Is<Department>(x => x.Id == id && x.Name == name)), Times.Once());          // repository Update was called once
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());        // UOW complete async called once
     }
 }

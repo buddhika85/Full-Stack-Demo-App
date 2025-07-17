@@ -226,4 +226,27 @@ public class DepartmentServiceTests
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x.Id == id && x.Name == name)), Times.Once());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    [InlineData(1011)]
+    public async Task DeleteDepartmentAsync_ReturnsFalse_IfDepartmentWithIdUnavailable(int nonExistentId)
+    {
+        // arrange
+        Department? nullDepartment = null;
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(nonExistentId)).ReturnsAsync(nullDepartment);
+
+        // act
+        var status = await departmentService.DeleteDepartmentAsync(nonExistentId);
+
+        // assert
+        status.Should().BeFalse();
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {nonExistentId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Delete failed: Department with ID {nonExistentId} not found.", Times.Once());
+
+        mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == nullDepartment)), Times.Never());
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());
+    }
 }

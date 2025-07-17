@@ -8,7 +8,6 @@ using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Emp.XUnitTests.Services;
 
@@ -248,5 +247,28 @@ public class DepartmentServiceTests
 
         mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == nullDepartment)), Times.Never());
         mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());
+    }
+
+    [Theory]
+    [InlineData(100, "HR")]
+    [InlineData(1011, "IT")]
+    public async Task DeleteDepartmentAsync_ReturnsFalse_WhenNoRowsAffected(int id, string name)
+    {
+        // arrange
+        var entityToDelete = new Department { Id = id, Name = name };
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToDelete);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(0);                               // no rows affected
+
+        // act
+        var status = await departmentService.DeleteDepartmentAsync(id);
+
+        // assert
+        status.Should().BeFalse();
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to delete department with ID: {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Department with ID {id} deletion unsuccessful.", Times.Once());
+
+        mockDepartmentRepository.Verify(x => x.Delete(It.Is<Department>(x => x == entityToDelete)), Times.Once());
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Once());
     }
 }

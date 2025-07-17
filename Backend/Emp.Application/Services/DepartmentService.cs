@@ -112,10 +112,16 @@ public class DepartmentService : IDepartmentService
         logger.LogInformation("Attempting to delete department with ID: {id}", id);
         try
         {
-            var entity = await unitOfWork.DepartmentRepository.GetByIdAsync(id);
+            var entity = await unitOfWork.DepartmentRepository.GetDepartmentWithEmployees(id);
             if (entity == null)
             {
                 logger.LogWarning("Delete failed: Department with ID {id} not found.", id);
+                return false;
+            }
+
+            if (entity.Employees.Any())
+            {
+                logger.LogWarning("Deletion of Department ID {DepartmentId} restricted: Department still has {EmployeeCount} associated employees.", id, entity.Employees.Count());
                 return false;
             }
 

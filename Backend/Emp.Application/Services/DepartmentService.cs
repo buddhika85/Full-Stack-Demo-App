@@ -79,7 +79,7 @@ public class DepartmentService : IDepartmentService
     }
     public async Task<bool> UpdateDepartmentAsync(int id, UpdateDepartmentDto departmentDto)
     {
-        logger.LogInformation("Atempting to update an department with ID {id}", id);
+        logger.LogInformation("Attempting to update an department with ID {id}", id);
         try
         {
             var entity = await unitOfWork.DepartmentRepository.GetByIdAsync(id);

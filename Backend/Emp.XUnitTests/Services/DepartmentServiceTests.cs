@@ -113,4 +113,23 @@ public class DepartmentServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to create department with name: {deptName}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Department '{deptName}' (ID: 0) created successfully.", Times.Once());
     }
+
+    [Theory]
+    [InlineData(100, "HR", "Human Resources")]
+    [InlineData(1011, "IT", "Information Technology")]
+    public async Task UpdateDepartmentAsync_ReturnsTrue_IfUpdateSuccess(int id, string name, string updatedName)
+    {
+        // arrange
+        var entityToUpdate = new Department { Id = id, Name = name };
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(entityToUpdate);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
+
+        // act
+        var status = await departmentService.UpdateDepartmentAsync(id, new UpdateDepartmentDto { Id = id, Name = updatedName });
+
+        // assert
+        status.Should().Be(true);
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update an department with ID {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Department with ID {id} updated successfully.", Times.Once());
+    }
 }

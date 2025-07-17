@@ -36,25 +36,43 @@ public class DepartmentServiceTests
     public async Task GetAllDepartmentsAsync_GetsAllDepartments_WhenCalled()
     {
         // arrange
-        var departments = new List<Department>
+        var testData = new List<Department>
             {
                 new Department { Id = 1, Name = "HR" },
                 new Department { Id = 2, Name = "IT" }
             };
-        mockDepartmentRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(departments);
+        mockDepartmentRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(testData);
 
         // act
-        var result = await departmentService.GetAllDepartmentsAsync();
+        var departments = await departmentService.GetAllDepartmentsAsync();
 
         // assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(departments.Count());
+        departments.Should().NotBeNull();
+        departments.Should().HaveCount(testData.Count());
 
         // asserting on log messages
         mockLogger.VerifyMessage(LogLevel.Information, "Attempting to get all departments", Times.Once());
-        mockLogger.VerifyMessage(LogLevel.Information, $"Retrived {departments.Count()} departments", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Retrived {testData.Count()} departments", Times.Once());
     }
 
+    [Theory]
+    [InlineData(1, "HR")]
+    [InlineData(100, "Engineering")]
+    [InlineData(10001, "IT")]
+    public async Task GetDepartmentByIdAsync_ReturnsDepartment_WhenCalledWithExistingId(int deptId, string deptName)
+    {
+        // arrange       
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(deptId)).ReturnsAsync(new Department { Id = deptId, Name = deptName });
 
+        // act
+        var departmentDto = await departmentService.GetDepartmentByIdAsync(deptId);
+
+        // assert
+        departmentDto.Should().NotBeNull();
+        departmentDto.Id.Should().Be(deptId);
+        departmentDto.Name.Should().Be(deptName);
+        mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get a department with ID {deptId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Department with id {deptId} retrieved", Times.Once());
+    }
 
 }

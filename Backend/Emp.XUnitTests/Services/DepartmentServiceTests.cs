@@ -4,6 +4,7 @@ using Emp.Core.Entities;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -75,4 +76,20 @@ public class DepartmentServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"Department with id {deptId} retrieved", Times.Once());
     }
 
+    [Fact]
+    public async Task GetDepartmentByIdAsync_ReturnsNull_WhenCalledWithNonExistentId()
+    {
+        // arrange       
+        var nonExitentId = 100;
+        Department? nullDepartment = null;
+        mockDepartmentRepository.Setup(x => x.GetByIdAsync(nonExitentId)).ReturnsAsync(nullDepartment);
+
+        // act
+        var department = await departmentService.GetDepartmentByIdAsync(nonExitentId);
+
+        // assert
+        department.Should().BeNull();
+        mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get a department with ID {nonExitentId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Department with id {nonExitentId} unavailable", Times.Once());
+    }
 }

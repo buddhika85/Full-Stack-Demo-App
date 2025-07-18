@@ -90,4 +90,25 @@ public class DepartmentControllerTests
 
         mockDepartmentService.Verify(x => x.GetAllDepartmentsAsync(), Times.Once());
     }
+
+    [Theory]
+    [InlineData(1, "HR")]
+    [InlineData(2, "IT")]
+    public async Task GetDepartment_ReturnsOkWithDepartment_WhenDepartmentWithIdExistent(int id, string name)
+    {
+        // arrange
+        var deprtmentDto = new DepartmentDto { Id = id, Name = name };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(id)).ReturnsAsync(deprtmentDto);
+
+        // act
+        var result = await departmentController.GetDepartment(id);
+
+        // assert
+        var okObjectResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        okObjectResult.StatusCode.Should().Be(200);
+        var returnedDto = okObjectResult.Value.Should().BeAssignableTo<DepartmentDto>().Subject;
+        returnedDto.Should().BeEquivalentTo(deprtmentDto);
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
+    }
 }

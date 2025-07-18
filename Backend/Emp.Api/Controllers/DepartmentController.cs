@@ -120,7 +120,7 @@ public class DepartmentController : BaseController
 
     [EndpointSummary("Deletes a department by ID")]
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteDepartment([FromRoute] int id)
+    public async Task<IActionResult> DeleteDepartment([FromRoute] int id)
     {
         try
         {

@@ -3,6 +3,8 @@ using Emp.Core.DTOs;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
@@ -49,11 +51,43 @@ public class DepartmentControllerTests
 
         // is it a OkObjectResult?
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
 
         // is ok result contains IEnumerable<DepartmentDto> ?
         var returedDepartments = okResult.Value.Should().BeAssignableTo<IEnumerable<DepartmentDto>>().Subject;
         returedDepartments.Should().NotBeNull();
         returedDepartments.Should().HaveCount(testData.Count);
         returedDepartments.Should().BeEquivalentTo(testData);
+    }
+
+    [Fact]
+    public async Task GetDepartments_ReturnsInternalServerError_OnException()
+    {
+        // arrange        
+        var exepctedProblemDetail = new ProblemDetails
+        {
+            Title = "Internal Server Error",
+            Detail = "Error occured while retreiving departments",
+            Status = StatusCodes.Status500InternalServerError
+        };
+        mockDepartmentService.Setup(x => x.GetAllDepartmentsAsync()).ThrowsAsync(new Exception());
+
+        // act
+        var result = await departmentController.GetDepartments();
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType(typeof(ActionResult<IEnumerable<DepartmentDto>>));
+
+        var internalServerErrorResult = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        internalServerErrorResult.StatusCode.Should().Be(500);
+
+        var probelmDetail = internalServerErrorResult.Value.Should().BeOfType<ProblemDetails>().Subject;
+        probelmDetail.Should().BeEquivalentTo(exepctedProblemDetail);
+
+        mockLogger.VerifyMessage(LogLevel.Information, "API: GetDepartments endpoint called (cached).", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, "Error occured while retreiving departments", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetAllDepartmentsAsync(), Times.Once());
     }
 }

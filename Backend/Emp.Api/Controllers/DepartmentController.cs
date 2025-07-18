@@ -29,7 +29,9 @@ public class DepartmentController : BaseController
     {
         try
         {
-            return Ok(await departmentService.GetAllDepartmentsAsync());
+            var result = await departmentService.GetAllDepartmentsAsync();
+            logger.Log(LogLevel.Information, "API: GetDepartments endpoint called (cached).");
+            return Ok(result);
         }
         catch (Exception ex)
         {

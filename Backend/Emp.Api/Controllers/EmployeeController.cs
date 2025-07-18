@@ -30,7 +30,9 @@ public class EmployeeController : BaseController
     {
         try
         {
-            return Ok(await employeeService.GetAllEmployeesAsync());
+            var result = await employeeService.GetAllEmployeesAsync();
+            logger.Log(LogLevel.Information, "API: GetEmployees endpoint called (cached).");
+            return Ok(result);
         }
         catch (Exception ex)
         {

@@ -111,4 +111,14 @@ public class DepartmentControllerTests
 
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
     }
+
+    [Fact]
+    public async Task GetDepartment_ReturnsNotFoundResult_WhenDepartmentWithIdNonExistent()
+    {
+        // arrange
+
+        // act
+
+        // assert
+    }
 }

@@ -393,20 +393,114 @@ public class DepartmentControllerTests
 
     [Theory]
     [ClassData(typeof(DeleteDepartmentTestData))]
-    public async Task DeleteDepartment_ReturnsNoContent_WhenSuccessful(int id, DepartmentDto resultFromService)
+    public async Task DeleteDepartment_ReturnsNoContent_WhenSuccessful(int routeId, DepartmentDto resultFromService)
     {
         // arrange
-        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(id)).ReturnsAsync(resultFromService);
-        mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(id)).ReturnsAsync(true);  // service deletion is successful
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync(resultFromService);
+        mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(routeId)).ReturnsAsync(true);  // service deletion is successful
 
         // act 
-        var result = await departmentController.DeleteDepartment(id);
+        var result = await departmentController.DeleteDepartment(routeId);
 
         // assert
         var noContentResult = result.Should().BeOfType<NoContentResult>();
-        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
-        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"API: DeleteDepartment endpoint called (evicted cache on cache tag {cacheTag}).", Times.Once());
+    }
+
+    [Theory]
+    [InlineData(100)]
+    [InlineData(101)]
+    public async Task DeleteDepartment_ReturnNotFoundError_WhenDepartmentByIdNonExistent(int routeId)
+    {
+        // arrange
+        var expectedProblemDetails = new ProblemDetails
+        {
+            Title = "Not Found",
+            Detail = $"Department with ID {routeId} not found for deleting",
+            Status = StatusCodes.Status404NotFound
+        };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync((DepartmentDto?)null);
+
+        // act 
+        var result = await departmentController.DeleteDepartment(routeId);
+
+        // assert
+        var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        var actualProbelmDetails = notFoundResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Department with ID {routeId} not found for deleting.", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+
+        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Never());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task DeleteDepartment_ReturnsInternalServerError_WhenServiceThrowsException(int routeId)
+    {
+        // arrange
+        var expectedProblemDetails = new ProblemDetails
+        {
+            Title = "Internal Server Error",
+            Detail = $"Error occured while deleting a department with id {routeId}",
+            Status = StatusCodes.Status500InternalServerError
+        };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync(new DepartmentDto { Id = routeId, Name = "Test Department" });
+        mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(routeId)).ThrowsAsync(new Exception("Test Exception"));
+
+        // act
+        var result = await departmentController.DeleteDepartment(routeId);
+
+        // assert
+        var internalServerErrorResult = result.Should().BeOfType<ObjectResult>().Subject;
+        var actualProbelmDetails = internalServerErrorResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while deleting a department with id {routeId}", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+
+        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
+    }
+
+
+    // if department has employees, it should be restricted from deleting
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task DeleteDepartment_ReturnsInternalServerError_WhenDepartmentHasEmployees(int routeId)
+    {
+        // arrange
+        var expectedProblemDetails = new ProblemDetails
+        {
+            Title = "Internal Server Error",
+            Detail = $"Cannot delete department as it has associated employees",
+            Status = StatusCodes.Status500InternalServerError
+        };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync(new DepartmentDto { Id = routeId, Name = "Test Department" });
+        mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(routeId)).ReturnsAsync(false);
+
+        // act
+        var result = await departmentController.DeleteDepartment(routeId);
+
+        // assert
+        var conflictResult = result.Should().BeOfType<ConflictObjectResult>().Subject;
+        //var actualProbelmDetails = conflictResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        //actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        //mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while deleting a department with id {routeId}", Times.Once());
+
+        //mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+
+        //mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
+        //mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
 }

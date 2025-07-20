@@ -137,7 +137,7 @@ public class DepartmentController : BaseController
             if (!await departmentService.DeleteDepartmentAsync(id))
             {
                 logger.LogWarning("Delete failed: Department with ID {Id} has associated employees.", id);
-                return Conflict("Cannot delete department as it has associated employees");
+                return ConflictError("Cannot delete department as it has associated employees");
             }
 
             await outputCacheStore.EvictByTagAsync(cacheTag, default);

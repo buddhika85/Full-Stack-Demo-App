@@ -37,4 +37,15 @@ public class BaseController : ControllerBase
         };
         return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
     }
+
+    protected ActionResult ConflictError(string detail, string title = "Conflict Error")
+    {
+        var problemDetails = new ProblemDetails
+        {
+            Title = title,
+            Detail = detail,
+            Status = StatusCodes.Status409Conflict
+        };
+        return Conflict(problemDetails);
+    }
 }

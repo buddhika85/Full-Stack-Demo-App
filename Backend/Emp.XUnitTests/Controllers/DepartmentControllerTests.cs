@@ -5,6 +5,7 @@ using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
@@ -114,7 +115,7 @@ public class DepartmentControllerTests
 
     [Theory]
     [InlineData(0)]
-    //[InlineData(100)]
+    [InlineData(100)]
     public async Task GetDepartment_ReturnsNotFoundResult_WhenDepartmentWithIdNonExistent(int nonExistentId)
     {
         // arrange
@@ -135,5 +136,26 @@ public class DepartmentControllerTests
         mockLogger.VerifyMessage(LogLevel.Warning, $"Department with ID {nonExistentId} not found", Times.Once());
 
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == nonExistentId)), Times.Once());
+    }
+
+    [Fact]
+    public async Task GetDepartment_ReturnsInternalServerError_OnException()
+    {
+        // arrange
+        var testId = 1;
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(testId)).ThrowsAsync(new Exception("Test Exception"));
+
+        // act
+        var result = await departmentController.GetDepartment(testId);
+
+        // assert
+        var internalServerErrorResult = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        var problemDetails = internalServerErrorResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        problemDetails.Status.Should().Be(500);
+        problemDetails.Title.Should().Be("Internal Server Error");
+        problemDetails.Detail.Should().Be($"An error occurred while retrieving a department by ID {testId}.");
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == testId)), Times.Once);
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while retreiving a department by Id {testId}", Times.Once());
     }
 }

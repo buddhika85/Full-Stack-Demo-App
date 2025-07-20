@@ -481,9 +481,9 @@ public class DepartmentControllerTests
         // arrange
         var expectedProblemDetails = new ProblemDetails
         {
-            Title = "Internal Server Error",
+            Title = "Conflict Error",
             Detail = $"Cannot delete department as it has associated employees",
-            Status = StatusCodes.Status500InternalServerError
+            Status = StatusCodes.Status409Conflict
         };
         mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync(new DepartmentDto { Id = routeId, Name = "Test Department" });
         mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(routeId)).ReturnsAsync(false);
@@ -493,14 +493,14 @@ public class DepartmentControllerTests
 
         // assert
         var conflictResult = result.Should().BeOfType<ConflictObjectResult>().Subject;
-        //var actualProbelmDetails = conflictResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
-        //actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+        var actualProbelmDetails = conflictResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
 
-        //mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while deleting a department with id {routeId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Delete failed: Department with ID {routeId} has associated employees.", Times.Once());
 
-        //mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
 
-        //mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
-        //mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
+        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
 }

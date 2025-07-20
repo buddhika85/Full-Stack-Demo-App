@@ -265,4 +265,32 @@ public class DepartmentControllerTests
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateDepartment endpoint called (evicted cache on cache tag {cacheTag}).", Times.Once());
     }
+
+    [Theory]
+    [InlineData(1, 2, "HR")]
+    public async Task UpdateDepartment_ReturnsValidationError_WhenIdMismatch(int routeId, int dtoId, string updatedName)
+    {
+        // arrange
+        var updateDto = new UpdateDepartmentDto { Id = dtoId, Name = updatedName };
+        var expectedProblemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
+        {
+            ["id"] = new string[] { $"UpdateDepartment BadRequest - ID mismatch. Route ID: {routeId}, DTO ID: {dtoId}" },
+        });
+
+        // act
+        var result = await departmentController.UpdateDepartment(routeId, updateDto);
+
+        // assert
+        var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        var actualProblemDetails = badRequestResult.Value.Should().BeAssignableTo<ValidationProblemDetails>().Subject;
+        actualProblemDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"UpdateDepartment BadRequest - ID mismatch. Route ID: {routeId}, DTO ID: {dtoId}.", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Never());
+        mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == routeId), It.Is<UpdateDepartmentDto>(x => x == updateDto)), Times.Never());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
+    }
 }

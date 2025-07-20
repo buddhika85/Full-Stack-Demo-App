@@ -216,4 +216,34 @@ public class DepartmentControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while creating a department with name {createDepartmentDto.Name}", Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
     }
+
+    [Theory]
+    [InlineData("HR")]
+    [InlineData("IT")]
+    public async Task CreateDepartment_ReturnsInternalServerError_WhenServiceThrowsException(string deptName)
+    {
+        // arrange
+        var expectedProblemDetail = new ProblemDetails
+        {
+            Detail = $"Error occured while creating a department with name {deptName}",
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Internal Server Error"
+        };
+        var createDepartmentDto = new CreateDepartmentDto { Name = deptName };
+        mockDepartmentService.Setup(x => x.CreateDepartmentAsync(createDepartmentDto)).Throws(new Exception("Test Exception"));
+
+        // act
+        var result = await departmentController.CreateDepartment(createDepartmentDto);
+
+        // assert
+        var internalServerErrorResult = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        internalServerErrorResult.StatusCode.Should().Be(500);
+
+        var problemDetails = internalServerErrorResult.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problemDetails.Should().BeEquivalentTo(expectedProblemDetail);
+
+        mockDepartmentService.Verify(x => x.CreateDepartmentAsync(It.Is<CreateDepartmentDto>(x => x == createDepartmentDto)), Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while creating a department with name {createDepartmentDto.Name}", Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
+    }
 }

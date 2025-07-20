@@ -78,6 +78,7 @@ public class DepartmentController : BaseController
             }
 
             await outputCacheStore.EvictByTagAsync(cacheTag, default);
+            logger.Log(LogLevel.Information, $"API: CreateDepartment endpoint called (evicted cache on cache tag {cacheTag}).");
             return CreatedAtAction(nameof(GetDepartment), new { id = dto.Id }, dto);
         }
         catch (Exception ex)
@@ -111,6 +112,7 @@ public class DepartmentController : BaseController
                 return InternalServerError($"Error occured while updating a department with id {id}");
             }
             await outputCacheStore.EvictByTagAsync(cacheTag, default);
+            logger.Log(LogLevel.Information, $"API: UpdateDepartment endpoint called (evicted cache on cache tag {cacheTag}).");
             return NoContent();
         }
         catch (Exception ex)
@@ -139,6 +141,7 @@ public class DepartmentController : BaseController
             }
 
             await outputCacheStore.EvictByTagAsync(cacheTag, default);
+            logger.Log(LogLevel.Information, $"API: DeleteDepartment endpoint called (evicted cache on cache tag {cacheTag}).");
             return NoContent();     // Ok($"Department with id {id} deleted.");
         }
         catch (Exception ex)

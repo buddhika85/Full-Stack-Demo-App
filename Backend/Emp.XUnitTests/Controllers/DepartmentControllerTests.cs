@@ -158,4 +158,6 @@ public class DepartmentControllerTests
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == testId)), Times.Once);
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while retreiving a department by Id {testId}", Times.Once());
     }
+
+
 }

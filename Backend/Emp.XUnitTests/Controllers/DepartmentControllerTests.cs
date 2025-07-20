@@ -268,6 +268,7 @@ public class DepartmentControllerTests
 
     [Theory]
     [InlineData(1, 2, "HR")]
+    [InlineData(0, 1, "IT")]
     public async Task UpdateDepartment_ReturnsValidationError_WhenIdMismatch(int routeId, int dtoId, string updatedName)
     {
         // arrange
@@ -292,5 +293,36 @@ public class DepartmentControllerTests
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Never());
         mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == routeId), It.Is<UpdateDepartmentDto>(x => x == updateDto)), Times.Never());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
+    }
+
+    [Theory]
+    [InlineData(100, "HR")]
+    [InlineData(101, "IT")]
+    public async Task UpdateDepartment_ReturnNotFoundError_WhenDepartmentByIdNonExistent(int routeId, string updatedName)
+    {
+        // arrange
+        var updateDto = new UpdateDepartmentDto { Id = routeId, Name = updatedName };
+        var expectedProblemDetails = new ProblemDetails
+        {
+            Title = "Not Found",
+            Detail = $"Department with ID {routeId} not found for updates",
+            Status = StatusCodes.Status404NotFound
+        };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync((DepartmentDto?)null);
+
+        // act
+        var result = await departmentController.UpdateDepartment(routeId, updateDto);
+
+        // assert
+        var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        var actualProbelmDetails = notFoundResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Department with ID {routeId} not found for updates.", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+
+        mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == routeId), It.Is<UpdateDepartmentDto>(x => x == updateDto)), Times.Never());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
 }

@@ -246,4 +246,23 @@ public class DepartmentControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while creating a department with name {createDepartmentDto.Name}", Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
     }
+
+    [Theory]
+    [ClassData(typeof(UpdateDepartmentTestData))]
+    public async Task UpdateDepartment_ReturnsNoContent_WhenValidInputsProvided(int id, DepartmentDto resultFromService, UpdateDepartmentDto updateDepartmentDto)
+    {
+        // arrange
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(id)).ReturnsAsync(resultFromService);
+        mockDepartmentService.Setup(x => x.UpdateDepartmentAsync(id, updateDepartmentDto)).ReturnsAsync(true);  // service update is successful
+
+        // act 
+        var result = await departmentController.UpdateDepartment(id, updateDepartmentDto);
+
+        // assert
+        var noContentResult = result.Should().BeOfType<NoContentResult>();
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == id), It.Is<UpdateDepartmentDto>(x => x == updateDepartmentDto)), Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateDepartment endpoint called (evicted cache on cache tag {cacheTag}).", Times.Once());
+    }
 }

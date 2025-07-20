@@ -359,22 +359,35 @@ public class DepartmentControllerTests
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
 
-    //[Theory]
-    //[InlineData(100, "HR")]
-    //[InlineData(101, "IT")]
-    //public async Task UpdateDepartment_ReturnsInternalServerError_WhenServiceThrowsException(int routeId, string updatedName)
-    //{
-    //    // arrange
-    //    var updateDto = new UpdateDepartmentDto { Id = routeId, Name = updatedName };
-    //    var expectedProblemDetails = new ProblemDetails
-    //    {
-    //        Title = "Internal Server Error",
-    //        Detail = $"Error occured while updating a department with id {routeId}",
-    //        Status = StatusCodes.Status500InternalServerError
-    //    };
+    [Theory]
+    [InlineData(100, "HR")]
+    [InlineData(101, "IT")]
+    public async Task UpdateDepartment_ReturnsInternalServerError_WhenServiceThrowsException(int routeId, string updatedName)
+    {
+        // arrange
+        var updateDto = new UpdateDepartmentDto { Id = routeId, Name = updatedName };
+        var expectedProblemDetails = new ProblemDetails
+        {
+            Title = "Internal Server Error",
+            Detail = $"Error occured while updating a department with id {routeId}",
+            Status = StatusCodes.Status500InternalServerError
+        };
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(routeId)).ReturnsAsync(new DepartmentDto { Id = routeId, Name = "Test Department" });
+        mockDepartmentService.Setup(x => x.UpdateDepartmentAsync(routeId, updateDto)).ThrowsAsync(new Exception("Test Exception"));
 
-    //    // act
+        // act
+        var result = await departmentController.UpdateDepartment(routeId, updateDto);
 
-    //    // assert
-    //}
+        // assert
+        var internalServerErrorResult = result.Should().BeOfType<ObjectResult>().Subject;
+        var actualProbelmDetails = internalServerErrorResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        actualProbelmDetails.Should().BeEquivalentTo(expectedProblemDetails);
+
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while updating a department with id {routeId}", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == routeId)), Times.Once());
+
+        mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == routeId), It.Is<UpdateDepartmentDto>(x => x == updateDto)), Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
+    }
 }

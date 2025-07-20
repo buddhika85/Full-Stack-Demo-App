@@ -1,5 +1,4 @@
-﻿
-using Emp.Core.Entities;
+﻿using Emp.Core.Entities;
 
 namespace Emp.XUnitTests.TestData;
 

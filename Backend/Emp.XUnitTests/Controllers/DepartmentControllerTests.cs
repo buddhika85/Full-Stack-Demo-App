@@ -1,11 +1,10 @@
 ﻿using Emp.Api.Controllers;
 using Emp.Core.DTOs;
-using Emp.Core.Entities;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
@@ -159,5 +158,41 @@ public class DepartmentControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while retreiving a department by Id {testId}", Times.Once());
     }
 
+    [Theory]
+    [ClassData(typeof(CreateDepartmentTestData))]
+    public async Task CreateDepartment_ReturnsCreatedResult_WhenSuccessful(CreateDepartmentDto createDepartmentDto, DepartmentDto departmentDtoExpected)
+    {
+        // arrange
+        const string cacheTag = "departments";
+        const string logMessage = $"API: CreateDepartment endpoint called (evicted cache on cache tag {cacheTag}).";
+        mockDepartmentService.Setup(x => x.CreateDepartmentAsync(createDepartmentDto)).ReturnsAsync(departmentDtoExpected);
 
+        // act
+        var result = await departmentController.CreateDepartment(createDepartmentDto);
+
+        // assert
+        var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
+        createdResult.StatusCode.Should().Be(201);
+        createdResult.ActionName.Should().Be("GetDepartment");
+        createdResult.RouteValues.Should().HaveCount(1);
+        createdResult.RouteValues["id"].Should().BeEquivalentTo(departmentDtoExpected.Id);
+
+
+        var departmentDtoActual = createdResult.Value.Should().BeAssignableTo<DepartmentDto>().Subject;
+        departmentDtoActual.Should().NotBeNull();
+        departmentDtoActual.Should().BeEquivalentTo(departmentDtoExpected);
+
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, logMessage, Times.Once());
+    }
+
+    [Fact]
+    public async Task CreateDepartment_ReturnsCreatedResult_WhenSuccessful()
+    {
+        // arrange
+
+        // act
+
+        // assert
+    }
 }

@@ -30,6 +30,8 @@ public class DepartmentControllerTests
         departmentController = new DepartmentController(mockDepartmentService.Object, mockLogger.Object, mockOutputCacheStore.Object);
     }
 
+    #region Get_All
+
     [Fact]
     public async Task GetDepartments_ReturnsOkWithAllDepartments_WhenCalled()
     {
@@ -91,6 +93,11 @@ public class DepartmentControllerTests
 
         mockDepartmentService.Verify(x => x.GetAllDepartmentsAsync(), Times.Once());
     }
+
+    #endregion  
+
+
+    #region Get_By_Id
 
     [Theory]
     [InlineData(1, "HR")]
@@ -158,6 +165,11 @@ public class DepartmentControllerTests
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == testId)), Times.Once);
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while retreiving a department by Id {testId}", Times.Once());
     }
+
+    #endregion  
+
+
+    #region Create
 
     [Theory]
     [ClassData(typeof(CreateDepartmentTestData))]
@@ -246,6 +258,11 @@ public class DepartmentControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"Error occured while creating a department with name {createDepartmentDto.Name}", Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Never());
     }
+
+    #endregion 
+
+
+    #region Update
 
     [Theory]
     [ClassData(typeof(UpdateDepartmentTestData))]
@@ -390,6 +407,10 @@ public class DepartmentControllerTests
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
 
+    #endregion
+
+
+    #region Delete
 
     [Theory]
     [ClassData(typeof(DeleteDepartmentTestData))]
@@ -503,4 +524,6 @@ public class DepartmentControllerTests
         mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == routeId)), Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
     }
+
+    #endregion 
 }

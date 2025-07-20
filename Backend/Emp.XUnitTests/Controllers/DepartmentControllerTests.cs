@@ -1,10 +1,10 @@
 ﻿using Emp.Api.Controllers;
 using Emp.Core.DTOs;
+using Emp.Core.Entities;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
@@ -112,13 +112,28 @@ public class DepartmentControllerTests
         mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
     }
 
-    [Fact]
-    public async Task GetDepartment_ReturnsNotFoundResult_WhenDepartmentWithIdNonExistent()
+    [Theory]
+    [InlineData(0)]
+    //[InlineData(100)]
+    public async Task GetDepartment_ReturnsNotFoundResult_WhenDepartmentWithIdNonExistent(int nonExistentId)
     {
         // arrange
+        DepartmentDto? nullDepartment = null;
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(nonExistentId)).ReturnsAsync(nullDepartment);
 
         // act
+        var result = await departmentController.GetDepartment(nonExistentId);
 
         // assert
+        var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        notFoundResult.StatusCode.Should().Be(404);
+
+        var problemDetails = notFoundResult.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problemDetails.Title.Should().Be("Not Found");
+        problemDetails.Detail.Should().Be($"Department with ID {nonExistentId} not found");
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Department with ID {nonExistentId} not found", Times.Once());
+
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == nonExistentId)), Times.Once());
     }
 }

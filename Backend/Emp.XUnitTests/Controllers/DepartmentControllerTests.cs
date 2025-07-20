@@ -5,7 +5,6 @@ using Emp.XUnitTests.Helpers;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
@@ -250,7 +249,7 @@ public class DepartmentControllerTests
 
     [Theory]
     [ClassData(typeof(UpdateDepartmentTestData))]
-    public async Task UpdateDepartment_ReturnsNoContent_WhenValidInputsProvided(int id, DepartmentDto resultFromService, UpdateDepartmentDto updateDepartmentDto)
+    public async Task UpdateDepartment_ReturnsNoContent_WhenSuccessful(int id, DepartmentDto resultFromService, UpdateDepartmentDto updateDepartmentDto)
     {
         // arrange
         mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(id)).ReturnsAsync(resultFromService);
@@ -389,5 +388,25 @@ public class DepartmentControllerTests
 
         mockDepartmentService.Verify(x => x.UpdateDepartmentAsync(It.Is<int>(x => x == routeId), It.Is<UpdateDepartmentDto>(x => x == updateDto)), Times.Once());
         mockOutputCacheStore.Verify(x => x.EvictByTagAsync(It.Is<string>(x => x == cacheTag), default), Times.Never());
+    }
+
+
+    [Theory]
+    [ClassData(typeof(DeleteDepartmentTestData))]
+    public async Task DeleteDepartment_ReturnsNoContent_WhenSuccessful(int id, DepartmentDto resultFromService)
+    {
+        // arrange
+        mockDepartmentService.Setup(x => x.GetDepartmentByIdAsync(id)).ReturnsAsync(resultFromService);
+        mockDepartmentService.Setup(x => x.DeleteDepartmentAsync(id)).ReturnsAsync(true);  // service deletion is successful
+
+        // act 
+        var result = await departmentController.DeleteDepartment(id);
+
+        // assert
+        var noContentResult = result.Should().BeOfType<NoContentResult>();
+        mockDepartmentService.Verify(x => x.GetDepartmentByIdAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockDepartmentService.Verify(x => x.DeleteDepartmentAsync(It.Is<int>(x => x == id)), Times.Once());
+        mockOutputCacheStore.Verify(x => x.EvictByTagAsync(cacheTag, default), Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: DeleteDepartment endpoint called (evicted cache on cache tag {cacheTag}).", Times.Once());
     }
 }

@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Your custom SCSS below
+$primary-color: #4f46e5;
+
+.btn {
+  @apply px-4 py-2 rounded text-white;
+  background-color: $primary-color;
+}

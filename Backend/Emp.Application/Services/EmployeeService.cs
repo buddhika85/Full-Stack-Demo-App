@@ -93,7 +93,6 @@ public class EmployeeService : IEmployeeService
                 logger.LogWarning("Updated Failed: Employee with id {id} unavailable", id);
                 return false;
             }
-
             employeeDto.MapToEntity(entity);
             unitOfWork.EmployeeRepository.Update(entity);
             if (await unitOfWork.CompleteAsync() > 0)

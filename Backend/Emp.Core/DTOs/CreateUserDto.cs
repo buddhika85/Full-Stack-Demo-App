@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Emp.Core.Enums;
+using System.ComponentModel.DataAnnotations;
 
+namespace Emp.Core.DTOs;
 
-namespace Emp.Core.Entities;
-
-public class User : BaseEntity
+public class CreateUserDto
 {
     [Required]
     [MaxLength(50)]
@@ -11,8 +11,8 @@ public class User : BaseEntity
     public required string Username { get; set; }
 
     [Required]
-    public string PasswordHash { get; set; } = string.Empty;
-
+    [MinLength(6)]
+    public required string Password { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -22,10 +22,7 @@ public class User : BaseEntity
     [MaxLength(100)]
     public required string LastName { get; set; }
 
-
     [Required]
     [MaxLength(20)]
-    public required string Role { get; set; }
-
-    public bool IsActive { get; set; } = true;
+    public UserRoles Role { get; set; } = UserRoles.Staff;
 }

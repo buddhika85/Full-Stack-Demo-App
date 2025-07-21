@@ -1,17 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Emp.Core.Enums;
+using System.ComponentModel.DataAnnotations;
 
+namespace Emp.Core.DTOs;
 
-namespace Emp.Core.Entities;
-
-public class User : BaseEntity
+public class UserDto : BaseDto
 {
     [Required]
     [MaxLength(50)]
     [EmailAddress]
     public required string Username { get; set; }
-
-    [Required]
-    public string PasswordHash { get; set; } = string.Empty;
 
 
     [Required]
@@ -23,9 +20,8 @@ public class User : BaseEntity
     public required string LastName { get; set; }
 
 
-    [Required]
-    [MaxLength(20)]
-    public required string Role { get; set; }
+
+    public required UserRoles Role { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

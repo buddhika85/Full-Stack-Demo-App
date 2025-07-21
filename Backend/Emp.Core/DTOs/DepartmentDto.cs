@@ -1,7 +1,6 @@
 ﻿namespace Emp.Core.DTOs;
 
-public class DepartmentDto
+public class DepartmentDto : BaseDto
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 }

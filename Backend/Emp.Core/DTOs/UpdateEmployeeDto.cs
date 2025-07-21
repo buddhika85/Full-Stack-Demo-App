@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Emp.Core.DTOs;
 
-public class UpdateEmployeeDto
+public class UpdateEmployeeDto : BaseDto
 {
-    public int Id { get; set; }
     [Required]
     [MaxLength(100)]
     [FirstLetterUpperCase(ErrorMessage = "First name must start with an uppercase letter.")] // Applied custom validation

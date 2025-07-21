@@ -1,0 +1,26 @@
+<mat-toolbar>
+  <mat-toolbar-row class="app-toolbar">
+    <span class="brand">{{ title() }}</span>
+
+    <span class="spacer"></span>
+
+    <button mat-button routerLink="/dashboard" class="nav-button">
+      Dashboard
+    </button>
+    <button mat-button routerLink="/profile" class="nav-button">
+      Register
+    </button>
+    <button mat-button [matMenuTriggerFor]="menu" class="nav-button">
+      More
+    </button>
+
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item routerLink="/settings" class="nav-menu-item">
+        Login
+      </button>
+      <button mat-menu-item routerLink="/help" class="nav-menu-item">
+        Register
+      </button>
+    </mat-menu>
+  </mat-toolbar-row>
+</mat-toolbar>

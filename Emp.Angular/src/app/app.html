@@ -1,1 +1,11 @@
-<h1 class="text-center">Angular Application</h1>
+<div class="app-root bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+  <app-navbar />
+
+  <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+    <router-outlet>
+      <!-- components gets loaded here -->
+    </router-outlet>
+  </main>
+
+  <app-footer />
+</div>

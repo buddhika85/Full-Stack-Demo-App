@@ -1,0 +1,22 @@
+.app-toolbar {
+  @apply bg-white text-gray-900 border-b border-gray-200 px-4 py-2;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: 0.025em;
+  font-family: "Inter", sans-serif;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.nav-button {
+  @apply text-gray-700 hover:text-blue-600 transition-colors;
+}
+
+.nav-menu-item {
+  @apply text-gray-700 hover:text-blue-600;
+}

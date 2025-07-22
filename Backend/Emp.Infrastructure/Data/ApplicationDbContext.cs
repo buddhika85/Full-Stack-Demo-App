@@ -1,5 +1,7 @@
 ﻿using Emp.Core.Entities;
+using Emp.Core.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 
 namespace Emp.Infrastructure.Data;
@@ -38,6 +40,17 @@ public class ApplicationDbContext : DbContext
             new Employee { Id = 1, FirstName = "John", LastName = "Doe", Email = "john.doe@example.com", DepartmentId = 2 },
             new Employee { Id = 2, FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com", DepartmentId = 1 },
             new Employee { Id = 3, FirstName = "Peter", LastName = "Jones", Email = "peter.jones@example.com", DepartmentId = 2 }
+        );
+
+        // Configure unique index for Username (email) in User table
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
+
+        // Seed initial data for Users (using Roles enum and new fields)
+        modelBuilder.Entity<User>().HasData(
+            new User { Id = 1, Username = "admin@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), Role = UserRoles.Admin.ToString(), IsActive = true, FirstName = "Admin", LastName = "User" },
+            new User { Id = 2, Username = "staff@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Staff@123"), Role = UserRoles.Staff.ToString(), IsActive = true, FirstName = "Staff", LastName = "Member" }
         );
     }
 }

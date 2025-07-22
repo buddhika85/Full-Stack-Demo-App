@@ -10,8 +10,13 @@ public class User : BaseEntity
     [EmailAddress]
     public required string Username { get; set; }
 
+
+    // When we later verify a password using BCrypt.Net.BCrypt.Verify(enteredPassword, storedPasswordHash),
+    // the BCrypt.Net library intelligently extracts the salt from the storedPasswordHash string
+    // and uses it to re-hash the enteredPassword for comparison.
+    // This is one of the convenient features of BCrypt. We do not need to manually store the salt in DB. More secured.
     [Required]
-    public string PasswordHash { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;            // Uses Bcrypt.Hashing - so salt and hash and combined and stored
 
 
     [Required]

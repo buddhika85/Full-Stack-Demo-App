@@ -49,8 +49,8 @@ public class ApplicationDbContext : DbContext
 
         // Seed initial data for Users (using Roles enum and new fields)
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Username = "admin@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), Role = UserRoles.Admin.ToString(), IsActive = true, FirstName = "Admin", LastName = "User" },
-            new User { Id = 2, Username = "staff@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Staff@123"), Role = UserRoles.Staff.ToString(), IsActive = true, FirstName = "Staff", LastName = "Member" }
+            new User { Id = 1, Username = "admin@emp.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), Role = UserRoles.Admin.ToString(), IsActive = true, FirstName = "Admin", LastName = "User" },
+            new User { Id = 2, Username = "staff@emp.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Staff@123"), Role = UserRoles.Staff.ToString(), IsActive = true, FirstName = "Staff", LastName = "Member" }
         );
     }
 }

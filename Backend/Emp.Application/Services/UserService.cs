@@ -4,7 +4,6 @@ using Emp.Core.Extensions;
 using Emp.Core.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
-
 namespace Emp.Application.Services;
 
 public class UserService : IUserService
@@ -84,6 +83,41 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<bool> UpdateUserAsync(int id, UpdateUserDto userDto)
+    {
+        logger.LogInformation("Attempting to update a user with id {id} and username/email {Username}", id, userDto.Username);
+        try
+        {
+            var entity = await unitOfWork.UserRepository.GetByIdAsync(id);
+            if (entity == null)
+            {
+                logger.LogError("User updated failed: User with id {id} unavailable", id);
+                return false;
+            }
+
+            var userByUsername = await unitOfWork.UserRepository.GetByUsernameAsync(userDto.Username);
+            if (userByUsername != null && userByUsername.Id != id)
+            {
+                logger.LogWarning("User updated failed: A different User with same username/email {Username} already available", userDto.Username);
+                return false;
+            }
+
+            userDto.MapToEntity(entity);
+            unitOfWork.UserRepository.Update(entity);
+            if (await unitOfWork.CompleteAsync() > 0)
+            {
+                logger.LogInformation("User with id {id} and username/email {Username} update successful", id, userDto.Username);
+                return true;
+            }
+            logger.LogError("Updating User with id {id} and username/email {Username} unsuccessful", id, userDto.Username);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in updating User with id {id} and username/email {Username}", id, userDto.Username);
+            throw;
+        }
+    }
 
     public Task<string?> AuthenticateUserAsync(LoginDto loginDto)
     {
@@ -106,10 +140,7 @@ public class UserService : IUserService
         throw new NotImplementedException();
     }
 
-    public Task<bool> UpdateUserAsync(int id, UpdateUserDto userDto)
-    {
-        throw new NotImplementedException();
-    }
+
 
     public Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto userProfileDto)
     {

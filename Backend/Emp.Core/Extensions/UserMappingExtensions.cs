@@ -7,9 +7,8 @@ namespace Emp.Core.Extensions;
 
 public static class UserMappingExtensions
 {
-    public static UserDto? ToDto(this User user)
+    public static UserDto ToDto(this User user)
     {
-        if (user == null) return null;
         return new UserDto
         {
             Id = user.Id,
@@ -21,15 +20,13 @@ public static class UserMappingExtensions
         };
     }
 
-    public static IEnumerable<UserDto> ToDto(this IEnumerable<User> users)
+    public static IEnumerable<UserDto> ToDtos(this IEnumerable<User> users)
     {
-        return users.Select(u => u.ToDto());
+        return users.Select(ToDto);
     }
 
-    public static User? ToEntity(this CreateUserDto createUserDto)
+    public static User ToEntity(this CreateUserDto createUserDto)
     {
-        if (createUserDto == null)
-            return null;
         return new User
         {
             Username = createUserDto.Username,

@@ -8,15 +8,20 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext context;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentsRepository;
+    private readonly IUserRepository _userRepository;
 
     public IEmployeeRepository EmployeeRepository => _employeeRepository;
     public IDepartmentRepository DepartmentRepository => _departmentsRepository;
-
-    public UnitOfWork(ApplicationDbContext context, IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository)
+    public IUserRepository UserRepository => _userRepository;
+    public UnitOfWork(ApplicationDbContext context,
+        IEmployeeRepository employeeRepository,
+        IDepartmentRepository departmentRepository,
+        IUserRepository userRepository)
     {
         this.context = context;
         _employeeRepository = employeeRepository;
         _departmentsRepository = departmentRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<int> CompleteAsync()

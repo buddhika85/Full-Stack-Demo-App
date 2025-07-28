@@ -8,5 +8,7 @@ public interface IUnitOfWork : IDisposable
 
     public IDepartmentRepository DepartmentRepository { get; }
 
+    public IUserRepository UserRepository { get; }
+
     Task<int> CompleteAsync();
 }

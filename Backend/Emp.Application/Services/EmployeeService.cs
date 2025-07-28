@@ -56,9 +56,9 @@ public class EmployeeService : IEmployeeService
 
     public async Task<EmployeeDto?> CreateEmployeeAsync(CreateEmployeeDto employeeDto)
     {
+        logger.LogInformation("Attempting to create employee with email: {Email}", employeeDto.Email);
         try
         {
-            logger.LogInformation("Attempting to create employee with email: {Email}", employeeDto.Email);
             var entity = employeeDto.ToEntity();
             await unitOfWork.EmployeeRepository.AddAsync(entity);
             if (await unitOfWork.CompleteAsync() > 0)

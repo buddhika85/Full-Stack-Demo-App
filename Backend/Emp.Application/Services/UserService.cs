@@ -55,6 +55,36 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<UserDto?> CreateUserAsync(CreateUserDto userDto)
+    {
+        logger.LogInformation("Attempting to create user with username/email: {Username}", userDto.Username);
+        try
+        {
+            if (await unitOfWork.UserRepository.IsExistsAsync(userDto.Username))
+            {
+                logger.LogWarning("User creation failed: Username '{Username}' already exists.", userDto.Username);
+                throw new InvalidOperationException($"Username '{userDto.Username}' already exists.");
+            }
+
+            var user = userDto.ToEntity();
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            await unitOfWork.UserRepository.AddAsync(user);
+            if (await unitOfWork.CompleteAsync() > 0)
+            {
+                logger.LogInformation("User with username/email {username} created successfully", userDto.Username);
+                return user.ToDto();
+            }
+            logger.LogError("User with username/email {username} creation failed", userDto.Username);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error creating a user with username/email {username}", userDto.Username);
+            throw;
+        }
+    }
+
+
     public Task<string?> AuthenticateUserAsync(LoginDto loginDto)
     {
         throw new NotImplementedException();
@@ -65,17 +95,11 @@ public class UserService : IUserService
         throw new NotImplementedException();
     }
 
-    public Task<UserDto> CreateUserAsync(CreateUserDto userDto)
-    {
-        throw new NotImplementedException();
-    }
 
     public Task<bool> DeactivateUserAsync(int id)
     {
         throw new NotImplementedException();
     }
-
-
 
     public Task<UserProfileDto?> GetUserProfileAsync(int userId)
     {

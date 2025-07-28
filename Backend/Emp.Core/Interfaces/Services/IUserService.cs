@@ -6,7 +6,7 @@ public interface IUserService
 {
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
     Task<UserDto?> GetUserByIdAsync(int id);
-    Task<UserDto> CreateUserAsync(CreateUserDto userDto);
+    Task<UserDto?> CreateUserAsync(CreateUserDto userDto);
     Task<bool> UpdateUserAsync(int id, UpdateUserDto userDto);
     Task<bool> DeactivateUserAsync(int id); // Changed from Delete to Deactivate
     Task<string?> AuthenticateUserAsync(LoginDto loginDto); // For JWT token generation

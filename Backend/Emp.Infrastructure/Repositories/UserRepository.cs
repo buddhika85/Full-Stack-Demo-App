@@ -16,4 +16,9 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     {
         return await dbSet.SingleOrDefaultAsync(x => x.Username == username);
     }
+
+    public async Task<bool> IsExistsAsync(string username)
+    {
+        return await GetByUsernameAsync(username) != null;
+    }
 }

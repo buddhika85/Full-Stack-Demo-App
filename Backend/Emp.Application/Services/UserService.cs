@@ -85,36 +85,41 @@ public class UserService : IUserService
 
     public async Task<bool> UpdateUserAsync(int id, UpdateUserDto userDto)
     {
-        logger.LogInformation("Attempting to update a user with id {id} and username/email {Username}", id, userDto.Username);
+        logger.LogInformation("Attempting to update a user with id {UserId} and username/email {Username}", id, userDto.Username);
         try
         {
             var entity = await unitOfWork.UserRepository.GetByIdAsync(id);
             if (entity == null)
             {
-                logger.LogError("User updated failed: User with id {id} unavailable", id);
+                logger.LogError("User updated failed: User with id {UserId} unavailable", id);
                 return false;
             }
 
-            var userByUsername = await unitOfWork.UserRepository.GetByUsernameAsync(userDto.Username);
-            if (userByUsername != null && userByUsername.Id != id)
+            // Check if username is being changed to an existing one (excluding self)            
+            if (!entity.Username.Equals(userDto.Username, StringComparison.OrdinalIgnoreCase))
             {
-                logger.LogWarning("User updated failed: A different User with same username/email {Username} already available", userDto.Username);
-                return false;
+                var userByUsername = await unitOfWork.UserRepository.GetByUsernameAsync(userDto.Username);
+                if (userByUsername != null && userByUsername.Id != id)
+                {
+                    logger.LogWarning("User update failed: Username '{Username}' already taken by another user.", userDto.Username);
+                    throw new InvalidOperationException($"Username '{userDto.Username}' is already taken by another user.");
+                }
             }
 
             userDto.MapToEntity(entity);
             unitOfWork.UserRepository.Update(entity);
             if (await unitOfWork.CompleteAsync() > 0)
             {
-                logger.LogInformation("User with id {id} and username/email {Username} update successful", id, userDto.Username);
+                logger.LogInformation("User with id {UserId} and username/email {Username} update successful", id, userDto.Username);
                 return true;
             }
-            logger.LogError("Updating User with id {id} and username/email {Username} unsuccessful", id, userDto.Username);
+
+            logger.LogInformation("User with ID {UserId} username/email {Username} was found, but no changes were applied or saved.", id, entity.Username);
             return false;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in updating User with id {id} and username/email {Username}", id, userDto.Username);
+            logger.LogError(ex, "Error in updating User with id {UserId} and username/email {Username}", id, userDto.Username);
             throw;
         }
     }

@@ -16,6 +16,15 @@ public class BaseController : ControllerBase
         return new BadRequestObjectResult(problemDetails);
     }
 
+    protected ActionResult BadRequestError(string field, IEnumerable<string> errors)
+    {
+        var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
+        {
+            [field] = errors.ToArray(),
+        });
+        return new BadRequestObjectResult(problemDetails);
+    }
+
     protected ActionResult NotFoundError(string detail, string title = "Not Found")
     {
         var problemDetails = new ProblemDetails

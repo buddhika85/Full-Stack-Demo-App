@@ -1,3 +1,4 @@
+using Emp.Api.Controllers;
 using Emp.Api.Filters;
 using Emp.Api.Middleware;
 using Emp.Application.Services;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +59,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+
+    // standard token validation checks from HTTP Request Header - Authoroization 
+
     options.RequireHttpsMetadata = false; // Set to true in production
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
@@ -64,11 +69,40 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
-        ValidIssuer = jwtSettings["Issuer"],
+        ValidIssuer = jwtSettings["Issuer"],                    // was the token issued by this API ?
         ValidateAudience = true,
-        ValidAudience = jwtSettings["Audience"],
-        ValidateLifetime = true, // Validate token expiry
-        ClockSkew = TimeSpan.Zero // No leeway for token expiry
+        ValidAudience = jwtSettings["Audience"],                // was this token intended for Angular App?
+        ValidateLifetime = true,                                // Validate token expiry
+        ClockSkew = TimeSpan.Zero                               // No leeway for token expiry
+    };
+
+
+    // Check for blacklisted tokens
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            // Get the raw token from the request
+            string? accessToken = context.HttpContext.Request.Headers["Authorization"]
+                                    .ToString()
+                                    .Replace("Bearer ", "");
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                context.Fail("Token is null.");                                 // Explicitly fail authentication
+                return;
+            }
+
+            var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
+            if (jwtService.IsBlacklistedToken(accessToken))
+            {
+                context.Fail("Token has been revoked/blacklisted.");            // Explicitly fail authentication
+                return;
+            }
+
+            // If not blacklisted or not null, continue with normal token processing
+            await Task.CompletedTask;
+        }
     };
 });
 

@@ -1,5 +1,6 @@
 ﻿using Emp.Core.DTOs;
 using Emp.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,11 +11,13 @@ public class AuthController : BaseController
 {
     private readonly IUserService userService;
     private readonly ILogger<AuthController> logger;
+    private readonly IJwtService jwtService;
 
-    public AuthController(IUserService userService, ILogger<AuthController> logger)
+    public AuthController(IUserService userService, ILogger<AuthController> logger, IJwtService jwtService)
     {
         this.userService = userService;
         this.logger = logger;
+        this.jwtService = jwtService;
     }
 
     [AllowAnonymous]
@@ -50,6 +53,42 @@ public class AuthController : BaseController
         }
     }
 
+
+    /// <summary>
+    /// Logs out the current user. The implementation depends on the authentication scheme.
+    /// </summary>
+    /// <returns>An Ok result confirming the user has been logged out.</returns>
+    [Authorize] // This ensures only authenticated users can call this endpoint.
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // --- SCENARIO 1: Session-based Authentication ---
+        // If you are using session-based authentication (e.g., cookies), this is the
+        // standard way to sign the user out. It clears the session cookie from the browser
+        // and revokes the server-side session.
+        //
+        // await HttpContext.SignOutAsync();
+        // return Ok(new { Message = "Logged out successfully (session-based)." });
+
+
+        // --- SCENARIO 2: Token-based Authentication (JWT) with Blacklisting ---
+        // For JWTs, simply having the client delete the token is often sufficient.
+        // However, to immediately invalidate a token on the server side (e.g., when a
+        // user changes their password), you can use a revocation list.
+        //
+        // We get the token from the request headers.
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            // Add the token to our blacklist. This makes it impossible for this
+            // specific token to be used for any future requests.
+            // NOTE: This approach requires checking the blacklist on every future request.
+            jwtService.BlackListToken(accessToken);
+        }
+
+        return Ok(new { Message = "Logged out successfully (token blacklisted)." });
+    }
 
     [Authorize] // Only authenticated users can access their own profile
     [HttpGet("profile")]

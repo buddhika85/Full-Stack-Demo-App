@@ -13,8 +13,12 @@ public class JwtService : IJwtService
 {
     private readonly IConfiguration configuration;
     private readonly ILogger<JwtService> logger;
-    private const int TokenExpireHours = 5;
+    private const int TokenExpireHours = 1;
 
+
+    // This is a simplified, non-persistent, in-memory list for demonstration purposes.
+    // In a real application, you would use a persistent store like a database or Redis cache.
+    private static readonly HashSet<string> BlacklistedTokens = [];
 
     public JwtService(IConfiguration configuration, ILogger<JwtService> logger)
     {
@@ -76,5 +80,16 @@ public class JwtService : IJwtService
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role) // Role is already string from DB
                 };
+    }
+
+
+    public void BlackListToken(string token)
+    {
+        BlacklistedTokens.Add(token);
+    }
+
+    public bool IsBlacklistedToken(string token)
+    {
+        return BlacklistedTokens.Contains(token);
     }
 }

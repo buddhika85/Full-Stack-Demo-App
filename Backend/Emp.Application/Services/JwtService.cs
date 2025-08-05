@@ -51,7 +51,7 @@ public class JwtService : IJwtService
         }
         catch (Exception ex)
         {
-            logger.LogInformation("After successfuly authetication, User '{Username}' JWT Token generation failed.", user.Username);
+            logger.LogError(ex, "After successfuly authetication, User '{Username}' JWT Token generation failed.", user.Username);
             throw;
         }
     }

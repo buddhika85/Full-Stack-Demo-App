@@ -8,11 +8,9 @@ using Emp.Infrastructure;
 using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,7 +41,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+var keyStr = jwtSettings["Key"];
+if (string.IsNullOrWhiteSpace(keyStr))
+{
+    Log.Error("Startup aborted: 'Jwt:Key' is missing from configuration.");
+    throw new InvalidOperationException("JWT secret key is missing in configuration. Please set 'Jwt:Key' in appsettings or environment variables.");
+}
+
+var key = Encoding.ASCII.GetBytes(keyStr);
 
 builder.Services.AddAuthentication(options =>
 {

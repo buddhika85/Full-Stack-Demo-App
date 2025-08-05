@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Emp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250714040404_InitialCreate")]
+    [Migration("20250805054315_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,28 +40,6 @@ namespace Emp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Human Resources"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Engineering"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Sales"
-                        });
                 });
 
             modelBuilder.Entity("Emp.Core.Entities.Employee", b =>
@@ -95,32 +73,49 @@ namespace Emp.Infrastructure.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Employees");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DepartmentId = 2,
-                            Email = "john.doe@example.com",
-                            FirstName = "John",
-                            LastName = "Doe"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DepartmentId = 1,
-                            Email = "jane.smith@example.com",
-                            FirstName = "Jane",
-                            LastName = "Smith"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DepartmentId = 2,
-                            Email = "peter.jones@example.com",
-                            FirstName = "Peter",
-                            LastName = "Jones"
-                        });
+            modelBuilder.Entity("Emp.Core.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Emp.Core.Entities.Employee", b =>

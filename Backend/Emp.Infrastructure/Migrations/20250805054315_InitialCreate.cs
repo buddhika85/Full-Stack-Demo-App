@@ -2,8 +2,6 @@
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Emp.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -23,6 +21,24 @@ namespace Emp.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,31 +63,16 @@ namespace Emp.Infrastructure.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Human Resources" },
-                    { 2, "Engineering" },
-                    { 3, "Marketing" },
-                    { 4, "Sales" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Employees",
-                columns: new[] { "Id", "DepartmentId", "Email", "FirstName", "LastName" },
-                values: new object[,]
-                {
-                    { 1, 2, "john.doe@example.com", "John", "Doe" },
-                    { 2, 1, "jane.smith@example.com", "Jane", "Smith" },
-                    { 3, 2, "peter.jones@example.com", "Peter", "Jones" }
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_DepartmentId",
                 table: "Employees",
                 column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_Username",
+                table: "User",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -79,6 +80,9 @@ namespace Emp.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Employees");
+
+            migrationBuilder.DropTable(
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Departments");

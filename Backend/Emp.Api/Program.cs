@@ -119,7 +119,11 @@ var app = builder.Build();  // RUNS ONCE PER APPLICATION CYCLE - This compiles e
 
 
 
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await ApplicationDbSeeder.SeedAsync(dbContext); // Seed initial data here
+}
 
 
 

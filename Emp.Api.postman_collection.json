@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b7d0ee0a-5346-4a23-867d-8b891e606ab4",
+		"_postman_id": "8561f06c-f1bb-4ed5-aa8f-6979488db9d9",
 		"name": "Emp.Api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1300033"
@@ -9,6 +9,384 @@
 		{
 			"name": "api",
 			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "login",
+							"item": [
+								{
+									"name": "/api/Auth/login",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "text/plain"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "// {\n//   \"password\": \"Admin@123\",\n//   \"username\": \"admin@emp.com\"\n// }\n\n{\n  \"password\": \"Staff@123\",\n  \"username\": \"staff@emp.com\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/Auth/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Auth",
+												"login"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "text/plain"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"password\": \"eu ut ad dolor\",\n  \"username\": \"5prE57VY@KSQaIQIBcxmWBdaTSdIyQhX.rf\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/Auth/login",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Auth",
+														"login"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"token\": \"consectetur sed id ea\",\n  \"user\": {\n    \"firstName\": \"ipsum ut culpa laborum do\",\n    \"lastName\": \"elit aliqua do\",\n    \"role\": 1,\n    \"username\": \"hIDj6476Vb@aTpoNU.vvq\",\n    \"id\": 27321381,\n    \"isActive\": true\n  }\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "logout",
+							"item": [
+								{
+									"name": "/api/Auth/logout",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{token}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/Auth/logout",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Auth",
+												"logout"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/Auth/logout",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Auth",
+														"logout"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "profile",
+							"item": [
+								{
+									"name": "change-password",
+									"item": [
+										{
+											"name": "/api/Auth/profile/change-password",
+											"request": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"currentPassword\": \"incididunt officia ut\",\n  \"newPassword\": \"esse magna\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/Auth/profile/change-password",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Auth",
+														"profile",
+														"change-password"
+													]
+												}
+											},
+											"response": [
+												{
+													"name": "OK",
+													"originalRequest": {
+														"method": "PUT",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"currentPassword\": \"incididunt officia ut\",\n  \"newPassword\": \"esse magna\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/Auth/profile/change-password",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"Auth",
+																"profile",
+																"change-password"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": ""
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "/api/Auth/profile",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "text/plain"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/Auth/profile",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Auth",
+												"profile"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "text/plain"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/Auth/profile",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Auth",
+														"profile"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"firstName\": \"sint ullamco\",\n  \"lastName\": \"exercitation consectetur Duis Excepteur\",\n  \"username\": \"0zAv0EktQbIi@M.fs\",\n  \"id\": -98536462,\n  \"role\": 1\n}"
+										}
+									]
+								},
+								{
+									"name": "/api/Auth/profile",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"firstName\": \"est sint\",\n  \"lastName\": \"in velit anim dolor irure\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/Auth/profile",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Auth",
+												"profile"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"firstName\": \"est sint\",\n  \"lastName\": \"in velit anim dolor irure\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/Auth/profile",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Auth",
+														"profile"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						}
+					]
+				},
 				{
 					"name": "Department",
 					"item": [
@@ -38,7 +416,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "2",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -82,7 +460,7 @@
 												}
 											],
 											"cookie": [],
-											"body": "{\n  \"id\": 15084422,\n  \"name\": \"paria\"\n}"
+											"body": "{\n  \"id\": -40941413,\n  \"name\": \"eu dolore\"\n}"
 										}
 									]
 								},
@@ -98,7 +476,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"labore Ut fugiat se\",\n  \"id\": 55660408\n}",
+											"raw": "{\n  \"name\": \"Ut eu\",\n  \"id\": 31900651\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -119,7 +497,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "78532355",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -138,7 +516,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"name\": \"labore Ut fugiat se\",\n  \"id\": 55660408\n}",
+													"raw": "{\n  \"name\": \"Ut eu\",\n  \"id\": 31900651\n}",
 													"options": {
 														"raw": {
 															"headerFamily": "json",
@@ -190,7 +568,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "78532355",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -238,6 +616,11 @@
 									{
 										"key": "Accept",
 										"value": "text/plain"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
 									}
 								],
 								"url": {
@@ -283,7 +666,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "[\n  {\n    \"id\": -86465372,\n    \"name\": \"irure esse consectetur aliqua\"\n  },\n  {\n    \"id\": -59343555,\n    \"name\": \"in\"\n  }\n]"
+									"body": "[\n  {\n    \"id\": -57294317,\n    \"name\": \"ipsum qui anim\"\n  },\n  {\n    \"id\": 21132042,\n    \"name\": \"incididunt enim cupidatat\"\n  }\n]"
 								}
 							]
 						},
@@ -303,7 +686,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Lorem aliquip deserunt\"\n}",
+									"raw": "{\n  \"name\": \"sunt dolor\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -339,7 +722,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"Lorem aliquip deserunt\"\n}",
+											"raw": "{\n  \"name\": \"sunt dolor\"\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -368,7 +751,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n  \"id\": 15084422,\n  \"name\": \"paria\"\n}"
+									"body": "{\n  \"id\": -40941413,\n  \"name\": \"eu dolore\"\n}"
 								}
 							]
 						}
@@ -403,7 +786,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -447,7 +830,7 @@
 												}
 											],
 											"cookie": [],
-											"body": "{\n  \"id\": -63846976,\n  \"firstName\": \"irure id laboris fugiat\",\n  \"lastName\": \"nostrud\",\n  \"email\": \"elit incididunt mollit\",\n  \"departmentId\": 63689959,\n  \"departmentName\": \"cupidatat in nisi\"\n}"
+											"body": "{\n  \"id\": -35465034,\n  \"firstName\": \"commodo qui do sed est\",\n  \"lastName\": \"dolor consectetur in\",\n  \"email\": \"ipsum cillum\",\n  \"departmentId\": -54769495,\n  \"departmentName\": \"anim ut temp\"\n}"
 										}
 									]
 								},
@@ -463,7 +846,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"departmentId\": -63275333,\n  \"email\": \"9ul@MtUCNQCRhq.ss\",\n  \"firstName\": \"fugiat ut sint\",\n  \"lastName\": \"incididunt velit veniam non\",\n  \"id\": 39597962\n}",
+											"raw": "{\n  \"departmentId\": -25144125,\n  \"email\": \"u6cYeRFXhCplB@tYoSzCYLoaYmI.ozod\",\n  \"firstName\": \"Ut magna sunt\",\n  \"lastName\": \"nostru\",\n  \"id\": 42185051\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -484,7 +867,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "78532355",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -503,7 +886,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"departmentId\": -63275333,\n  \"email\": \"9ul@MtUCNQCRhq.ss\",\n  \"firstName\": \"fugiat ut sint\",\n  \"lastName\": \"incididunt velit veniam non\",\n  \"id\": 39597962\n}",
+													"raw": "{\n  \"departmentId\": -25144125,\n  \"email\": \"u6cYeRFXhCplB@tYoSzCYLoaYmI.ozod\",\n  \"firstName\": \"Ut magna sunt\",\n  \"lastName\": \"nostru\",\n  \"id\": 42185051\n}",
 													"options": {
 														"raw": {
 															"headerFamily": "json",
@@ -555,7 +938,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "78532355",
+													"value": "50383163",
 													"description": "(Required) "
 												}
 											]
@@ -648,7 +1031,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "[\n  {\n    \"id\": -94647017,\n    \"firstName\": \"voluptate\",\n    \"lastName\": \"ea sed dolore cillum\",\n    \"email\": \"dol\",\n    \"departmentId\": -26129237,\n    \"departmentName\": \"fugiat dolore mollit\"\n  },\n  {\n    \"id\": -37495899,\n    \"firstName\": \"proident ipsum\",\n    \"lastName\": \"enim et anim\",\n    \"email\": \"consequat pariatur\",\n    \"departmentId\": 77518010,\n    \"departmentName\": \"anim\"\n  }\n]"
+									"body": "[\n  {\n    \"id\": 234505,\n    \"firstName\": \"non in exercitation volu\",\n    \"lastName\": \"sint nisi veniam\",\n    \"email\": \"ullamco nostrud ad\",\n    \"departmentId\": -85786205,\n    \"departmentName\": \"anim\"\n  },\n  {\n    \"id\": -16556623,\n    \"firstName\": \"anim \",\n    \"lastName\": \"non mollit dolor dolor\",\n    \"email\": \"culpa sint\",\n    \"departmentId\": 19685246,\n    \"departmentName\": \"proident qui occaecat\"\n  }\n]"
 								}
 							]
 						},
@@ -668,7 +1051,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"departmentId\": 18575659,\n  \"email\": \"cEXXIfpfVsLUk4@mdRZDpg.ej\",\n  \"firstName\": \"ad\",\n  \"lastName\": \"Lorem\"\n}",
+									"raw": "{\n  \"departmentId\": -93406915,\n  \"email\": \"ycPXfqTag94xSjS@EezUsQiR.rym\",\n  \"firstName\": \"nis\",\n  \"lastName\": \"consectetur qui ut nisi\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -704,7 +1087,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"departmentId\": 18575659,\n  \"email\": \"cEXXIfpfVsLUk4@mdRZDpg.ej\",\n  \"firstName\": \"ad\",\n  \"lastName\": \"Lorem\"\n}",
+											"raw": "{\n  \"departmentId\": -93406915,\n  \"email\": \"ycPXfqTag94xSjS@EezUsQiR.rym\",\n  \"firstName\": \"nis\",\n  \"lastName\": \"consectetur qui ut nisi\"\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -733,7 +1116,383 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n  \"id\": -63846976,\n  \"firstName\": \"irure id laboris fugiat\",\n  \"lastName\": \"nostrud\",\n  \"email\": \"elit incididunt mollit\",\n  \"departmentId\": 63689959,\n  \"departmentName\": \"cupidatat in nisi\"\n}"
+									"body": "{\n  \"id\": -35465034,\n  \"firstName\": \"commodo qui do sed est\",\n  \"lastName\": \"dolor consectetur in\",\n  \"email\": \"ipsum cillum\",\n  \"departmentId\": -54769495,\n  \"departmentName\": \"anim ut temp\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "{id}",
+							"item": [
+								{
+									"name": "/api/Users/:id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "text/plain"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/Users/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "50383163",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "text/plain"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/Users/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Users",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"firstName\": \"ea sint non\",\n  \"lastName\": \"dolor non\",\n  \"role\": 1,\n  \"username\": \"kJmpawEIMRM@AWUseGVLJq.uhzw\",\n  \"id\": -23058043,\n  \"isActive\": true\n}"
+										}
+									]
+								},
+								{
+									"name": "/api/Users/:id",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"firstName\": \"ea sint non\",\n  \"lastName\": \"dolor non\",\n  \"role\": 1,\n  \"username\": \"kJmpawEIMRM@AWUseGVLJq.uhzw\",\n  \"id\": -23058043,\n  \"isActive\": true\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/Users/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "50383163",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"firstName\": \"ea sint non\",\n  \"lastName\": \"dolor non\",\n  \"role\": 1,\n  \"username\": \"kJmpawEIMRM@AWUseGVLJq.uhzw\",\n  \"id\": -23058043,\n  \"isActive\": true\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/Users/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Users",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "/api/Users/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/Users/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "50383163",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/Users/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"Users",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "/api/Users",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/Users?",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Users"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "text/plain"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/Users",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Users"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"firstName\": \"esse do\",\n    \"lastName\": \"ex\",\n    \"role\": 0,\n    \"username\": \"OXL4JyEfNM81u@ig.kz\",\n    \"id\": 39024411,\n    \"isActive\": false\n  },\n  {\n    \"firstName\": \"in Duis dolore consequat labore\",\n    \"lastName\": \"dolor consequat Lorem commodo\",\n    \"role\": 1,\n    \"username\": \"E3oo5cOpxu4z@ZBfldzSka.hr\",\n    \"id\": -86257405,\n    \"isActive\": false\n  }\n]"
+								}
+							]
+						},
+						{
+							"name": "/api/Users",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"firstName\": \"laboris pariatur eu in\",\n  \"lastName\": \"aliquip i\",\n  \"password\": \"dolore reprehenderit ad cillum\",\n  \"role\": 0,\n  \"username\": \"jy1In98vkds@TDtkUnUQFhmM.wy\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Users"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "text/plain"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"firstName\": \"laboris pariatur eu in\",\n  \"lastName\": \"aliquip i\",\n  \"password\": \"dolore reprehenderit ad cillum\",\n  \"role\": 0,\n  \"username\": \"jy1In98vkds@TDtkUnUQFhmM.wy\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/Users",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"Users"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"firstName\": \"ea sint non\",\n  \"lastName\": \"dolor non\",\n  \"role\": 1,\n  \"username\": \"kJmpawEIMRM@AWUseGVLJq.uhzw\",\n  \"id\": -23058043,\n  \"isActive\": true\n}"
 								}
 							]
 						}
@@ -768,6 +1527,11 @@
 		{
 			"key": "baseUrl",
 			"value": "https://localhost:7061"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIyIiwidW5pcXVlX25hbWUiOiJzdGFmZkBlbXAuY29tIiwicm9sZSI6IlN0YWZmIiwibmJmIjoxNzU0NDM2NzUxLCJleHAiOjE3NTQ0NDAzNTEsImlhdCI6MTc1NDQzNjc1MSwiaXNzIjoiRW1wLkFwaSIsImF1ZCI6ImFuZ3VsYXJBcHAuY29tIn0.InV0WlY8ABRpDU0AHRLIqdQrqrQ_lVUXWvswdKUFy7M",
+			"type": "default"
 		}
 	]
 }

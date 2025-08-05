@@ -37,7 +37,7 @@ public class UserService : IUserService
 
     public async Task<UserDto?> GetUserByIdAsync(int id)
     {
-        logger.LogInformation($"Attempting to get a user by Id {id}");
+        logger.LogInformation("Attempting to get a user by id {id}", id);
         try
         {
             var entity = await unitOfWork.UserRepository.GetByIdAsync(id);
@@ -51,7 +51,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in getting all users");
+            logger.LogError(ex, "Error in getting user by id {id}", id);
             throw;
         }
     }
@@ -278,6 +278,27 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             logger.LogError(ex, "Error updating user profile for ID: {UserId}", userId);
+            throw;
+        }
+    }
+
+    public async Task<UserDto?> GetUserByUsernameAsync(string username)
+    {
+        logger.LogInformation($"Attempting to get a user by username {username}");
+        try
+        {
+            var entity = await unitOfWork.UserRepository.GetByUsernameAsync(username);
+            if (entity == null)
+            {
+                logger.LogWarning("User with username {username} unavailable", username);
+                return null;
+            }
+            logger.LogInformation("User with username {username} retrieved.", username);
+            return entity.ToDto();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in getting user by username {username}", username);
             throw;
         }
     }

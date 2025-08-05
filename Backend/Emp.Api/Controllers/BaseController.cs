@@ -48,4 +48,15 @@ public class BaseController : ControllerBase
         };
         return Conflict(problemDetails);
     }
+
+    protected ActionResult UnauthorizedError(string detail, string title = "Unauthorized Error")
+    {
+        var problemDetails = new ProblemDetails
+        {
+            Title = title,
+            Detail = detail,
+            Status = StatusCodes.Status401Unauthorized
+        };
+        return Unauthorized(problemDetails);
+    }
 }

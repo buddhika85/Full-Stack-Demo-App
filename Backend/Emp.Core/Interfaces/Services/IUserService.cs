@@ -13,4 +13,5 @@ public interface IUserService
     Task<UserProfileDto?> GetUserProfileAsync(int userId); // For "View Profile"
     Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto userProfileDto);
     Task<bool> ChangeUserPasswordAsync(int userId, ChangePasswordDto changePasswordDto);
+    Task<UserDto?> GetUserByUsernameAsync(string username);
 }

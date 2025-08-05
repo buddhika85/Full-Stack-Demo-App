@@ -1,4 +1,3 @@
-using Emp.Api.Controllers;
 using Emp.Api.Filters;
 using Emp.Api.Middleware;
 using Emp.Application.Services;
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

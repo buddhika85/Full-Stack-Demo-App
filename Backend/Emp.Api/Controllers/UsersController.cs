@@ -1,11 +1,13 @@
 ﻿using Emp.Core.DTOs;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace Emp.Api.Controllers;
 
-[Authorize("Admin")]        // all are admin only endpoints
+[Authorize(Roles = $"{nameof(UserRoles.Admin)}")]        // all are admin only endpoints
 public class UsersController : BaseController
 {
     private readonly IUserService userService;

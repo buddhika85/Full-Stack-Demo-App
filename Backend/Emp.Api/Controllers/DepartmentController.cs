@@ -1,11 +1,14 @@
 ﻿using Emp.Core.DTOs;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
+
 namespace Emp.Api.Controllers;
 
-
+[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
 public class DepartmentController : BaseController
 {
     private readonly IDepartmentService departmentService;
@@ -20,6 +23,7 @@ public class DepartmentController : BaseController
         this.logger = logger;
         this.outputCacheStore = outputCacheStore;
     }
+
 
     [EndpointSummary("Gets all departments")]
     [ProducesResponseType(typeof(IEnumerable<DepartmentDto>), StatusCodes.Status200OK)]
@@ -40,6 +44,7 @@ public class DepartmentController : BaseController
             return InternalServerError(error);
         }
     }
+
 
     [EndpointSummary("Get department by ID")]
     [HttpGet("{id}")]

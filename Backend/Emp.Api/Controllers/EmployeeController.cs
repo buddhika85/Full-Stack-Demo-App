@@ -1,12 +1,15 @@
 ﻿
 using Emp.Api.Controllers;
 using Emp.Core.DTOs;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace Emp.Api.Middleware;
 
+[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
 public class EmployeeController : BaseController
 {
     private readonly IEmployeeService employeeService;

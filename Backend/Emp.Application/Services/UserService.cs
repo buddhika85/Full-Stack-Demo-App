@@ -10,11 +10,13 @@ public class UserService : IUserService
 {
     private readonly IUnitOfWork unitOfWork;
     private readonly ILogger<UserService> logger;
+    private readonly IJwtService jwtService;
 
-    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger)
+    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IJwtService jwtService)
     {
         this.unitOfWork = unitOfWork;
         this.logger = logger;
+        this.jwtService = jwtService;
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -124,31 +126,159 @@ public class UserService : IUserService
         }
     }
 
-    public Task<string?> AuthenticateUserAsync(LoginDto loginDto)
+    public async Task<string?> AuthenticateUserAsync(LoginDto loginDto)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Authenticating user - {Username}", loginDto.Username);
+        try
+        {
+            var user = await unitOfWork.UserRepository.GetByUsernameAsync(loginDto.Username);
+            if (user == null)
+            {
+                logger.LogError("User authetication failed: User with Username {Username} unavailable", loginDto.Username);
+                return null;
+            }
+
+            if (!user.IsActive)
+            {
+                logger.LogError("User authetication failed: User with Username {Username} is not active", loginDto.Username);
+                return null;
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            {
+                logger.LogError("User authetication failed: Password does not match for user {Username}", loginDto.Username);
+                return null;
+            }
+
+            logger.LogInformation("User authetication success: For user {Username}. Now generating JWT token.", loginDto.Username);
+            var jwtToken = jwtService.GenerateJwtToken(user);
+            logger.LogInformation("JWT token generation success: For user {Username}.", loginDto.Username);
+            return jwtToken;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in autheticating User with id {Username}", loginDto.Username);
+            throw;
+        }
     }
 
-    public Task<bool> ChangeUserPasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+    public async Task<bool> ChangeUserPasswordAsync(int userId, ChangePasswordDto changePasswordDto)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Attempting to change password for user ID: {UserId}", userId);
+        try
+        {
+            var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                logger.LogWarning("Change password failed: User with ID {UserId} not found.", userId);
+                return false;
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
+            {
+                logger.LogWarning("Change password failed for user ID {UserId}: Current password mismatch.", userId);
+                return false;
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+            unitOfWork.UserRepository.Update(user);
+            await unitOfWork.CompleteAsync();
+            logger.LogInformation("Password for user ID {UserId} changed successfully.", userId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error changing password for user ID: {UserId}", userId);
+            throw;
+        }
     }
 
 
-    public Task<bool> DeactivateUserAsync(int id)
+    public async Task<bool> DeactivateUserAsync(int id)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Attempting to deactivate user with ID: {UserId}", id);
+        try
+        {
+            var user = await unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                logger.LogWarning("Deactivation failed: User with ID {UserId} not found.", id);
+                return false;
+            }
+
+            if (!user.IsActive)
+            {
+                logger.LogInformation("User with ID {UserId} is already deactivated.", id);
+                return true; // Already deactivated, consider it a success
+            }
+
+            user.IsActive = false;
+            unitOfWork.UserRepository.Update(user);             // Mark for update
+            await unitOfWork.CompleteAsync();
+            logger.LogInformation("User with ID {UserId} deactivated successfully.", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error deactivating user with ID: {UserId}", id);
+            throw;
+        }
     }
 
-    public Task<UserProfileDto?> GetUserProfileAsync(int userId)
+    public async Task<UserProfileDto?> GetUserProfileAsync(int userId)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Attempting to retrieve user profile for ID: {UserId}", userId);
+        try
+        {
+            var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                logger.LogWarning("User profile not found for ID: {UserId}", userId);
+                return null;
+            }
+            logger.LogInformation("Successfully retrieved user profile for ID: {UserId}", userId);
+            return user.ToProfileDto();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving user profile for ID: {UserId}", userId);
+            throw;
+        }
     }
 
-
-
-    public Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto userProfileDto)
+    public async Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto userProfileDto)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Attempting to update user profile for ID: {UserId}", userId);
+        try
+        {
+            var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (existingUser == null)
+            {
+                logger.LogWarning("User profile update failed: User with ID {UserId} not found.", userId);
+                return false;
+            }
+
+            // Username (email) is NOT updatable via this profile endpoint.
+            // The existingUser.Username is preserved.
+            userProfileDto.MapToEntity(existingUser); // This mapping will only update FirstName and LastName
+            unitOfWork.UserRepository.Update(existingUser);
+            var affectedRows = await unitOfWork.CompleteAsync();
+
+            if (affectedRows > 0)
+            {
+                logger.LogInformation("User profile for ID {UserId} updated successfully. Rows affected: {AffectedRows}", userId, affectedRows);
+                return true;
+            }
+            else
+            {
+                logger.LogInformation("User profile for ID {UserId} was found, but no changes were applied or saved.", userId);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error updating user profile for ID: {UserId}", userId);
+            throw;
+        }
     }
 }

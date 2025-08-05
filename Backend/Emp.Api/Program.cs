@@ -7,8 +7,13 @@ using Emp.Core.Interfaces.Services;
 using Emp.Infrastructure;
 using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Data;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,20 +29,58 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // Set to true in production
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true, // Validate token expiry
+        ClockSkew = TimeSpan.Zero // No leeway for token expiry
+    };
+});
+
+
+
 
 // CORS
-var allowedOrigins = builder.Configuration["AllowedOrgings"]?.ToString().Split(",") ?? [];
+var allowedOrigins = builder.Configuration["AllowedOrgins"]?.ToString().Split(",") ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader();
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();        // Allow credentials for JWT
+
         //policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();      // allowing any one to access this API
     });
 });
@@ -112,6 +155,8 @@ app.UseOutputCache();                   // use outputcache middleware
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication();
 app.UseAuthorization(); // auth should be done before mapping controllers middleware
 
 

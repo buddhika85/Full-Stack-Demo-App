@@ -17,7 +17,6 @@ public class DepartmentService : IDepartmentService
         this.logger = logger;
     }
 
-
     public async Task<IEnumerable<DepartmentDto>> GetAllDepartmentsAsync()
     {
         logger.LogInformation("Attempting to get all departments");
@@ -138,6 +137,22 @@ public class DepartmentService : IDepartmentService
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting department with ID: {id}", id);
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyList<DepartmentEmpCountDto>> GetAllDepartmentsWithEmpCountsAsync()
+    {
+        logger.LogInformation("Attempting to get all departments with Employees count");
+        try
+        {
+            var entities = await unitOfWork.DepartmentRepository.GetAllDepartmentsWithEmployeesAsync();
+            logger.LogInformation("Retrived {count} departments", entities.Count());
+            return entities.ToEmpCountDtos().ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving all departments.");
             throw;
         }
     }

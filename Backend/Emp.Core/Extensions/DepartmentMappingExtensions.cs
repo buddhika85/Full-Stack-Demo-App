@@ -36,4 +36,19 @@ public static class DepartmentMappingExtensions
         // Note: Id is not mapped here as it's for an existing entity
         department.Name = updateDepartmentDto.Name;
     }
+
+
+    public static IEnumerable<DepartmentEmpCountDto> ToEmpCountDtos(this IEnumerable<Department> departments)
+    {
+        return departments.Select(ToEmpCountDto);
+    }
+
+    public static DepartmentEmpCountDto ToEmpCountDto(this Department department)
+    {
+        return new DepartmentEmpCountDto
+        {
+            Department = department.Name,
+            EmployeeCount = department.Employees.Count
+        };
+    }
 }

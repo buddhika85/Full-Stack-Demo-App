@@ -9,4 +9,7 @@ public interface IDepartmentService
     Task<DepartmentDto?> CreateDepartmentAsync(CreateDepartmentDto departmentDto);
     Task<bool> UpdateDepartmentAsync(int id, UpdateDepartmentDto departmentDto);
     Task<bool> DeleteDepartmentAsync(int id);
+
+
+    Task<IReadOnlyList<DepartmentEmpCountDto>> GetAllDepartmentsWithEmpCountsAsync();
 }

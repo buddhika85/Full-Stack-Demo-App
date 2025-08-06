@@ -1,0 +1,20 @@
+.footer-container {
+  @apply bg-gray-100 text-gray-700 border-t border-gray-300 p-4;
+}
+
+.footer-content {
+  @apply flex flex-col sm:flex-row justify-between items-center;
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  font-family: "Inter", sans-serif;
+}
+
+.footer-links {
+  @apply flex gap-4 mt-2 sm:mt-0;
+}
+
+.footer-link {
+  @apply text-gray-600 hover:text-blue-500 transition-colors cursor-pointer;
+}

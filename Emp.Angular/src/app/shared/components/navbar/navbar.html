@@ -3,24 +3,18 @@
     <span class="brand">{{ title() }}</span>
 
     <span class="spacer"></span>
+    <button mat-button routerLink="/about-demo" class="nav-button">
+      About this Demo App
+    </button>
 
-    <button mat-button routerLink="/dashboard" class="nav-button">
+    <button mat-button routerLink="/about-me" class="nav-button">
+      About Me
+    </button>
+
+    <button mat-button routerLink="/dashbaord" class="nav-button">
       Dashboard
     </button>
-    <button mat-button routerLink="/profile" class="nav-button">
-      Register
-    </button>
-    <button mat-button [matMenuTriggerFor]="menu" class="nav-button">
-      More
-    </button>
 
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item routerLink="/settings" class="nav-menu-item">
-        Login
-      </button>
-      <button mat-menu-item routerLink="/help" class="nav-menu-item">
-        Register
-      </button>
-    </mat-menu>
+    <button mat-button routerLink="/login" class="nav-button">Login</button>
   </mat-toolbar-row>
 </mat-toolbar>

@@ -143,7 +143,7 @@ public class DepartmentRepistoryTests
     [Theory]
     [InlineData(3)]         // department Id 3 and 4 does not have any employees, so should be deletable
     [InlineData(4)]
-    public async Task Delete_DeletesDepartment_IfExists(int departmentId)
+    public async Task Delete_DeletesDepartment_IfNoEmployeesAttached(int departmentId)
     {
         // arrange
         var testDbContext = await GetInMemoryDbContext("Delete_DeletesDepartment_IfExists");
@@ -152,6 +152,7 @@ public class DepartmentRepistoryTests
         var departmentCount = (await repository.GetAllAsync()).Count();
 
         departmentToDelete.Should().NotBeNull();
+        departmentToDelete.Employees.Should().BeEmpty();
 
         // act
         repository.Delete(departmentToDelete);
@@ -162,6 +163,35 @@ public class DepartmentRepistoryTests
         var afterDelete = await repository.GetByIdAsync(departmentId);
         afterDelete.Should().BeNull();
         departmentCountAfterDelete.Should().Be(departmentCount - 1);
+    }
+
+    [Theory]
+    [InlineData(1)]         // department Id 1 and 2 does have employees, so should NOT be deletable
+    [InlineData(2)]
+    public async Task Delete_DoesNotDeleteDepartment_IfEmployeesAttached(int departmentId)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("Delete_DeletesDepartment_IfExists");
+        var repository = new DepartmentRepository(testDbContext);
+        var departmentToDelete = await repository.GetByIdAsync(departmentId);
+        var departmentCount = (await repository.GetAllAsync()).Count();
+
+        departmentToDelete.Should().NotBeNull();
+        departmentToDelete.Employees.Should().NotBeEmpty();
+
+        // act - expecting  InvalidOperationException       
+        Func<Task> act = async () =>
+        {
+            // // throws System.InvalidOperationException : The association between entity types 'Department' and 'Employee' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.
+            // // Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+            repository.Delete(departmentToDelete);
+            await testDbContext.SaveChangesAsync();
+        };
+
+        // assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*The association between entity types 'Department' and 'Employee'*");
+
     }
 
     [Fact]

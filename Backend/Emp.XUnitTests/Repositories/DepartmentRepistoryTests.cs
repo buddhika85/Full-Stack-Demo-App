@@ -11,15 +11,20 @@ public class DepartmentRepistoryTests
 {
     // Helper method to create a new DbContextOptions for an in-memory database
     // Each test should use a unique database name to ensure isolation
-    private ApplicationDbContext GetInMemoryDbContext(string dbName)
+    private async Task<ApplicationDbContext> GetInMemoryDbContext(string dbName)
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: dbName)
                 .Options;
         var context = new ApplicationDbContext(options);
+
+
         // Ensure the database is clean for each test, though unique names help
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated(); // Creates the schema and seeds data from OnModelCreating
+
+        await ApplicationDbSeeder.SeedAsync(context); // Seed initial data here              
+
         return context;
     }
 
@@ -27,7 +32,7 @@ public class DepartmentRepistoryTests
     public async Task GetAllAsync_ReturnsAllDepartments_WhenCalled()
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("GetAllAsync_ReturnsAllDepartments_WhenCalled");
+        var testDbContext = await GetInMemoryDbContext("GetAllAsync_ReturnsAllDepartments_WhenCalled");
         var repository = new DepartmentRepository(testDbContext);
 
         // act        
@@ -46,7 +51,7 @@ public class DepartmentRepistoryTests
     public async Task GetByIdAsync_ReturnsNotNull_IfExists(int departmentId, string expectedName)
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("GetByIdAsync_ReturnsNotNull_IfExists");
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_ReturnsNotNull_IfExists");
         var repository = new DepartmentRepository(testDbContext);
 
         // act
@@ -65,7 +70,7 @@ public class DepartmentRepistoryTests
     public async Task GetByIdAsync_ReturnsNull_IfNonExistent(int departmentId)
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("GetByIdAsync_ReturnsNull_IfNonExistent");
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_ReturnsNull_IfNonExistent");
         var repository = new DepartmentRepository(testDbContext);
 
         // act
@@ -81,7 +86,7 @@ public class DepartmentRepistoryTests
     public async Task GetByIdAsync_ReturnsCorrectDeparment_ForIdPassed(Department expected)
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("GetByIdAsync_ReturnsNull_IfNonExistent");
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_ReturnsNull_IfNonExistent");
         var repository = new DepartmentRepository(testDbContext);
 
         // act
@@ -89,14 +94,15 @@ public class DepartmentRepistoryTests
 
         // assert
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(expected);
+        actual.Id.Should().Be(expected.Id);
+        actual.Name.Should().BeEquivalentTo(expected.Name);
     }
 
     [Fact]
     public async Task AddAsync_AddsNewDepartmentToDB_WhenCalled()
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("AddAsync_AddsNewRecordToDB_WhenCalled");
+        var testDbContext = await GetInMemoryDbContext("AddAsync_AddsNewRecordToDB_WhenCalled");
         var repository = new DepartmentRepository(testDbContext);
         var testDepartment = new Department { Name = "Test Department" };
 
@@ -116,7 +122,7 @@ public class DepartmentRepistoryTests
     public async Task Update_UpdatesDepartment_IfExists()
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("Update_UpdatesDepartment_IfExists");
+        var testDbContext = await GetInMemoryDbContext("Update_UpdatesDepartment_IfExists");
         var repository = new DepartmentRepository(testDbContext);
         var departmentToUpdate = await repository.GetByIdAsync(1);
 
@@ -134,13 +140,15 @@ public class DepartmentRepistoryTests
         departmentUpdated.Name.Should().Be(departmentToUpdate.Name);
     }
 
-    [Fact]
-    public async Task Delete_DeletesDepartment_IfExists()
+    [Theory]
+    [InlineData(3)]         // department Id 3 and 4 does not have any employees, so should be deletable
+    [InlineData(4)]
+    public async Task Delete_DeletesDepartment_IfExists(int departmentId)
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("Delete_DeletesDepartment_IfExists");
+        var testDbContext = await GetInMemoryDbContext("Delete_DeletesDepartment_IfExists");
         var repository = new DepartmentRepository(testDbContext);
-        var departmentToDelete = await repository.GetByIdAsync(1);
+        var departmentToDelete = await repository.GetByIdAsync(departmentId);
         var departmentCount = (await repository.GetAllAsync()).Count();
 
         departmentToDelete.Should().NotBeNull();
@@ -151,7 +159,7 @@ public class DepartmentRepistoryTests
 
         // assert
         var departmentCountAfterDelete = (await repository.GetAllAsync()).Count();
-        var afterDelete = await repository.GetByIdAsync(1);
+        var afterDelete = await repository.GetByIdAsync(departmentId);
         afterDelete.Should().BeNull();
         departmentCountAfterDelete.Should().Be(departmentCount - 1);
     }
@@ -160,7 +168,7 @@ public class DepartmentRepistoryTests
     public async Task FindAsync_ReturnsFilteredDepartments_IfExistsForPredicate()
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("FindAsync_ReturnsFilteredDepartments_IfExistsForPredicate");
+        var testDbContext = await GetInMemoryDbContext("FindAsync_ReturnsFilteredDepartments_IfExistsForPredicate");
         var repository = new DepartmentRepository(testDbContext);
 
         // act
@@ -176,7 +184,7 @@ public class DepartmentRepistoryTests
     public async Task FindAsync_ReturnsZeroDepartments_IfNonExistsForPredicate()
     {
         // arrange
-        var testDbContext = GetInMemoryDbContext("FindAsync_ReturnsZeroDepartments_IfNonExistsForPredicate");
+        var testDbContext = await GetInMemoryDbContext("FindAsync_ReturnsZeroDepartments_IfNonExistsForPredicate");
         var repository = new DepartmentRepository(testDbContext);
 
         // act

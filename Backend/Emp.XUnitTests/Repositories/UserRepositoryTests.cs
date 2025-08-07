@@ -1,6 +1,8 @@
-﻿using Emp.Core.Enums;
+﻿using Emp.Core.Entities;
+using Emp.Core.Enums;
 using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,5 +63,26 @@ public class UserRepositoryTests
         // assert
         actual.Should().NotBeNull();
         actual.Id.Should().Be(userId);
+    }
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task GetByIdAsync_RetunrsCorrectUser_ForExistingIdsPassed(User user)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_RetunrsCorrectUser_ForExistingIdsPassed");
+        var repository = new UserRepository(testDbContext);
+
+        // act
+        var actual = await repository.GetByIdAsync(user.Id);
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Id.Should().Be(user.Id);
+        actual.Username.Should().Be(user.Username);
+        actual.Role.Should().Be(user.Role);
+        actual.IsActive.Should().Be(user.IsActive);
+        actual.FirstName.Should().Be(user.FirstName);
+        actual.LastName.Should().Be(user.LastName);
     }
 }

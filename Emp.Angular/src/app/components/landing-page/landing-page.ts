@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { LandingDto } from '../../models/landing.dtos';
 import { HomeService } from '../../services/home.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-landing-page',
@@ -8,22 +9,24 @@ import { HomeService } from '../../services/home.service';
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss',
 })
-export class LandingPage implements OnInit {
-  private homeService: HomeService = inject(HomeService);
-
+export class LandingPage implements OnInit, OnDestroy {
+  private readonly homeService: HomeService = inject(HomeService);
+  private subscription: Subscription = new Subscription(); // can hold multiple subscriptions
   landingDto: LandingDto | null = null;
 
   ngOnInit(): void {
-    debugger;
-    this.homeService.landingContent().subscribe({
+    const sub = this.homeService.landingContent().subscribe({
       next: (value: LandingDto) => {
         this.landingDto = value;
-        console.log(this.landingDto);
       },
       error: (error: any) => {
-        console.log('Error occurred while retriving landing content: ', error);
+        console.error('Error retrieving landing content:', error);
       },
-      complete: () => {},
     });
+    this.subscription.add(sub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

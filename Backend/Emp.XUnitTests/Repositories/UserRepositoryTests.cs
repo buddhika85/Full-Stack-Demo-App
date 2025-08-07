@@ -85,4 +85,21 @@ public class UserRepositoryTests
         actual.FirstName.Should().Be(user.FirstName);
         actual.LastName.Should().Be(user.LastName);
     }
+
+
+    [Theory]
+    [InlineData(1000)]
+    [InlineData(2000)]
+    public async Task GetByIdAsync_RetunrsNull_ForNonExistingIdPassed(int userId)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_RetunrsCorrectUser_ForExistingIdPassed");
+        var repository = new UserRepository(testDbContext);
+
+        // act
+        var actual = await repository.GetByIdAsync(userId);
+
+        // assert
+        actual.Should().BeNull();
+    }
 }

@@ -1,5 +1,4 @@
-﻿using Emp.Core.Entities;
-using Emp.Core.Enums;
+﻿using Emp.Core.Enums;
 using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using FluentAssertions;
@@ -45,5 +44,22 @@ public class UserRepositoryTests
         usersActual.Should().Contain(x => x.Username == "staff@emp.com");
         usersActual.Should().Contain(x => x.Role == nameof(UserRoles.Admin));
         usersActual.Should().Contain(x => x.Role == nameof(UserRoles.Staff));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task GetByIdAsync_RetunrsCorrectUser_ForExistingIdPassed(int userId)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_RetunrsCorrectUser_ForExistingIdPassed");
+        var repository = new UserRepository(testDbContext);
+
+        // act
+        var actual = await repository.GetByIdAsync(userId);
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Id.Should().Be(userId);
     }
 }

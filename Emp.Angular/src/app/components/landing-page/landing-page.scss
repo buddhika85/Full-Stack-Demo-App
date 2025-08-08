@@ -1,0 +1,23 @@
+.landing-summary {
+  @apply p-6 bg-white rounded-lg shadow-md space-y-4;
+}
+
+.summary-text {
+  @apply text-lg font-medium text-gray-700;
+}
+
+.department-table {
+  @apply w-full border-collapse mt-4;
+}
+
+.table-header {
+  @apply text-left text-sm font-semibold text-gray-600 border-b border-gray-300 pb-2;
+}
+
+.table-row {
+  @apply hover:bg-gray-50;
+}
+
+.table-cell {
+  @apply py-2 px-4 text-sm text-gray-800 border-b border-gray-200;
+}

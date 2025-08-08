@@ -1,1 +1,31 @@
-<p>landing-page works!</p>
+@if(landingDto) {
+
+<div class="landing-summary">
+  <p class="summary-text">
+    Number of Employees : {{ landingDto.employeeCount }}
+  </p>
+  <p class="summary-text">
+    Number of Departments : {{ landingDto.departmentsCount }}
+  </p>
+
+  @if(landingDto.departmentsCount > 0) {
+  <table class="department-table">
+    <thead>
+      <tr>
+        <th class="table-header">Department</th>
+        <th class="table-header">Employee Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of landingDto.departments; track $index) {
+      <tr class="table-row">
+        <td class="table-cell">{{ item.department }}</td>
+        <td class="table-cell">{{ item.employeeCount }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</div>
+
+}

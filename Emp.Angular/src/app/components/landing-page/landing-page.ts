@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 })
 export class LandingPage implements OnInit, OnDestroy {
   private readonly homeService: HomeService = inject(HomeService);
-  private subscription: Subscription = new Subscription(); // can hold multiple subscriptions
+  private subscription: Subscription = new Subscription(); // Composite Subscription Pattern. - can hold multiple subscriptions
   landingDto: LandingDto | null = null;
 
   ngOnInit(): void {

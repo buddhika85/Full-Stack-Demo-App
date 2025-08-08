@@ -3,9 +3,123 @@
 @tailwind utilities;
 
 // Your custom SCSS below
-$primary-color: #4f46e5;
+$primary-color: #4f46e5; // Indigo
+$success-color: #22c55e;
+$error-color: #ef4444;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
+$reset-color: #64748b;
+$cancel-color: #6b7280;
+$disabled-color: #a5a9b1;
 
-.btn {
-  @apply px-4 py-2 rounded text-white;
+.prim-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
   background-color: $primary-color;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.success-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $success-color;
+
+  &:hover {
+    background-color: darken($success-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.error-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $error-color;
+
+  &:hover {
+    background-color: darken($error-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.warning-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $warning-color;
+
+  &:hover {
+    background-color: darken($warning-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.info-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $info-color;
+
+  &:hover {
+    background-color: darken($info-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.reset-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $reset-color;
+
+  &:hover {
+    background-color: darken($reset-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.cancel-btn {
+  @apply px-4 py-2 rounded text-white transition-colors duration-200;
+  background-color: $cancel-color;
+
+  &:hover {
+    background-color: darken($cancel-color, 10%);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+  }
+}
+
+.main-container {
+  @apply p-6 bg-white rounded-lg shadow-sm space-y-4;
+}
+
+.h1 {
+  @apply text-lg font-bold;
+}
+
+.error-lbl {
+  @apply block text-left;
+  color: $error-color;
+}
+
+.three-col-form {
+  @apply grid grid-cols-3 gap-2 gap-y-2;
+}
+
+.text-box {
+  @apply px-4 py-1 border rounded-md border-solid border-gray-300;
 }

@@ -1,1 +1,38 @@
-<p>login works!</p>
+<div class="main-container">
+  <h1 class="h1">Login</h1>
+  <form
+    class="three-col-form w-3/5 text-center"
+    [formGroup]="formGroup"
+    (ngSubmit)="onSubmit()"
+  >
+    <label class="">Username</label>
+    <input type="text" class="text-box" formControlName="username" />
+    <div class="error-lbl">
+      @if((username.dirty || username.touched) && username.invalid) { @if
+      (username.errors?.['required']) {
+      <span>Required</span>
+      } @else if (username.errors?.['minlength']) {
+      <span>Min length of 5 expected</span>
+      } }
+    </div>
+
+    <label class="">Password</label>
+    <input type="password" class="text-box" formControlName="password" />
+    <div class="error-lbl">
+      @if((password.dirty || password.touched) && password.invalid) { @if
+      (password.errors?.['required']) {
+      <span>Required</span>
+      } @else if (password.errors?.['minlength']) {
+      <span>Min length of 5 expected</span>
+      } }
+    </div>
+
+    <div></div>
+    <div>
+      <button class="prim-btn float-start" [disabled]="formGroup.invalid">
+        Submit
+      </button>
+      <button class="reset-btn" type="reset">Reset</button>
+    </div>
+  </form>
+</div>

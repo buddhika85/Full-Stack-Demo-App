@@ -17,26 +17,36 @@ export class AuthService {
   currentUser = signal<UserDto | null>(null);
 
   constructor() {
-    debugger;
     const token = localStorage.getItem('jwtToken');
-    let user: UserDto | null = null;
+
     if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        user = {
-          id: parseInt(decodedToken.nameid),
-          username: decodedToken.name,
-          firstName: decodedToken.given_name || '',
-          lastName: decodedToken.family_name || '',
-          role: decodedToken.role,
-          isActive: true,
-        };
-      } catch (e) {
-        console.error('Error decoding token:', e);
+      let user: UserDto | null = this.decodeToken(token);
+      if (user) {
+        this.currentUser.set(user);
+      } else {
         localStorage.removeItem('jwtToken');
       }
     }
-    this.currentUser.set(user);
+  }
+
+  // extract claims from JWT token
+  private decodeToken(token: string): UserDto | null {
+    try {
+      const decodedToken: any = jwtDecode(token);
+      debugger;
+      let user: UserDto = {
+        id: parseInt(decodedToken.nameid),
+        username: decodedToken.unique_name,
+        firstName: decodedToken.given_name || '',
+        lastName: decodedToken.family_name || '',
+        role: decodedToken.role,
+        isActive: true,
+      };
+      return user;
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
   }
 
   login(loginDto: LoginDto): Observable<LoginResponseDto> {

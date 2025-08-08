@@ -78,7 +78,11 @@ public class JwtService : IJwtService
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role) // Role is already string from DB
+                    new Claim(ClaimTypes.Role, user.Role), // Role is already string from DB
+
+                    new Claim("given_name", user.FirstName),
+                    new Claim("family_name", user.LastName),
+                    new Claim("is_active", user.IsActive.ToString())
                 };
     }
 

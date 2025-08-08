@@ -19,13 +19,16 @@ export class AuthService {
   constructor() {
     const token = localStorage.getItem('jwtToken');
 
-    if (token) {
+    if (token && !this.isTokenExpired(token)) {
       let user: UserDto | null = this.decodeToken(token);
       if (user) {
         this.currentUser.set(user);
       } else {
-        localStorage.removeItem('jwtToken');
+        this.removeToken();
       }
+    } else {
+      console.log('Token expired - so remove from local storage');
+      this.removeToken();
     }
   }
 
@@ -33,19 +36,33 @@ export class AuthService {
   private decodeToken(token: string): UserDto | null {
     try {
       const decodedToken: any = jwtDecode(token);
-      debugger;
       let user: UserDto = {
         id: parseInt(decodedToken.nameid),
         username: decodedToken.unique_name,
         firstName: decodedToken.given_name || '',
         lastName: decodedToken.family_name || '',
         role: decodedToken.role,
-        isActive: true,
+        isActive: decodedToken.is_active === true,
       };
       return user;
     } catch (e) {
       console.error('Error decoding token:', e);
       return null;
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      const exp = decoded.exp;
+
+      if (!exp) return true; // No expiration claim — treat as expired
+
+      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+      return exp < currentTime; // true if expired
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return true; // If decoding fails, treat as expired
     }
   }
 
@@ -59,14 +76,18 @@ export class AuthService {
         }),
         catchError((error) => {
           console.error('Login failed:', error);
-          this.logout();
+          this.removeToken();
           return of(error);
         })
       );
   }
 
-  logout(): void {
+  removeToken(): void {
     localStorage.removeItem('jwtToken');
     this.currentUser.set(null);
+  }
+
+  logout(): void {
+    this.removeToken();
   }
 }

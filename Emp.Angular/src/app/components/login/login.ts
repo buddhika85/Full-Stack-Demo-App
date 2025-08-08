@@ -7,6 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { LoginDto } from '../../models/login.dto';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,13 @@ import { LoginDto } from '../../models/login.dto';
   styleUrl: './login.scss',
 })
 export class Login implements OnInit {
-  private loginDto: LoginDto = { username: '', password: '' };
+  private readonly router: Router = inject(Router);
+  private readonly authService: AuthService = inject(AuthService);
+
+  private loginDto: LoginDto = {
+    username: 'admin@emp.com',
+    password: 'Admin@123',
+  };
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   formGroup!: FormGroup<{
     username: FormControl<string>;
@@ -46,7 +54,19 @@ export class Login implements OnInit {
   onSubmit(): void {
     if (this.formGroup.valid) {
       this.loginDto = this.formGroup.getRawValue();
-      console.log(this.loginDto);
+      this.login();
     }
+  }
+
+  login() {
+    this.authService.login(this.loginDto).subscribe({
+      next: (response) => {
+        console.log('Login Success');
+        this.router.navigate(['']);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 }

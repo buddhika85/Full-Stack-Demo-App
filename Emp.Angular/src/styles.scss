@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-// Your custom SCSS below
-$primary-color: #4f46e5; // Indigo
+// 🎨 Custom SCSS Variables
+$primary-color: #4f46e5;
 $success-color: #22c55e;
 $error-color: #ef4444;
 $warning-color: #f59e0b;
@@ -12,102 +12,21 @@ $reset-color: #64748b;
 $cancel-color: #6b7280;
 $disabled-color: #a5a9b1;
 
-.prim-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $primary-color;
-
-  &:hover {
-    background-color: darken($primary-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
-}
-
-.success-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $success-color;
-
-  &:hover {
-    background-color: darken($success-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
-}
-
-.error-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $error-color;
-
-  &:hover {
-    background-color: darken($error-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
-}
-
-.warning-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $warning-color;
-
-  &:hover {
-    background-color: darken($warning-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
-}
-
-.info-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $info-color;
-
-  &:hover {
-    background-color: darken($info-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
+// buttons
+.primary-btn {
+  @apply px-4 py-1 text-white border rounded-md bg-blue-600 hover:bg-blue-800 disabled:bg-slate-300;
 }
 
 .reset-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $reset-color;
-
-  &:hover {
-    background-color: darken($reset-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
+  @apply px-4 py-1 text-white border rounded-md bg-slate-500 hover:bg-slate-600 disabled:bg-slate-300;
 }
 
-.cancel-btn {
-  @apply px-4 py-2 rounded text-white transition-colors duration-200;
-  background-color: $cancel-color;
-
-  &:hover {
-    background-color: darken($cancel-color, 10%);
-  }
-
-  &:disabled {
-    background-color: $disabled-color;
-  }
-}
-
+// Container & Form Styles
 .main-container {
   @apply p-6 bg-white rounded-lg shadow-sm space-y-4;
 }
 
-.h1 {
+.heading-lg {
   @apply text-lg font-bold;
 }
 

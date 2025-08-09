@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -9,6 +9,7 @@ import {
 import { LoginDto } from '../../models/login.dto';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -16,10 +17,10 @@ import { Router } from '@angular/router';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class Login implements OnInit {
+export class Login implements OnInit, OnDestroy {
   private readonly router: Router = inject(Router);
   private readonly authService: AuthService = inject(AuthService);
-
+  private readonly compositeSubscription: Subscription = new Subscription();
   private loginDto: LoginDto = {
     username: 'admin@emp.com',
     password: 'Admin@123',
@@ -59,7 +60,7 @@ export class Login implements OnInit {
   }
 
   login() {
-    this.authService.login(this.loginDto).subscribe({
+    const sub = this.authService.login(this.loginDto).subscribe({
       next: (response) => {
         console.log('Login Success');
         this.router.navigate(['']);
@@ -68,5 +69,10 @@ export class Login implements OnInit {
         console.error(error);
       },
     });
+    this.compositeSubscription.add(sub);
+  }
+
+  ngOnDestroy(): void {
+    this.compositeSubscription.unsubscribe();
   }
 }

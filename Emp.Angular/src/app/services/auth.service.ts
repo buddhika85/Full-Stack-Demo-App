@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { LoginDto } from '../models/login.dto';
 import { UserDto } from '../models/user.dto';
 import { JwtTokenService } from './jwt.token.service';
+import { LogoutResponseDto } from '../models/logoutResponse.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +59,22 @@ export class AuthService {
     this.currentUser.set(null);
   }
 
-  logout(): void {
-    this.cleanTokenUser();
+  logout(): Observable<LogoutResponseDto> {
+    return this.httpClient
+      .post<LogoutResponseDto>(`${this.baseUrl}/auth/logout`, null)
+      .pipe(
+        tap((response) => {
+          if (response.loggedOut) {
+            this.cleanTokenUser();
+          } else {
+            console.error('Logout failed:');
+          }
+        }),
+        catchError((error) => {
+          console.error('Logout failed:', error);
+          this.cleanTokenUser();
+          return of(error);
+        })
+      );
   }
 }

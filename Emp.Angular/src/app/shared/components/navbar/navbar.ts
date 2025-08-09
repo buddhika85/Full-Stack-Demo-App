@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -18,12 +19,26 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
-export class Navbar {
+export class Navbar implements OnDestroy {
   readonly title = signal<string>('EMP - Angular');
 
   readonly authService: AuthService = inject(AuthService);
+  private readonly router: Router = inject(Router);
+  private readonly compositeSubscription: Subscription = new Subscription();
 
   logOut() {
-    this.authService.logout();
+    const sub = this.authService.logout().subscribe({
+      next: (response) => {
+        if (response.loggedOut) this.router.navigate(['']);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
+  ngOnDestroy(): void {
+    this.compositeSubscription.unsubscribe();
   }
 }

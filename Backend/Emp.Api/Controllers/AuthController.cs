@@ -60,8 +60,18 @@ public class AuthController : BaseController
     /// <returns>An Ok result confirming the user has been logged out.</returns>
     [Authorize] // This ensures only authenticated users can call this endpoint.
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<ActionResult<LogoutResponseDto>> Logout()
     {
+        // Get the user ID from the claims
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+        {
+            logger.LogWarning("API: GetUserProfile: User ID claim not found or invalid for authenticated user.");
+            return UnauthorizedError("User ID not found in token.");
+        }
+
+        logger.LogInformation("API: Logout endpoint called for User ID: {UserId}", userId);
+
         // --- SCENARIO 1: Session-based Authentication ---
         // If you are using session-based authentication (e.g., cookies), this is the
         // standard way to sign the user out. It clears the session cookie from the browser
@@ -77,17 +87,32 @@ public class AuthController : BaseController
         // user changes their password), you can use a revocation list.
         //
         // We get the token from the request headers.
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-
-        if (!string.IsNullOrEmpty(accessToken))
+        try
         {
-            // Add the token to our blacklist. This makes it impossible for this
-            // specific token to be used for any future requests.
-            // NOTE: This approach requires checking the blacklist on every future request.
-            jwtService.BlackListToken(accessToken);
+            var userProfile = await userService.GetUserProfileAsync(userId);
+            if (userProfile == null)
+            {
+                logger.LogWarning("API: Logout unsuccessful - User profile not found for User ID: {UserId}", userId);
+                return NotFoundError("User profile not found.");
+            }
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                // Add the token to our blacklist. This makes it impossible for 
+                // this specific token to be used for any future requests.
+                // NOTE: This approach requires checking the blacklist on every future request.
+                jwtService.BlackListToken(accessToken);
+            }
+
+            return Ok(new LogoutResponseDto { Username = userProfile.Username, LoggedOut = true });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "API: Logout unsuccessful - Error retrieving user for User ID: {UserId}", userId);
+            return InternalServerError("Logout unsuccessful - Internal server error retrieving user.");
         }
 
-        return Ok(new { Message = "Logged out successfully (token blacklisted)." });
     }
 
     [Authorize] // Only authenticated users can access their own profile

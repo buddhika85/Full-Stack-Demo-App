@@ -66,6 +66,7 @@ export class AuthService {
         tap((response) => {
           if (response.loggedOut) {
             this.cleanTokenUser();
+            console.log(response.logoutMessage);
           } else {
             console.error('Logout failed:');
           }

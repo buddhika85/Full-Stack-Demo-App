@@ -102,4 +102,40 @@ public class UserRepositoryTests
         // assert
         actual.Should().BeNull();
     }
+
+
+    [Fact]
+    public async Task AddAsync_AddsRecord_WhenNewUserPassed()
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("AddAsync_AddsRecord_WhenNewUserPassed");
+        var repository = new UserRepository(testDbContext);
+        var testUser = new User
+        {
+            FirstName = "Test FN",
+            LastName = "Test LN",
+            Role = nameof(UserRoles.Staff),
+            IsActive = true,
+            Username = "test@test.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Test@123")
+        };
+        var empCount = testDbContext.Users.Count();
+
+        // act
+        await repository.AddAsync(testUser);
+        await testDbContext.SaveChangesAsync();
+
+
+        var empCountAfterAdd = testDbContext.Employees.Count();
+        var newUser = await repository.GetByIdAsync(testUser.Id);
+
+        // assert
+        empCountAfterAdd.Should().Be(empCount + 1);
+        newUser.Should().NotBeNull();
+        newUser.FirstName.Should().Be(testUser.FirstName);
+        newUser.LastName.Should().Be(testUser.LastName);
+        newUser.Role.Should().Be(testUser.Role);
+        newUser.Username.Should().Be(testUser.Username);
+        newUser.PasswordHash.Should().Be(testUser.PasswordHash);
+    }
 }

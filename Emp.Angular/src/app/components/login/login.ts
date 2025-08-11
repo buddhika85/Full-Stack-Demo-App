@@ -61,6 +61,10 @@ export class Login implements OnInit, OnDestroy {
     }
   }
 
+  reset(): void {
+    this.formGroup.reset(this.loginDto);
+  }
+
   login() {
     const sub = this.authService.login(this.loginDto).subscribe({
       next: (response: LoginResponseDto) => {
@@ -68,7 +72,6 @@ export class Login implements OnInit, OnDestroy {
         this.router.navigate(['']);
       },
       error: (error: ProblemDetailsDto) => {
-        debugger;
         console.error(error.detail);
       },
     });

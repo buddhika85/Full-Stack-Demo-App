@@ -44,6 +44,7 @@ export class AuthService {
   }
 
   login(loginDto: LoginDto): Observable<LoginResponseDto> {
+    debugger;
     return this.httpClient
       .post<LoginResponseDto>(`${this.baseUrl}/auth/login`, loginDto)
       .pipe(
@@ -54,7 +55,7 @@ export class AuthService {
         catchError((error: HttpErrorResponse) => {
           const problemDetails = error.error as ProblemDetailsDto;
           this.cleanTokenUser();
-          return throwError(() => problemDetails); // propagate component / caller
+          return throwError(() => problemDetails); // propagate to component / caller
         })
       );
   }

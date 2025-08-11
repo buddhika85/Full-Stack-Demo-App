@@ -4,7 +4,6 @@ using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
-using Emp.Infrastructure.Repositories;
 using Emp.XUnitTests.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
@@ -15,6 +16,7 @@ import { Subscription } from 'rxjs';
     MatIconModule,
     MatMenuModule,
     RouterLink,
+    CommonModule,
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',

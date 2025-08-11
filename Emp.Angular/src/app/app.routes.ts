@@ -27,6 +27,26 @@ export const routes: Routes = [
       import('./components/about-demo/about-demo').then((x) => x.AboutDemo),
   },
 
+  // staff and admin
+  {
+    path: 'manage-departments',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin, UserRoles.Staff] },
+    loadComponent: () =>
+      import('./components/auth/manage-departments/manage-departments').then(
+        (x) => x.ManageDepartments
+      ),
+  },
+  {
+    path: 'manage-employees',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin, UserRoles.Staff] },
+    loadComponent: () =>
+      import('./components/auth/manage-employees/manage-employees').then(
+        (x) => x.ManageEmployees
+      ),
+  },
+
   // admin only
   {
     path: 'manage-app-users',

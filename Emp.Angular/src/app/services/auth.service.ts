@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { LoginResponseDto } from '../models/loginResponse.dto';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
@@ -7,6 +7,7 @@ import { LoginDto } from '../models/login.dto';
 import { UserDto } from '../models/user.dto';
 import { JwtTokenService } from './jwt.token.service';
 import { LogoutResponseDto } from '../models/logoutResponse.dto';
+import { UserRoles } from '../models/userRoles';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,9 @@ export class AuthService {
   private readonly jwtTokenService: JwtTokenService = inject(JwtTokenService);
 
   currentUser = signal<UserDto | null>(null);
+
+  isAdmin = computed(() => this.currentUser()?.role === UserRoles.Admin);
+  isStaff = computed(() => this.currentUser()?.role === UserRoles.Staff);
 
   // on refresh of pages - auth service will decode token if exists
   constructor() {

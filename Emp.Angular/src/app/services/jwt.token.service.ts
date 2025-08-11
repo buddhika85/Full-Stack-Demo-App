@@ -26,12 +26,16 @@ export class JwtTokenService {
   decodeToken(token: string): UserDto | null {
     try {
       const decodedToken: any = jwtDecode(token);
+
+      const roleStr = decodedToken.role;
+      const roleEnum = UserRoles[roleStr as keyof typeof UserRoles];
+
       let user: UserDto = {
         id: parseInt(decodedToken.nameid),
         username: decodedToken.unique_name,
         firstName: decodedToken.given_name || '',
         lastName: decodedToken.family_name || '',
-        role: decodedToken.role as UserRoles,
+        role: roleEnum,
         isActive: decodedToken.is_active === true,
       };
       return user;

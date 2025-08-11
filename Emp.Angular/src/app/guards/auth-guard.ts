@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const jwtService = inject(JwtTokenService);
   const role: UserRoles | null = jwtService.getUserRole();
 
-  if (!role) {
+  if (role === null) {
     inject(Router).navigate(['/login']);
     return false; // we expect a role, but token does not have a role
   }

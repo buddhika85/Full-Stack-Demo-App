@@ -13,23 +13,37 @@
 
     <button mat-button routerLink="" class="nav-button">Dashboard</button>
 
+    <!-- not logged in -->
     @if (authService.currentUser() === null) {
     <button mat-button routerLink="login" class="nav-button">Login</button>
-    } @else { @if (authService.isAdmin() || authService.isStaff()) { @if
-    (authService.isAdmin()) {
-    <button mat-button routerLink="manage-app-users" class="nav-button">
+    }
+
+    <!-- logged in users-->
+    @else {
+    <!-- admin only -->
+    @if (authService.isAdmin()) {
+    <button mat-button routerLink="manage-app-users" class="admin-only-button">
       Manage Users
     </button>
     }
 
-    <button mat-button routerLink="manage-departments" class="nav-button">
+    <!-- all autheticated users - admin || staff -->
+    <button
+      mat-button
+      routerLink="manage-departments"
+      class="staff-admin-button"
+    >
       Manage Departments
     </button>
-    <button mat-button routerLink="manage-employees" class="nav-button">
+    <button mat-button routerLink="manage-employees" class="staff-admin-button">
       Manage Employees
     </button>
-    }
-    <button mat-button (click)="logOut()" class="nav-button">Logout</button>
+    <button mat-button routerLink="manage-profile" class="staff-admin-button">
+      My Profile
+    </button>
+    <button mat-button (click)="logOut()" class="staff-admin-button">
+      Logout
+    </button>
     }
   </mat-toolbar-row>
 </mat-toolbar>

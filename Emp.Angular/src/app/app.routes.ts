@@ -46,6 +46,15 @@ export const routes: Routes = [
         (x) => x.ManageEmployees
       ),
   },
+  {
+    path: 'manage-profile',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin, UserRoles.Staff] },
+    loadComponent: () =>
+      import('./components/auth/manage-profile/manage-profile').then(
+        (x) => x.ManageProfile
+      ),
+  },
 
   // admin only
   {

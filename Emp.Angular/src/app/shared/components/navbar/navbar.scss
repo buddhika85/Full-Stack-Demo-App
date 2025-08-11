@@ -13,8 +13,20 @@
   flex-grow: 1;
 }
 
-.nav-button {
+.shared-nav-button {
   @apply text-gray-700 hover:text-blue-600 transition-colors;
+}
+
+.nav-button {
+  @apply shared-nav-button;
+}
+
+.admin-only-button {
+  @apply shared-nav-button bg-red-200 mx-1;
+}
+
+.staff-admin-button {
+  @apply shared-nav-button bg-yellow-200 mx-1;
 }
 
 .nav-menu-item {

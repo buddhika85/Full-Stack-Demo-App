@@ -10,6 +10,8 @@ import { LoginDto } from '../../models/login.dto';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { LoginResponseDto } from '../../models/loginResponse.dto';
+import { ProblemDetailsDto } from '../../models/problemDetails.dto';
 
 @Component({
   selector: 'app-login',
@@ -61,12 +63,13 @@ export class Login implements OnInit, OnDestroy {
 
   login() {
     const sub = this.authService.login(this.loginDto).subscribe({
-      next: (response) => {
+      next: (response: LoginResponseDto) => {
         console.log('Login Success');
         this.router.navigate(['']);
       },
-      error: (error) => {
-        console.error(error);
+      error: (error: ProblemDetailsDto) => {
+        debugger;
+        console.error(error.detail);
       },
     });
     this.compositeSubscription.add(sub);

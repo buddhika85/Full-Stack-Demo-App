@@ -1,13 +1,14 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { LoginResponseDto } from '../models/loginResponse.dto';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, tap, catchError, of, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginDto } from '../models/login.dto';
 import { UserDto } from '../models/user.dto';
 import { JwtTokenService } from './jwt.token.service';
 import { LogoutResponseDto } from '../models/logoutResponse.dto';
 import { UserRoles } from '../models/userRoles';
+import { ProblemDetailsDto } from '../models/problemDetails.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +30,7 @@ export class AuthService {
 
     if (token) {
       if (this.jwtTokenService.isTokenExpired(token)) {
-        console.log('Token expired - so remove from local storage');
+        console.log('Token expired - so removed from local storage');
         this.jwtTokenService.removeToken();
       } else {
         let user: UserDto | null = this.jwtTokenService.decodeToken(token);
@@ -50,10 +51,10 @@ export class AuthService {
           this.jwtTokenService.setJwtToken(response.token);
           this.currentUser.set(response.user);
         }),
-        catchError((error) => {
-          console.error('Login failed:', error);
+        catchError((error: HttpErrorResponse) => {
+          const problemDetails = error.error as ProblemDetailsDto;
           this.cleanTokenUser();
-          return of(error);
+          return throwError(() => problemDetails); // propagate component / caller
         })
       );
   }

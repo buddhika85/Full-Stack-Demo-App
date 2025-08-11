@@ -13,6 +13,7 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
+import { authInterceptor } from './interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,11 +21,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withFetch()),
 
     provideHttpClient(
-      withFetch(), // enables Fetch-based HTTP
-      withInterceptors([jwtInterceptor]) // attaches your JWT interceptor
+      withInterceptors([authInterceptor, jwtInterceptor]) // attaches your JWT interceptor
     ),
   ],
 };

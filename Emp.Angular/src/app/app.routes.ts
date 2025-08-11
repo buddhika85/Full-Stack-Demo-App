@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
 import { LandingPage } from './components/landing-page/landing-page';
+import { UserRoles } from './models/userRoles';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   // landing page is eagerly loaded route
   { path: '', component: LandingPage },
 
   // lazy loaded routes
+  // anonymouse
   {
     path: 'login',
     loadComponent: () =>
@@ -22,5 +25,16 @@ export const routes: Routes = [
     path: 'about-demo',
     loadComponent: () =>
       import('./components/about-demo/about-demo').then((x) => x.AboutDemo),
+  },
+
+  // admin only
+  {
+    path: 'manage-app-users',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin] },
+    loadComponent: () =>
+      import('./components/auth/admin/manage-app-users/manage-app-users').then(
+        (x) => x.ManageAppUsers
+      ),
   },
 ];

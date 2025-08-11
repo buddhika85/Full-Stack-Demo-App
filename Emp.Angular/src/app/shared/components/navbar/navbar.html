@@ -16,6 +16,10 @@
     @if (authService.currentUser() === null) {
     <button mat-button routerLink="login" class="nav-button">Login</button>
     } @else {
+
+    <button mat-button routerLink="manage-app-users" class="nav-button">
+      Manage Users
+    </button>
     <button mat-button (click)="logOut()" class="nav-button">Logout</button>
     }
   </mat-toolbar-row>

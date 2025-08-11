@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UserDto } from '../models/user.dto';
 import { jwtDecode } from 'jwt-decode';
+import { UserRoles } from '../models/userRoles';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +31,7 @@ export class JwtTokenService {
         username: decodedToken.unique_name,
         firstName: decodedToken.given_name || '',
         lastName: decodedToken.family_name || '',
-        role: decodedToken.role,
+        role: decodedToken.role as UserRoles,
         isActive: decodedToken.is_active === true,
       };
       return user;
@@ -53,5 +54,17 @@ export class JwtTokenService {
       console.error('Error decoding token:', e);
       return true; // If decoding fails, treat as expired
     }
+  }
+
+  getUserRole(): UserRoles | null {
+    const token = this.readJwtAuthToken();
+    if (!token || this.isTokenExpired(token)) {
+      return null;
+    }
+    const userDto = this.decodeToken(token);
+    if (!userDto) {
+      return null;
+    }
+    return userDto.role;
   }
 }

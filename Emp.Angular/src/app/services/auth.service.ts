@@ -44,7 +44,6 @@ export class AuthService {
   }
 
   login(loginDto: LoginDto): Observable<LoginResponseDto> {
-    debugger;
     return this.httpClient
       .post<LoginResponseDto>(`${this.baseUrl}/auth/login`, loginDto)
       .pipe(

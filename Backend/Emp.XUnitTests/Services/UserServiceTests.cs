@@ -2,9 +2,11 @@
 using Emp.Core;
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -71,5 +73,33 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Error, $"Error in getting all users.", Times.Never());
 
         mockUserRepository.Verify(x => x.GetAllAsync(), Times.Once());
+    }
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task GetUserByIdAsync_ReturnsUser_WhenExists(User user)
+    {
+        // arrange 
+        mockUserRepository.Setup(x => x.GetByIdAsync(user.Id)).ReturnsAsync(user);
+
+        // act
+        UserDto? result = await userService.GetUserByIdAsync(user.Id);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Id.Should().Be(user.Id);
+        result.FirstName.Should().Be(user.FirstName);
+        result.LastName.Should().Be(user.LastName);
+        result.IsActive.Should().Be(user.IsActive);
+
+        Enum.TryParse(user.Role, out UserRoles userRole);
+        result.Role.Should().Be(userRole);
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to get a user by id {user.Id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with Id {user.Id} retrieved.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User with id {user.Id} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in getting user by id {user.Id}", Times.Never());
+
+        mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(id => id == user.Id)), Times.Once());
     }
 }

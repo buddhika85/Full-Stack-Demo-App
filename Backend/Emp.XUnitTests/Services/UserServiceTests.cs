@@ -102,4 +102,27 @@ public class UserServiceTests
 
         mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(id => id == user.Id)), Times.Once());
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(100)]
+    public async Task GetUserByIdAsync_ReturnsNull_WhenUserWithIdUnavailable(int unavilableUserId)
+    {
+        // arrange
+        User? nullUser = null;
+        mockUserRepository.Setup(x => x.GetByIdAsync(unavilableUserId)).ReturnsAsync(nullUser);
+
+        // act
+        var result = await userService.GetUserByIdAsync(unavilableUserId);
+
+        // assert
+        result.Should().BeEquivalentTo(nullUser);
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to get a user by id {unavilableUserId}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User with id {unavilableUserId} unavailable", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with Id {unavilableUserId} retrieved.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Error in getting user by id {unavilableUserId}", Times.Never());
+
+        mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(id => id == unavilableUserId)), Times.Once());
+    }
 }

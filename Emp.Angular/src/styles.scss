@@ -42,3 +42,7 @@ $disabled-color: #a5a9b1;
 .text-box {
   @apply px-4 py-1 border rounded-md border-solid border-gray-300;
 }
+
+.h1 {
+  @apply text-lg font-bold;
+}

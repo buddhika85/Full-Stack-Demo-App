@@ -2,7 +2,10 @@
 using Emp.Api.Controllers;
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
+using Emp.XUnitTests.Helpers;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -32,7 +35,7 @@ public class UsersControllerTests
             {
                 FirstName = "FirstName",
                 LastName = "LastName",
-                Role = Core.Enums.UserRoles.Staff,
+                Role = UserRoles.Staff,
                 Username = "user@user.com",
                 Id = 1,
                 IsActive = true
@@ -54,5 +57,47 @@ public class UsersControllerTests
         returnedUsers.Should().NotBeNull();
         returnedUsers.Should().HaveCount(testUsers.Count());
         returnedUsers.Should().BeEquivalentTo(testUsers);
+
+        mockLogger.VerifyMessage(LogLevel.Information, "API: GetUsers endpoint called by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in GetUsers endpoint.", Times.Never());
+
+        mockUserService.Verify(x => x.GetAllUsersAsync(), Times.Once());
+    }
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task GetUser_ReturnsCorrectUser_WhenUserAvailableWithId(User user)
+    {
+        // arrange
+        var testUserDto = new UserDto
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Id = user.Id,
+            IsActive = user.IsActive,
+            Role = Enum.Parse<UserRoles>(user.Role),
+            Username = user.Username,
+        };
+        mockUserService.Setup(x => x.GetUserByIdAsync(user.Id)).ReturnsAsync(testUserDto);
+
+        // act
+        var result = await usersController.GetUser(user.Id);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ActionResult<UserDto>>();
+
+        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+
+        var userReturned = okResult.Value.Should().BeAssignableTo<UserDto>().Subject;
+        userReturned.Should().NotBeNull();
+        userReturned.Should().BeEquivalentTo(testUserDto);
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: GetUser endpoint called for ID: {user.Id} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: User with ID {user.Id} not found.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in GetUser endpoint for ID: {user.Id}.", Times.Never());
+
+        mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == user.Id)), Times.Once());
     }
 }

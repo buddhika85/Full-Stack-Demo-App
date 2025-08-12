@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -17,7 +10,7 @@ import { UserDto } from '../../../../models/user.dto';
 
 @Component({
   selector: 'app-manage-app-users',
-  imports: [],
+  imports: [MatFormFieldModule, MatInputModule, MatTableModule],
 
   templateUrl: './manage-app-users.html',
   styleUrl: './manage-app-users.scss',
@@ -28,16 +21,33 @@ export class ManageAppUsers implements OnInit, OnDestroy {
 
   private users!: UserDto[];
 
+  readonly displayedColumns: string[] = [
+    'id',
+    'username',
+    'firstName',
+    'lastName',
+    'role',
+    'isActive',
+  ];
+  dataSource!: MatTableDataSource<UserDto>;
+
   ngOnInit(): void {
     const sub = this.userService.getUsers().subscribe({
       next: (users: UserDto[]) => {
         this.users = users;
-        console.log(users);
+        this.dataSource = new MatTableDataSource(this.users);
+        //console.log(users);
       },
       error: (error) => {
         console.error(error);
       },
     });
+    this.compositeSubscription.add(sub);
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   ngOnDestroy(): void {

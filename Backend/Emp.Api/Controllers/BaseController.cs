@@ -18,10 +18,11 @@ public class BaseController : ControllerBase
 
     protected ActionResult BadRequestError(string field, IEnumerable<string> errors)
     {
-        var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
-        {
-            [field] = errors.ToArray(),
-        });
+        var problemDetails = new ValidationProblemDetails
+            (new Dictionary<string, string[]>
+            {
+                [field] = errors.ToArray(),
+            });
         return new BadRequestObjectResult(problemDetails);
     }
 
@@ -44,7 +45,8 @@ public class BaseController : ControllerBase
             Detail = detail,
             Status = StatusCodes.Status500InternalServerError
         };
-        return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            problemDetails);
     }
 
     protected ActionResult ConflictError(string detail, string title = "Conflict Error")

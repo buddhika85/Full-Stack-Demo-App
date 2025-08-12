@@ -84,6 +84,8 @@ public class DepartmentController : BaseController
 
             await outputCacheStore.EvictByTagAsync(cacheTag, default);
             logger.Log(LogLevel.Information, $"API: CreateDepartment endpoint called (evicted cache on cache tag {cacheTag}).");
+
+            // 3 Params = Action to Get new resource | Id param for that action | new resource as a DTO
             return CreatedAtAction(nameof(GetDepartment), new { id = dto.Id }, dto);
         }
         catch (Exception ex)

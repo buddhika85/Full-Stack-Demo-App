@@ -11,6 +11,7 @@ import { BoolToYesNoPipe } from '../../../../pipes/bool-to-yes-no-pipe';
 import { UserRoleEnumToUserRolePipe } from '../../../../pipes/user-role-enum-to-user-role-pipe';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-manage-app-users',
@@ -28,6 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './manage-app-users.scss',
 })
 export class ManageAppUsers implements OnInit, OnDestroy {
+  private readonly router: Router = inject(Router);
   private readonly userService: UserService = inject(UserService);
   private readonly compositeSubscription: Subscription = new Subscription();
 
@@ -49,7 +51,6 @@ export class ManageAppUsers implements OnInit, OnDestroy {
       next: (users: UserDto[]) => {
         this.users = users;
         this.dataSource = new MatTableDataSource(this.users);
-        console.log(users);
       },
       error: (error) => {
         console.error(error);
@@ -64,7 +65,7 @@ export class ManageAppUsers implements OnInit, OnDestroy {
   }
 
   addUser(): void {
-    console.log('add user');
+    this.router.navigate(['manage-app-users/create']);
   }
 
   onDeactivate(id: number) {
@@ -72,7 +73,7 @@ export class ManageAppUsers implements OnInit, OnDestroy {
   }
 
   onEdit(id: number) {
-    console.log(`Edit ${id}`);
+    this.router.navigate(['manage-app-users/edit', id]);
   }
 
   ngOnDestroy(): void {

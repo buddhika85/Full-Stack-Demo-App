@@ -67,6 +67,26 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'manage-app-users/create',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin] },
+    loadComponent: () =>
+      import(
+        './components/auth/admin/manage-app-users/create-users/create-users'
+      ).then((x) => x.CreateUsers),
+  },
+
+  {
+    path: 'manage-app-users/edit/:id',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin] },
+    loadComponent: () =>
+      import(
+        './components/auth/admin/manage-app-users/edit-users/edit-users'
+      ).then((x) => x.EditUsers),
+  },
+
   // catch all route
   {
     path: '**',

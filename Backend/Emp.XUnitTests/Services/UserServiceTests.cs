@@ -116,6 +116,7 @@ public class UserServiceTests
         var result = await userService.GetUserByIdAsync(unavilableUserId);
 
         // assert
+        result.Should().BeNull();
         result.Should().BeEquivalentTo(nullUser);
 
         mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to get a user by id {unavilableUserId}", Times.Once());

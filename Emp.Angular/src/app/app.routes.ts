@@ -66,4 +66,10 @@ export const routes: Routes = [
         (x) => x.ManageAppUsers
       ),
   },
+
+  // catch all route
+  {
+    path: '**',
+    redirectTo: '', // landing page
+  },
 ];

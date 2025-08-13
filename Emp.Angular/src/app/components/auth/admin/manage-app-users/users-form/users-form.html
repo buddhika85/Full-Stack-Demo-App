@@ -1,1 +1,72 @@
-<p>users-form works!</p>
+<form
+  [formGroup]="formGroup"
+  class="three-col-form w-3/5 text-center"
+  (ngSubmit)="onSubmit()"
+>
+  <label class="label">Username</label>
+  <input type="text" class="text-box" formControlName="username" />
+  <div class="error-lbl">
+    @if((username.touched || username.dirty) && username.invalid) { @if
+    (username.errors?.['required']) {
+    <span>Username required</span>
+    } @else if (username.errors?.['minlength']){
+    <span>min length of 6 required</span>
+    } @else if (username.errors?.['email']){
+    <span>username must be an email address</span>
+    } }
+  </div>
+
+  <label class="label">Password</label>
+  <input type="password" class="text-box" formControlName="password" />
+  <div class="error-lbl">
+    @if((password.touched || password.dirty) && password.invalid) { @if
+    (password.errors?.['required']) {
+    <span>Password required</span>
+    } @else if (password.errors?.['minlength']){
+    <span>min length of 6 required</span>
+    } }
+  </div>
+
+  <label class="label">First name</label>
+  <input type="text" class="text-box" formControlName="firstName" />
+  <div class="error-lbl">
+    @if((firstName.touched || firstName.dirty) && firstName.invalid) { @if
+    (firstName.errors?.['required']) {
+    <span>First name required</span>
+    } @else if (firstName.errors?.['minlength']){
+    <span>min length of 6 required</span>
+    } }
+  </div>
+
+  <label class="label">Last name</label>
+  <input type="text" class="text-box" formControlName="lastName" />
+  <div class="error-lbl">
+    @if((lastName.touched || lastName.dirty) && lastName.invalid) { @if
+    (lastName.errors?.['required']) {
+    <span>Last name required</span>
+    } @else if (lastName.errors?.['minlength']){
+    <span>min length of 6 required</span>
+    } }
+  </div>
+
+  <label class="label">Role</label>
+  <select formControlName="role" class="select-box">
+    @for (role of userRoles; track $index) {
+    <option [value]="UserRolesEnum[role]">{{ role }}</option>
+    }
+  </select>
+  <div class="error-lbl">
+    @if((role.touched || role.dirty) && role.invalid) { @if
+    (role.errors?.['required']) {
+    <span>Role required</span>
+    } }
+  </div>
+
+  <div></div>
+  <div>
+    <button class="primary-btn float-start" [disabled]="formGroup.invalid">
+      Submit
+    </button>
+    <button type="button" class="reset-btn" (click)="reset()">Reset</button>
+  </div>
+</form>

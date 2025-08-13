@@ -5,7 +5,7 @@
     [formGroup]="formGroup"
     (ngSubmit)="onSubmit()"
   >
-    <label class="">Username</label>
+    <label class="label">Username</label>
     <input type="text" class="text-box" formControlName="username" />
     <div class="error-lbl">
       @if((username.dirty || username.touched) && username.invalid) { @if
@@ -16,7 +16,7 @@
       } }
     </div>
 
-    <label class="">Password</label>
+    <label class="label">Password</label>
     <input type="password" class="text-box" formControlName="password" />
     <div class="error-lbl">
       @if((password.dirty || password.touched) && password.invalid) { @if

@@ -4,6 +4,7 @@ using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emp.XUnitTests.Repositories;
@@ -138,4 +139,39 @@ public class UserRepositoryTests
         newUser.Username.Should().Be(testUser.Username);
         newUser.PasswordHash.Should().Be(testUser.PasswordHash);
     }
+
+
+
+    [Theory]
+    [InlineData(1)]
+    public async Task Update_UpdatesUser_WhenUserToUpdatePassed(int userId)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetAllAsync_ThrowsException_WhenGenericRepositoryThrowsException");
+        var userRepository = new UserRepository(testDbContext);
+
+        var testUser = await testDbContext.Users.FindAsync(userId);
+        testUser.Should().NotBeNull();
+
+        testUser.FirstName = $"FN updated";
+        testUser.LastName = $"LN updated";
+        testUser.Role = nameof(UserRoles.Staff);
+        testUser.IsActive = true;
+        testUser.Username = "updateUn@test.com";
+        testUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("UpdatedTest@123");
+
+
+
+        // act
+        var userCountBeforeUpdate = testDbContext.Users.Count();
+        userRepository.Update(testUser);
+        await testDbContext.SaveChangesAsync();
+
+        // assert       
+        testDbContext.Users.Count().Should().Be(userCountBeforeUpdate);
+        var updatedUser = await testDbContext.Users.FindAsync(userId);
+        updatedUser.Should().NotBeNull();
+        updatedUser.Should().BeEquivalentTo(testUser);
+    }
+
 }

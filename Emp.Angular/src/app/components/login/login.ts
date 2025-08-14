@@ -68,7 +68,6 @@ export class Login implements OnInit, OnDestroy {
   login() {
     const sub = this.authService.login(this.loginDto).subscribe({
       next: (response: LoginResponseDto) => {
-        console.log('Login Success');
         this.router.navigate(['']);
       },
       error: (error: ProblemDetailsDto) => {

@@ -1,7 +1,7 @@
 <div class="main-container">
   <h1 class="h1">Edit User {{ id }}</h1>
 
-  <app-users-form class="p-4" />
+  <app-users-form [userId]="id" class="p-4" />
 
   <br />
   <a routerLink="/manage-app-users" class="back-btn"> &laquo; Back to Users</a>

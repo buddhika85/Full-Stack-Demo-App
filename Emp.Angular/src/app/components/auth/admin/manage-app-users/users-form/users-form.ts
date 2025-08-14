@@ -1,4 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -7,6 +15,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { UserRoles } from '../../../../../models/userRoles';
+import { UserService } from '../../../../../services/user.service';
+import { UserDto } from '../../../../../models/user.dto';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-users-form',
@@ -14,10 +25,12 @@ import { UserRoles } from '../../../../../models/userRoles';
   templateUrl: './users-form.html',
   styleUrl: './users-form.scss',
 })
-export class UsersForm implements OnInit {
-  onSubmit() {
-    throw new Error('Method not implemented.');
-  }
+export class UsersForm implements OnInit, OnChanges, OnDestroy {
+  private readonly compositeSubscription: Subscription = new Subscription();
+
+  @Input() userId!: number | null;
+  private editMode: boolean = false;
+  private readonly userService: UserService = inject(UserService);
 
   UserRolesEnum = UserRoles; // expose enum to template
   userRoles: (keyof typeof UserRoles)[] = Object.keys(UserRoles).filter((key) =>
@@ -75,6 +88,29 @@ export class UsersForm implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.userId) {
+      this.editMode = true;
+      this.password.disable();
+      this.prepareFormForEditMode(this.userId);
+    } else {
+      this.editMode = false;
+      this.password.enable();
+    }
+  }
+
+  private prepareFormForEditMode(editUserId: number): void {
+    const sub = this.userService.getUser(editUserId).subscribe({
+      next: (user: UserDto) => {
+        this.formGroup.patchValue(user);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
   get username(): FormControl<string> {
     return this.formGroup.controls.username;
   }
@@ -97,5 +133,15 @@ export class UsersForm implements OnInit {
 
   reset() {
     this.formGroup.reset();
+  }
+
+  onSubmit() {
+    if (this.formGroup.valid) {
+      // save user
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.compositeSubscription.unsubscribe();
   }
 }

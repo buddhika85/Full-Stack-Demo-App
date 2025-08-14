@@ -1,5 +1,4 @@
-﻿
-using Emp.Api.Controllers;
+﻿using Emp.Api.Controllers;
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Enums;
@@ -7,6 +6,8 @@ using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -99,5 +100,35 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in GetUser endpoint for ID: {user.Id}.", Times.Never());
 
         mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == user.Id)), Times.Once());
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(100)]
+    public async Task GetUser_ReturnsNotFoundError_WhenUserWithIdUnavailable(int unavailableId)
+    {
+        // arrange
+        mockUserService.Setup(x => x.GetUserByIdAsync(unavailableId)).ReturnsAsync((UserDto?)null);
+
+        // act
+        var result = await usersController.GetUser(unavailableId);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ActionResult<UserDto>>();
+        var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        notFoundResult.Should().NotBeNull();
+        notFoundResult.StatusCode.Should().Be(404);
+
+        var problemDetils = notFoundResult.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problemDetils.Title.Should().Be("Not Found");
+        problemDetils.Detail.Should().Be($"API: User with ID {unavailableId} not found.");
+        problemDetils.Status.Should().Be(StatusCodes.Status404NotFound);
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: GetUser endpoint called for ID: {unavailableId} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: User with ID {unavailableId} not found.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in GetUser endpoint for ID: {unavailableId}.", Times.Never());
+
+        mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == unavailableId)), Times.Once());
     }
 }

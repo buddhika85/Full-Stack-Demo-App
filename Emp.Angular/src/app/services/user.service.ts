@@ -16,6 +16,6 @@ export class UserService {
   }
 
   getUser(id: number): Observable<UserDto> {
-    return this.httpClient.get<UserDto>(this.baseUrl);
+    return this.httpClient.get<UserDto>(`${this.baseUrl}/${id}`);
   }
 }

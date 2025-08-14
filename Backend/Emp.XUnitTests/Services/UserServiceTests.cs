@@ -126,4 +126,24 @@ public class UserServiceTests
 
         mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(id => id == unavilableUserId)), Times.Once());
     }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task GetUserByIdAsync_ThrowsException_WhenGetByIdAsyncThrows(int id)
+    {
+        // arrange
+        mockUserRepository.Setup(x => x.GetByIdAsync(id)).ThrowsAsync(new Exception { Source = "Test Exception" });
+
+        // act
+        Func<Task> act = async () => await userService.GetUserByIdAsync(id);
+
+        // asert
+        await act.Should().ThrowAsync<Exception>().Where(x => x.Source == "Test Exception");
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to get a user by id {id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User with id {id} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with Id {id} retrieved.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in getting user by id {id}", Times.Once());
+    }
 }

@@ -130,4 +130,6 @@ public class UsersControllerTests
 
         mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == unavailableId)), Times.Once());
     }
+
+    //
 }

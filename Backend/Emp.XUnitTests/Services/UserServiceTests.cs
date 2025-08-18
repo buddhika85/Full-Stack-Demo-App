@@ -146,4 +146,27 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"User with Id {id} retrieved.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"Error in getting user by id {id}", Times.Once());
     }
+
+
+    [Fact]
+    public async Task CreateUserAsync_ReturnsNewUserDto_IfUsenameIsUnique()
+    {
+        // arrange 
+        var createUserDto = new CreateUserDto
+        {
+            FirstName = "Test FN",
+            LastName = "Test LN",
+            Password = "TestPw456#",
+            Username = "test@test.com",
+            Role = UserRoles.Staff
+        };
+        mockUserRepository.Setup(x => x.IsExistsAsync(createUserDto.Username)).ReturnsAsync(false);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
+
+        // act
+        var result = await userService.CreateUserAsync(createUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+    }
 }

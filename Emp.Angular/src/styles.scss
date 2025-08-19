@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+// snack bar
+.snack-error {
+  @apply bg-red-500 text-black font-semibold;
+}
+.snack-success {
+  @apply bg-green-500 text-black font-semibold;
+}
+
+.snack-info {
+  @apply bg-blue-500 text-black font-semibold;
+}
+
+.snack-warn {
+  @apply bg-yellow-500 text-black font-semibold;
+}
+
 // 🎨 Custom SCSS Variables
 $primary-color: #4f46e5;
 $success-color: #22c55e;

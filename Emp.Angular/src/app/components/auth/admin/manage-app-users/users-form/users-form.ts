@@ -21,6 +21,8 @@ import { UserDto } from '../../../../../models/user.dto';
 import { Subscription } from 'rxjs';
 import { UpdateUserDto } from '../../../../../models/updateUser.dto';
 import { CreateUserDto } from '../../../../../models/createUser.dto';
+import { SnackbarService } from '../../../../../services/snackbar.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users-form',
@@ -34,6 +36,8 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() userId!: number | null;
   private editMode: boolean = false;
   private readonly userService: UserService = inject(UserService);
+  private readonly snackbarService: SnackbarService = inject(SnackbarService);
+  private readonly router: Router = inject(Router);
 
   UserRolesEnum = UserRoles; // expose enum to template
   userRoles: (keyof typeof UserRoles)[] = Object.keys(UserRoles).filter((key) =>
@@ -117,6 +121,10 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     }
   }
 
+  ngOnDestroy(): void {
+    this.compositeSubscription.unsubscribe();
+  }
+
   private prepareFormForEditMode(editUserId: number): void {
     const sub = this.userService.getUser(editUserId).subscribe({
       next: (user: UserDto) => {
@@ -164,6 +172,27 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     } else {
       const createUserDto: CreateUserDto = this.mapToCreateUserDto();
       console.log('create ', createUserDto);
+
+      const sub = this.userService.createUser(createUserDto).subscribe({
+        next: (value: UserDto) => {
+          this.snackbarService.success(
+            `A new user with ID ${value.id} and username ${value.username} was created. Back to Users List`
+          );
+          setTimeout(() => {
+            this.router.navigate(['manage-app-users']);
+          }, 3000);
+        },
+        error: (err: any) => {
+          console.error('User creation error', err);
+          let errorMsg: string =
+            err.error.detail ??
+            `An error occured while creating a user with username ${createUserDto.username}.`;
+          errorMsg = `Error - ${errorMsg}`;
+          console.error(errorMsg);
+          this.snackbarService.error(errorMsg);
+        },
+      });
+      this.compositeSubscription.add(sub);
     }
   }
 
@@ -180,14 +209,8 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   mapToCreateUserDto(): CreateUserDto {
     const createUserDto: CreateUserDto = {
-      id: 0,
-      isActive: true,
       ...this.formGroup.getRawValue(),
     };
     return createUserDto;
-  }
-
-  ngOnDestroy(): void {
-    this.compositeSubscription.unsubscribe();
   }
 }

@@ -215,7 +215,7 @@ public class UserServiceTests
         Func<Task> act = async () => await userService.CreateUserAsync(createUserDto);
 
         // assert
-        await act.Should().ThrowAsync<InvalidOperationException>().Where(x => x.Message == $"Username '{createUserDto.Username}' already exists.");
+        await act.Should().ThrowAsync<InvalidOperationException>().Where(x => x.Message == $"Username '{createUserDto.Username}' already exists. Please use a unique username.");
 
         mockUserRepository.Verify(x => x.AddAsync(It.Is<User>(x =>
             x.Id == 0

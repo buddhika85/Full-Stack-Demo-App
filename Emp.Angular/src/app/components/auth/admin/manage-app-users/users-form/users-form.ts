@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   inject,
   Input,
@@ -25,7 +26,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './users-form.html',
   styleUrl: './users-form.scss',
 })
-export class UsersForm implements OnInit, OnChanges, OnDestroy {
+export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   private readonly compositeSubscription: Subscription = new Subscription();
 
   @Input() userId!: number | null;
@@ -91,10 +92,16 @@ export class UsersForm implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.userId) {
       this.editMode = true;
-      this.password.disable();
       this.prepareFormForEditMode(this.userId);
     } else {
       this.editMode = false;
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.editMode) {
+      this.password.disable();
+    } else {
       this.password.enable();
     }
   }

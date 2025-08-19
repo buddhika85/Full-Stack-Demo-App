@@ -5,6 +5,6 @@ export interface UpdateUserDto extends BaseDto {
   username: string;
   firstName: string;
   lastName: string;
-  role: UserRoles;
+  role: number;
   isActive: boolean;
 }

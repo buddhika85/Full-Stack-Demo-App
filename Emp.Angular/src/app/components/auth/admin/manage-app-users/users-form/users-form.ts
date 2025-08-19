@@ -197,11 +197,12 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   mapToUpdateUserDto(): UpdateUserDto {
-    const { password, ...formValues } = this.formGroup.getRawValue();
+    const { password, role, ...formValues } = this.formGroup.getRawValue();
 
     const updateUserDto: UpdateUserDto = {
       id: this.userId!,
       isActive: true,
+      role: Number(role),
       ...formValues,
     };
     return updateUserDto;
@@ -210,6 +211,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   mapToCreateUserDto(): CreateUserDto {
     const createUserDto: CreateUserDto = {
       ...this.formGroup.getRawValue(),
+      role: Number(this.formGroup.getRawValue().role),
     };
     return createUserDto;
   }

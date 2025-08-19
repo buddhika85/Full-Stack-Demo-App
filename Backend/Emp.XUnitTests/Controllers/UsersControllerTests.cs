@@ -131,5 +131,55 @@ public class UsersControllerTests
         mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == unavailableId)), Times.Once());
     }
 
-    //
+
+    [Theory]
+    [InlineData("test@test.com", "qwe123$", "Test Fn", "Test Ln", UserRoles.Staff)]
+    [InlineData("test@test.com", "qwe123$", "Test Fn", "Test Ln", UserRoles.Admin)]
+    public async Task CreateUser_ReturnsUserDto_WhenValidDataPassed
+        (string username, string password, string firstName, string lastName, UserRoles role)
+    {
+        // arrange
+        var createUserDto = new CreateUserDto
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Password = password,
+            Username = username,
+            Role = role
+        };
+        var expectedUserDto = new UserDto
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Role = role,
+            Username = username,
+            Id = 0,
+            IsActive = true
+        };
+        mockUserService.Setup(x => x.CreateUserAsync(It.Is<CreateUserDto>(x => x == createUserDto))).ReturnsAsync(expectedUserDto);
+
+        // act
+        var result = await usersController.CreateUser(createUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ActionResult<UserDto>>();
+
+        var createdAtActionResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
+        createdAtActionResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+        createdAtActionResult.ActionName.Should().Be("GetUser");
+        createdAtActionResult.RouteValues.Should().HaveCount(1);
+        createdAtActionResult.RouteValues["id"].Should().Be(expectedUserDto.Id);
+
+        createdAtActionResult.Value.Should().NotBeNull();
+        var userDto = createdAtActionResult.Value.Should().BeOfType<UserDto>().Subject;
+        userDto.Should().BeEquivalentTo(expectedUserDto);
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: CreateUser endpoint called for username: {createUserDto.Username} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User '{expectedUserDto.Username}' created successfully with ID: {expectedUserDto.Id} by Admin.", Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Never());
+    }
 }

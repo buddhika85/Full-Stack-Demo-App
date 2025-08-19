@@ -19,6 +19,8 @@ import { UserRoles } from '../../../../../models/userRoles';
 import { UserService } from '../../../../../services/user.service';
 import { UserDto } from '../../../../../models/user.dto';
 import { Subscription } from 'rxjs';
+import { UpdateUserDto } from '../../../../../models/updateUser.dto';
+import { CreateUserDto } from '../../../../../models/createUser.dto';
 
 @Component({
   selector: 'app-users-form',
@@ -54,7 +56,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
         validators: [
           Validators.required,
           Validators.email,
-          Validators.minLength(6),
+          Validators.minLength(4),
           Validators.maxLength(50),
         ],
       }),
@@ -70,7 +72,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.minLength(6),
+          Validators.minLength(4),
           Validators.maxLength(50),
         ],
       }),
@@ -78,7 +80,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.minLength(6),
+          Validators.minLength(4),
           Validators.maxLength(50),
         ],
       }),
@@ -100,8 +102,17 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.editMode) {
+      // edit mode - remove all valiators of password and disable password form control
+      this.password.clearValidators();
+      this.password.updateValueAndValidity();
       this.password.disable();
     } else {
+      this.password.setValidators([
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(50),
+      ]);
+      this.password.updateValueAndValidity();
       this.password.enable();
     }
   }
@@ -143,9 +154,37 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.formGroup.valid) {
-      // save user
+    if (!this.formGroup.valid || !this.formGroup.dirty) {
+      return;
     }
+
+    if (this.editMode) {
+      const updateUserDto: UpdateUserDto = this.mapToUpdateUserDto();
+      console.log('update', updateUserDto);
+    } else {
+      const createUserDto: CreateUserDto = this.mapToCreateUserDto();
+      console.log('create ', createUserDto);
+    }
+  }
+
+  mapToUpdateUserDto(): UpdateUserDto {
+    const { password, ...formValues } = this.formGroup.getRawValue();
+
+    const updateUserDto: UpdateUserDto = {
+      id: this.userId!,
+      isActive: true,
+      ...formValues,
+    };
+    return updateUserDto;
+  }
+
+  mapToCreateUserDto(): CreateUserDto {
+    const createUserDto: CreateUserDto = {
+      id: 0,
+      isActive: true,
+      ...this.formGroup.getRawValue(),
+    };
+    return createUserDto;
   }
 
   ngOnDestroy(): void {

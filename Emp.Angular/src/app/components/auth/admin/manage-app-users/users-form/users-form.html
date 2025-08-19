@@ -64,7 +64,10 @@
 
   <div></div>
   <div>
-    <button class="primary-btn float-start" [disabled]="formGroup.invalid">
+    <button
+      class="primary-btn float-start"
+      [disabled]="formGroup.invalid || !formGroup.dirty"
+    >
       Submit
     </button>
     <button type="button" class="reset-btn" (click)="reset()">Reset</button>

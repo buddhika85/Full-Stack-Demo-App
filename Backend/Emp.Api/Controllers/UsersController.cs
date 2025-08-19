@@ -61,7 +61,7 @@ public class UsersController : BaseController
 
     [HttpPost]
 
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+    public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
     {
         logger.LogInformation("API: CreateUser endpoint called for username: {Username} by Admin.", createUserDto.Username);
         if (!ModelState.IsValid)
@@ -82,10 +82,15 @@ public class UsersController : BaseController
             logger.LogInformation("API: User '{Username}' created successfully with ID: {Id} by Admin.", createdUser.Username, createdUser.Id);
             return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
         }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogError(ex, "API: Error in CreateUser endpoint for username: {Username}.", createUserDto.Username);
+            return InternalServerError(ex.Message, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "API: Error in CreateUser endpoint for username: {Username}.", createUserDto.Username);
-            return InternalServerError("API: Error in CreateUser endpoint for username: {Username}.", createUserDto.Username);
+            return InternalServerError($"API: Error in CreateUser endpoint for username: {createUserDto.Username}.");
         }
     }
 

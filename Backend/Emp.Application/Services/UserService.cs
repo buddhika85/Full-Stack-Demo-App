@@ -64,7 +64,7 @@ public class UserService : IUserService
             if (await unitOfWork.UserRepository.IsExistsAsync(userDto.Username))
             {
                 logger.LogWarning("User creation failed: Username '{Username}' already exists.", userDto.Username);
-                throw new InvalidOperationException($"Username '{userDto.Username}' already exists.");
+                throw new InvalidOperationException($"Username '{userDto.Username}' already exists. Please use a unique username.");
             }
 
             var user = userDto.ToEntity();

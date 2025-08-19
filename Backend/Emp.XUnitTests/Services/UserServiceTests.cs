@@ -160,6 +160,15 @@ public class UserServiceTests
             Username = "test@test.com",
             Role = UserRoles.Staff
         };
+        var expected = new UserDto
+        {
+            Id = 0,
+            FirstName = createUserDto.FirstName,
+            LastName = createUserDto.LastName,
+            Role = createUserDto.Role,
+            Username = createUserDto.Username,
+            IsActive = true,
+        };
         mockUserRepository.Setup(x => x.IsExistsAsync(createUserDto.Username)).ReturnsAsync(false);
         mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
 
@@ -168,5 +177,22 @@ public class UserServiceTests
 
         // assert
         result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(expected);
+
+        mockUserRepository.Verify(x => x.AddAsync(It.Is<User>(x =>
+            x.Id == 0
+            && x.Username.Equals(createUserDto.Username)
+            && x.FirstName.Equals(createUserDto.FirstName)
+            && x.LastName.Equals(createUserDto.LastName)
+            && x.Role.Equals(createUserDto.Role.ToString())
+            && x.IsActive
+            )), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to create user with username/email: {createUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with username/email {createUserDto.Username} created successfully", Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User creation failed: Username '{createUserDto.Username}' already exists.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User with username/email {createUserDto.Username} creation failed", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error creating a user with username/email {createUserDto.Username}", Times.Never());
     }
 }

@@ -10,6 +10,7 @@ using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
 
 namespace Emp.XUnitTests.Services;
 
@@ -194,5 +195,43 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Warning, $"User creation failed: Username '{createUserDto.Username}' already exists.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"User with username/email {createUserDto.Username} creation failed", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"Error creating a user with username/email {createUserDto.Username}", Times.Never());
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_ThrowsInvalidOperationException_IfUsenameAlreadyExists()
+    {
+        // arrange 
+        var createUserDto = new CreateUserDto
+        {
+            FirstName = "Test FN",
+            LastName = "Test LN",
+            Password = "TestPw456#",
+            Username = "test@test.com",
+            Role = UserRoles.Staff
+        };
+        mockUserRepository.Setup(x => x.IsExistsAsync(createUserDto.Username)).ReturnsAsync(true);
+
+
+        // act
+        Func<Task> act = async () => await userService.CreateUserAsync(createUserDto);
+
+        // assert
+        await act.Should().ThrowAsync<InvalidOperationException>().Where(x => x.Message == $"Username '{createUserDto.Username}' already exists.");
+
+        mockUserRepository.Verify(x => x.AddAsync(It.Is<User>(x =>
+            x.Id == 0
+            && x.Username.Equals(createUserDto.Username)
+            && x.FirstName.Equals(createUserDto.FirstName)
+            && x.LastName.Equals(createUserDto.LastName)
+            && x.Role.Equals(createUserDto.Role.ToString())
+            && x.IsActive
+            )), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to create user with username/email: {createUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with username/email {createUserDto.Username} created successfully", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User creation failed: Username '{createUserDto.Username}' already exists.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User with username/email {createUserDto.Username} creation failed", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error creating a user with username/email {createUserDto.Username}", Times.Once());
     }
 }

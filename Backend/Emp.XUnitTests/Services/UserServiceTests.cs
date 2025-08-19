@@ -10,7 +10,6 @@ using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
 
 namespace Emp.XUnitTests.Services;
 

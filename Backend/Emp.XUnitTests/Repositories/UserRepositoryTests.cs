@@ -174,4 +174,26 @@ public class UserRepositoryTests
         updatedUser.Should().BeEquivalentTo(testUser);
     }
 
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Delete_DeletesRecord_WhenCalledWithAnExistingUser(int userIdToDelete)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("Delete_DeletesRecord_WhenCalledWithAnExistingUser");
+        var userRepository = new UserRepository(testDbContext);
+        var userToDelete = testDbContext.Users.Find(userIdToDelete);
+        userToDelete.Should().NotBeNull();
+
+        // act
+        var userCountBeforeDelete = testDbContext.Users.Count();
+        userRepository.Delete(userToDelete);
+        await testDbContext.SaveChangesAsync();
+        userToDelete = testDbContext.Users.Find(userIdToDelete);
+
+        // assert
+        testDbContext.Users.Count().Should().Be(userCountBeforeDelete - 1);
+        userToDelete.Should().BeNull();
+    }
 }

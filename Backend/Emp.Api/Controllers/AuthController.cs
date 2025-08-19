@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 namespace Emp.Api.Controllers;
 
-
+[ApiController]
+[Route("api/[controller]")]
 public class AuthController : BaseController
 {
     private readonly IUserService userService;

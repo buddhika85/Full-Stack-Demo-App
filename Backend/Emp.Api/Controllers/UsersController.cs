@@ -7,6 +7,8 @@ using System.Data;
 
 namespace Emp.Api.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 [Authorize(Roles = $"{nameof(UserRoles.Admin)}")]        // all are admin only endpoints
 public class UsersController : BaseController
 {
@@ -59,7 +61,7 @@ public class UsersController : BaseController
 
     [HttpPost]
 
-    public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
     {
         logger.LogInformation("API: CreateUser endpoint called for username: {Username} by Admin.", createUserDto.Username);
         if (!ModelState.IsValid)

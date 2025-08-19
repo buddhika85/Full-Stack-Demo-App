@@ -23,6 +23,5 @@ public class CreateUserDto
     public required string LastName { get; set; }
 
     [Required]
-    [MaxLength(20)]
     public UserRoles Role { get; set; } = UserRoles.Staff;
 }

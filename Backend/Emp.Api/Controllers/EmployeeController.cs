@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.OutputCaching;
 
 namespace Emp.Api.Middleware;
 
+[ApiController]
+[Route("api/[controller]")]
 [Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
 public class EmployeeController : BaseController
 {

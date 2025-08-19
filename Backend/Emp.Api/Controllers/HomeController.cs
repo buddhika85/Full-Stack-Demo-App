@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.OutputCaching;
 
 namespace Emp.Api.Controllers;
 
-
+[ApiController]
+[Route("api/[controller]")]
 public class HomeController : BaseController
 {
     private readonly IDepartmentService departmentService;

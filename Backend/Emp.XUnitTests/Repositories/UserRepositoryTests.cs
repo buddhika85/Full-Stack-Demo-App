@@ -6,6 +6,7 @@ using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Emp.XUnitTests.Repositories;
 
@@ -195,5 +196,37 @@ public class UserRepositoryTests
         // assert
         testDbContext.Users.Count().Should().Be(userCountBeforeDelete - 1);
         userToDelete.Should().BeNull();
+    }
+
+
+    [Theory]
+    [InlineData("admin@emp.com", "Admin", "User", true, UserRoles.Admin)]
+    [InlineData("staff@emp.com", "Staff", "Member", true, UserRoles.Staff)]
+    public async Task FindAsync_ReturnsUsers_IfExistsForPredicate(string username, string firstName, string lastName, bool isActive, UserRoles role)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("FindAsync_ReturnsUsers_IfExistsForPredicate");
+        var repository = new UserRepository(testDbContext);
+
+
+        // act
+        var result = await repository.FindAsync(x =>
+                        x.Username.Equals(username)
+                        && x.FirstName.Equals(firstName)
+                        && x.LastName.Equals(lastName)
+                        && x.IsActive == isActive
+                        && x.Role.Equals(role.ToString())
+                        );
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        var firstRecord = result.FirstOrDefault();
+        firstRecord.Should().NotBeNull();
+        firstRecord.Username.Should().Be(username);
+        firstRecord.FirstName.Should().Be(firstName);
+        firstRecord.LastName.Should().Be(lastName);
+        firstRecord.IsActive.Should().Be(isActive);
+        firstRecord.Role.Should().Be(role.ToString());
     }
 }

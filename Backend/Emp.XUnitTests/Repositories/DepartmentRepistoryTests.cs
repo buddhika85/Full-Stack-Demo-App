@@ -83,10 +83,10 @@ public class DepartmentRepistoryTests
 
     [Theory]
     [ClassData(typeof(DepartmentTestData))]
-    public async Task GetByIdAsync_ReturnsCorrectDeparment_ForIdPassed(Department expected)
+    public async Task GetByIdAsync_ReturnsCorrectDepartment_ForIdPassed(Department expected)
     {
         // arrange
-        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_ReturnsNull_IfNonExistent");
+        var testDbContext = await GetInMemoryDbContext("GetByIdAsync_ReturnsCorrectDepartment_ForIdPassed");
         var repository = new DepartmentRepository(testDbContext);
 
         // act

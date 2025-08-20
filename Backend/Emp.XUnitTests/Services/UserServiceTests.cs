@@ -233,4 +233,57 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Error, $"User with username/email {createUserDto.Username} creation failed", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"Error creating a user with username/email {createUserDto.Username}", Times.Once());
     }
+
+    [Fact]
+    public async Task UpdateUserAsync_ReturnsTrue_WhenUsernameExists()
+    {
+        // arrange
+        var updateUserId = 1;
+        var username = "staff@emp.com";
+        var updateUserDto = new UpdateUserDto
+        {
+            FirstName = "Updated First Name",
+            LastName = "Updated Last Name",
+            Role = UserRoles.Admin,
+            Username = username,
+            Id = updateUserId,
+            IsActive = true
+        };
+        var userFromRepo = new User
+        {
+            Id = updateUserId,
+            Username = username,
+            Role = UserRoles.Staff.ToString(),
+            IsActive = false,
+            FirstName = "Staff",
+            LastName = "Member"
+        };
+        mockUserRepository.Setup(x => x.GetByIdAsync(It.Is<int>(x => x == updateUserId))).ReturnsAsync(userFromRepo);
+        mockUnitOfWork.Setup(x => x.CompleteAsync()).ReturnsAsync(1);
+
+        // act
+        var result = await userService.UpdateUserAsync(updateUserId, updateUserDto);
+
+        // assert
+        result.Should().BeTrue();
+        mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == updateUserId)), Times.Once());
+        mockUserRepository.Verify(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(updateUserDto.Username))), Times.Never());
+        mockUserRepository.Verify(x => x.Update(It.Is<User>(x =>
+            x.Id == updateUserId
+            && x.Username.Equals(updateUserDto.Username)
+            && x.FirstName.Equals(updateUserDto.FirstName)
+            && x.LastName.Equals(updateUserDto.LastName)
+            && x.Role.Equals(updateUserDto.Role.ToString())
+            && x.IsActive == updateUserDto.IsActive
+            )), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update a user with id {updateUserId} and username/email {updateUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with id {updateUserId} and username/email {updateUserDto.Username} update successful", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with ID {updateUserId} username/email {updateUserDto.Username} was found, but no changes were applied or saved.", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Error, $"User updated failed: User with id {updateUserId} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in updating User with id {updateUserId} and username/email {username}", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User update failed: Username '{updateUserDto.Username}' already taken by another user.", Times.Never());
+    }
 }

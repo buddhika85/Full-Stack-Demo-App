@@ -229,4 +229,27 @@ public class UserRepositoryTests
         firstRecord.IsActive.Should().Be(isActive);
         firstRecord.Role.Should().Be(role.ToString());
     }
+
+    [Theory]
+    [InlineData("pqr@emp.com", "Admin", "User", true, UserRoles.Admin)]
+    [InlineData("abc@emp.com", "Staff", "Member", true, UserRoles.Staff)]
+    public async Task FindAsync_ReturnEmptyList_IfDoesNotExistForPredicate(string username, string firstName, string lastName, bool isActive, UserRoles role)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("FindAsync_ReturnEmptyList_IfDoesNotExistForPredicate");
+        var repository = new UserRepository(testDbContext);
+
+        // act
+        var result = await repository.FindAsync(x =>
+            x.Username.Equals(username)
+            && x.FirstName.Equals(firstName)
+            && x.LastName.Equals(lastName)
+            && x.IsActive == isActive
+            && x.Role.Equals(role.ToString()));
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeAssignableTo<IEnumerable<User>>();
+        result.Should().BeEmpty();
+    }
 }

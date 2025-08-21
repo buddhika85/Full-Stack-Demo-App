@@ -286,4 +286,10 @@ public class UserServiceTests
 
         mockLogger.VerifyMessage(LogLevel.Warning, $"User update failed: Username '{updateUserDto.Username}' already taken by another user.", Times.Never());
     }
+
+    // update - change username to non existing username - passes
+
+    // update - change username to an existing username - fails, as username already taken
+
+    // update - GetByIdAsync returns null - fails
 }

@@ -167,47 +167,64 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     }
 
     if (this.editMode) {
-      const updateUserDto: UpdateUserDto = this.mapToUpdateUserDto();
-      console.log('update', updateUserDto);
-
-      const sub = this.userService
-        .updateUser(this.userId!, updateUserDto)
-        .subscribe({
-          next: (value: void) => {
-            this.snackbarService.success(
-              `User ${this.userId} with username ${updateUserDto.username} was updated successfully. Back to Users List`
-            );
-            setTimeout(() => {
-              this.router.navigate(['manage-app-users']);
-            }, 3000);
-          },
-        });
-      this.compositeSubscription.add(sub);
+      this.editUser();
     } else {
-      const createUserDto: CreateUserDto = this.mapToCreateUserDto();
-      //console.log('create ', createUserDto);
+      this.addUser();
+    }
+  }
 
-      const sub = this.userService.createUser(createUserDto).subscribe({
-        next: (value: UserDto) => {
+  private editUser(): void {
+    const updateUserDto: UpdateUserDto = this.mapToUpdateUserDto();
+    console.log('update', updateUserDto);
+
+    const sub = this.userService
+      .updateUser(this.userId!, updateUserDto)
+      .subscribe({
+        next: (value: void) => {
           this.snackbarService.success(
-            `A new user with ID ${value.id} and username ${value.username} was created. Back to Users List`
+            `User ${this.userId} with username ${updateUserDto.username} was updated successfully. Back to Users List`
           );
           setTimeout(() => {
             this.router.navigate(['manage-app-users']);
           }, 3000);
         },
         error: (err: any) => {
-          console.error('User creation error', err);
+          console.error('User edit error', err);
           let errorMsg: string =
             err.error.detail ??
-            `An error occured while creating a user with username ${createUserDto.username}.`;
+            `An error occured while creating a user with username ${updateUserDto.username}.`;
           errorMsg = `Error - ${errorMsg}`;
           console.error(errorMsg);
           this.snackbarService.error(errorMsg);
         },
       });
-      this.compositeSubscription.add(sub);
-    }
+    this.compositeSubscription.add(sub);
+  }
+
+  private addUser(): void {
+    const createUserDto: CreateUserDto = this.mapToCreateUserDto();
+    //console.log('create ', createUserDto);
+
+    const sub = this.userService.createUser(createUserDto).subscribe({
+      next: (value: UserDto) => {
+        this.snackbarService.success(
+          `A new user with ID ${value.id} and username ${value.username} was created. Back to Users List`
+        );
+        setTimeout(() => {
+          this.router.navigate(['manage-app-users']);
+        }, 3000);
+      },
+      error: (err: any) => {
+        console.error('User creation error', err);
+        let errorMsg: string =
+          err.error.detail ??
+          `An error occured while creating a user with username ${createUserDto.username}.`;
+        errorMsg = `Error - ${errorMsg}`;
+        console.error(errorMsg);
+        this.snackbarService.error(errorMsg);
+      },
+    });
+    this.compositeSubscription.add(sub);
   }
 
   mapToUpdateUserDto(): UpdateUserDto {

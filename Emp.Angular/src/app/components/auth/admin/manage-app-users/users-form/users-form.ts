@@ -169,9 +169,23 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     if (this.editMode) {
       const updateUserDto: UpdateUserDto = this.mapToUpdateUserDto();
       console.log('update', updateUserDto);
+
+      const sub = this.userService
+        .updateUser(this.userId!, updateUserDto)
+        .subscribe({
+          next: (value: void) => {
+            this.snackbarService.success(
+              `User ${this.userId} with username ${updateUserDto.username} was updated successfully. Back to Users List`
+            );
+            setTimeout(() => {
+              this.router.navigate(['manage-app-users']);
+            }, 3000);
+          },
+        });
+      this.compositeSubscription.add(sub);
     } else {
       const createUserDto: CreateUserDto = this.mapToCreateUserDto();
-      console.log('create ', createUserDto);
+      //console.log('create ', createUserDto);
 
       const sub = this.userService.createUser(createUserDto).subscribe({
         next: (value: UserDto) => {

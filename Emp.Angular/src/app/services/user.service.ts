@@ -25,10 +25,8 @@ export class UserService {
     return this.httpClient.post<UserDto>(this.baseUrl, createUserDto);
   }
 
-  updateUser(id: number, updateUserDto: UpdateUserDto): Observable<UserDto> {
-    return this.httpClient.put<UserDto>(this.baseUrl, {
-      id: id,
-      updateUserDto: updateUserDto,
-    });
+  updateUser(id: number, updateUserDto: UpdateUserDto): Observable<void> {
+    // returns no content - 204 result
+    return this.httpClient.put<void>(`${this.baseUrl}/${id}`, updateUserDto);
   }
 }

@@ -175,7 +175,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   private editUser(): void {
     const updateUserDto: UpdateUserDto = this.mapToUpdateUserDto();
-    console.log('update', updateUserDto);
+    //console.log('update', updateUserDto);
 
     const sub = this.userService
       .updateUser(this.userId!, updateUserDto)

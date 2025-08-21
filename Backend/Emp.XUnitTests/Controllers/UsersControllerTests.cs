@@ -1,4 +1,5 @@
 ﻿using Emp.Api.Controllers;
+using Emp.Application.Services;
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Enums;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Data;
 
 namespace Emp.XUnitTests.Controllers;
 
@@ -181,5 +183,46 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Never());
+    }
+
+    [Theory]
+    [InlineData("test@test.com", "qwe123$", "Test Fn", "Test Ln", UserRoles.Staff)]
+    [InlineData("test@test.com", "qwe123$", "Test Fn", "Test Ln", UserRoles.Admin)]
+    public async Task CreateUser_ReturnsInternalServerError_WhenInvalidOperationExceptionThrown
+        (string username, string password, string firstName, string lastName, UserRoles role)
+    {
+        // arrange
+        var createUserDto = new CreateUserDto
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Password = password,
+            Username = username,
+            Role = role
+        };
+        var testExceptionMessage = "Test Invalid Operation Exception";
+        mockUserService.Setup(x => x.CreateUserAsync(It.Is<CreateUserDto>(x => x == createUserDto))).ThrowsAsync(new InvalidOperationException(testExceptionMessage));
+
+        // act
+        var result = await usersController.CreateUser(createUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        var internalServerError = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        internalServerError.Should().NotBeNull();
+        internalServerError.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        var problemDetails = internalServerError.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        problemDetails.Title.Should().Be($"API: Error in CreateUser endpoint for username: {createUserDto.Username}.");
+        problemDetails.Detail.Should().Be(testExceptionMessage);
+        problemDetails.Status.Should().Be(StatusCodes.Status500InternalServerError);
+
+        mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserDto>(x => x == createUserDto)), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: CreateUser endpoint called for username: {createUserDto.Username} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User '{createUserDto.Username}' created successfully with ID: 0 by Admin.", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Once());
     }
 }

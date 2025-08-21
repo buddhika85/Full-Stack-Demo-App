@@ -1,5 +1,4 @@
 ﻿using Emp.Api.Controllers;
-using Emp.Application.Services;
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Enums;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Data;
 
 namespace Emp.XUnitTests.Controllers;
 
@@ -133,6 +131,16 @@ public class UsersControllerTests
         mockUserService.Verify(x => x.GetUserByIdAsync(It.Is<int>(id => id == unavailableId)), Times.Once());
     }
 
+    //[Fact]
+    //public async Task GetUser_ReturnsInternalServerError_WhenAnExceptionThrown()
+    //{
+    //    // arrange 
+
+    //    // act
+
+    //    // assert
+    //}
+
 
     [Theory]
     [InlineData("test@test.com", "qwe123$", "Test Fn", "Test Ln", UserRoles.Staff)]
@@ -225,4 +233,6 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Once());
     }
+
+
 }

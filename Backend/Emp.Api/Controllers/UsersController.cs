@@ -127,7 +127,7 @@ public class UsersController : BaseController
         catch (Exception ex)
         {
             logger.LogError(ex, "API: Error in UpdateUser endpoint for ID: {Id}.", id);
-            return InternalServerError($"API: Error in UpdateUser endpoint for ID: {id}.");
+            return InternalServerError(ex.Message, $"API: Error in UpdateUser endpoint for ID: {id}.");
         }
     }
 

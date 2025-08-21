@@ -29,6 +29,10 @@
   @apply shared-nav-button bg-yellow-200 mx-1;
 }
 
+.username-span {
+  @apply bg-slate-200 text-sm font-bold p-1 border rounded-sm text-purple-800;
+}
+
 .nav-menu-item {
   @apply text-gray-700 hover:text-blue-600;
 }

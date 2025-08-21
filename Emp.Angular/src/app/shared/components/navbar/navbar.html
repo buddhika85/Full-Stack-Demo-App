@@ -42,7 +42,10 @@
       My Profile
     </button>
     <button mat-button (click)="logOut()" class="staff-admin-button">
-      Logout
+      Logout -
+      <span class="username-span">{{
+        authService.currentUser()?.username | uppercase
+      }}</span>
     </button>
     }
   </mat-toolbar-row>

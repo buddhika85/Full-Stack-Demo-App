@@ -346,6 +346,69 @@ public class UserServiceTests
 
 
     // update - change username to an existing username - fails, as username already taken
+    [Fact]
+    public async Task UpdateUserAsync_ThrowsInvalidOpException_WhenUsernameChangeButNewUsernameAlreadyTaken()
+    {
+        // arrange
+        var userIdToUpdate = 1;
+        var alreadyTakenUsernameUserId = 2;
+        var alreadyTakenUsername = "alreadyTaken@test.com";
+        var updateUserDto = new UpdateUserDto
+        {
+            Id = userIdToUpdate,
+            Username = alreadyTakenUsername,
+            FirstName = "FN Updated",
+            LastName = "LN Updated",
+            Role = UserRoles.Admin,
+            IsActive = true
+        };
+        var userToUpdate = new User
+        {
+            Id = userIdToUpdate,
+            Username = "oldUsername@test.com",
+            FirstName = "first name",
+            LastName = "last name",
+            Role = UserRoles.Staff.ToString(),
+            IsActive = false
+        };
+        var otherUserWithSameUsername = new User
+        {
+            Id = alreadyTakenUsernameUserId,
+            Username = alreadyTakenUsername,
+            FirstName = "first name",
+            LastName = "last name",
+            Role = UserRoles.Staff.ToString(),
+            IsActive = false
+        };
+        mockUserRepository.Setup(x => x.GetByIdAsync(It.Is<int>(x => x == userIdToUpdate))).ReturnsAsync(userToUpdate);
+        mockUserRepository.Setup(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(alreadyTakenUsername)))).ReturnsAsync(otherUserWithSameUsername);
+
+        // act
+        Func<Task> act = async () => await userService.UpdateUserAsync(userIdToUpdate, updateUserDto);
+
+        // assert
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Username '{alreadyTakenUsername}' is already taken by another user.");
+        mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == userIdToUpdate)), Times.Once());
+        mockUserRepository.Verify(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(alreadyTakenUsername))), Times.Once());
+        mockUserRepository.Verify(x => x.Update(It.Is<User>(x =>
+            x.Id == userIdToUpdate
+            && x.Username.Equals(alreadyTakenUsername)
+            && x.FirstName.Equals(updateUserDto.LastName)
+            && x.LastName.Equals(updateUserDto.LastName)
+            && x.Role.Equals(updateUserDto.Role.ToString())
+            && x.IsActive == userToUpdate.IsActive
+            )), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update a user with id {userIdToUpdate} and username/email {updateUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with id {userIdToUpdate} and username/email {updateUserDto.Username} update successful", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User update failed: Username '{updateUserDto.Username}' already taken by another user.", Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with ID {userIdToUpdate} username/email {updateUserDto.Username} was found, but no changes were applied or saved.", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Error, $"User updated failed: User with id {userIdToUpdate} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in updating User with id {userIdToUpdate} and username/email {alreadyTakenUsername}", Times.Once());
+    }
 
     // update - GetByIdAsync returns null - fails
 }

@@ -252,4 +252,27 @@ public class UserRepositoryTests
         result.Should().BeAssignableTo<IEnumerable<User>>();
         result.Should().BeEmpty();
     }
+
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]           // seeded usernames
+    public async Task GetByUsernameAsync_ReturnsUser_WhenUserExists(User user)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetByUsernameAsync_ReturnsUser_WhenUserExists");
+        var repository = new UserRepository(testDbContext);
+
+
+        // act
+        var userResult = await repository.GetByUsernameAsync(user.Username);
+
+        // assert
+        userResult.Should().NotBeNull();
+        userResult.Should().BeAssignableTo<User>();
+        userResult.Username.Should().Be(user.Username);
+        userResult.FirstName.Should().Be(user.FirstName);
+        userResult.LastName.Should().Be(user.LastName);
+        userResult.Role.Should().Be(user.Role);
+        userResult.IsActive.Should().Be(user.IsActive);
+    }
 }

@@ -275,4 +275,6 @@ public class UserRepositoryTests
         userResult.Role.Should().Be(user.Role);
         userResult.IsActive.Should().Be(user.IsActive);
     }
+
+    // 
 }

@@ -112,7 +112,7 @@ builder.Services.AddAuthentication(options =>
 
 
 // CORS
-var allowedOrigins = builder.Configuration["AllowedOrgins"]?.ToString().Split(",") ?? [];
+var allowedOrigins = builder.Configuration["AllowedOrigins"]?.ToString().Split(",") ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>

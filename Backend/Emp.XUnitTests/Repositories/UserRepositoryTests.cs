@@ -142,7 +142,6 @@ public class UserRepositoryTests
     }
 
 
-
     [Theory]
     [InlineData(1)]
     public async Task Update_UpdatesUser_WhenUserToUpdatePassed(int userId)
@@ -276,5 +275,19 @@ public class UserRepositoryTests
         userResult.IsActive.Should().Be(user.IsActive);
     }
 
-    // 
+    [Theory]
+    [InlineData("a@a.a")]
+    [InlineData("b@b.b")]
+    public async Task GetByUsernameAsync_ReturnsNull_WhenUserWithUsernameDoesNotExist(string unusedUsername)
+    {
+        // arrange
+        var testDbContext = await GetInMemoryDbContext("GetByUsernameAsync_ReturnsNull_WhenUserWithUsernameDoesNotExist");
+        var repository = new UserRepository(testDbContext);
+
+        // act
+        var result = await repository.GetByUsernameAsync(unusedUsername);
+
+        // assert
+        result.Should().BeNull();
+    }
 }

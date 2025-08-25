@@ -9,6 +9,7 @@ using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
@@ -21,9 +22,12 @@ builder.Services.AddScoped<ConsoleLoggerFilter>();
 
 //builder.Services.AddSingleton<IInMemoryRepository, InMemoryRepository>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
-});
+
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    )
+);
 
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -159,6 +163,10 @@ var app = builder.Build();  // RUNS ONCE PER APPLICATION CYCLE - This compiles e
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Apply any pending migrations
+    await dbContext.Database.MigrateAsync();
+
     await ApplicationDbSeeder.SeedAsync(dbContext); // Seed initial data here
 }
 
@@ -168,21 +176,21 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    //app.UseDeveloperExceptionPage();            // using built in developer exception page - stack trace, error code scection, route values, headers, cookies
+//if (app.Environment.IsDevelopment())
+//{
+//app.UseDeveloperExceptionPage();            // using built in developer exception page - stack trace, error code scection, route values, headers, cookies
 
-    app.UseMiddleware<CustomExceptionMiddleware>(); // custom middleware to tackle exceptions
+app.UseMiddleware<CustomExceptionMiddleware>(); // custom middleware to tackle exceptions
 
-    // using swagger
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    // redirect to production exception page
-    app.UseExceptionHandler("/error");
-}
+// using swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
+//else
+//{
+//    // redirect to production exception page
+//    app.UseExceptionHandler("/error");
+//}
 
 app.UseHttpsRedirection();
 

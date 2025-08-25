@@ -411,4 +411,46 @@ public class UserServiceTests
     }
 
     // update - GetByIdAsync returns null - fails
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1000)]
+    public async Task UpdateUserAsync_ReturnsFalse_IfUserWithIdNotFound(int unavailableId)
+    {
+        // arrange
+        var updateUserDto = new UpdateUserDto
+        {
+            Id = unavailableId,
+            Username = "a@a.com",
+            FirstName = "FN Updated",
+            LastName = "LN Updated",
+            Role = UserRoles.Admin,
+            IsActive = true
+        };
+        mockUserRepository.Setup(x => x.GetByIdAsync(It.Is<int>(x => x == unavailableId))).ReturnsAsync((User?)null);
+
+        // act
+        var result = await userService.UpdateUserAsync(unavailableId, updateUserDto);
+
+        // assert
+        result.Should().BeFalse();
+        mockUserRepository.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == unavailableId)), Times.Once());
+        mockUserRepository.Verify(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(updateUserDto.Username))), Times.Never());
+        mockUserRepository.Verify(x => x.Update(It.Is<User>(x =>
+            x.Id == unavailableId
+            && x.Username.Equals(updateUserDto.Username)
+            && x.FirstName.Equals(updateUserDto.FirstName)
+            && x.LastName.Equals(updateUserDto.LastName)
+            && x.Role.Equals(updateUserDto.Role.ToString())
+            && x.IsActive == updateUserDto.IsActive
+            )), Times.Never());
+        mockUnitOfWork.Verify(x => x.CompleteAsync(), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Attempting to update a user with id {unavailableId} and username/email {updateUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User updated failed: User with id {unavailableId} unavailable", Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with id {unavailableId} and username/email {updateUserDto.Username} update successful", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"User update failed: Username '{updateUserDto.Username}' already taken by another user.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User with ID {unavailableId} username/email {updateUserDto.Username} was found, but no changes were applied or saved.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in updating User with id {unavailableId} and username/email {updateUserDto.Username}", Times.Never());
+    }
 }

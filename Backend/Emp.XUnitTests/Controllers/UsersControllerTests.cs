@@ -234,5 +234,57 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Once());
     }
 
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task CreateUser_ReturnsInternalServerError_WhenServiceReturnsNull(User user)
+    {
+        // arrnage 
+        var createUserDto = new CreateUserDto
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Password = "qwe123$",
+            Username = user.Username,
+            Role = Enum.Parse<UserRoles>(user.Role),
+        };
+        mockUserService.Setup(x => x.CreateUserAsync(It.Is<CreateUserDto>(x =>
+                x.Username.Equals(createUserDto.Username)
+                && x.FirstName.Equals(createUserDto.FirstName)
+                && x.LastName.Equals(createUserDto.LastName)
+                && x.Password.Equals(createUserDto.Password)
+                && x.Role == createUserDto.Role
+            )))
+            .ReturnsAsync((UserDto?)null);
 
+        // act 
+        var result = await usersController.CreateUser(createUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ActionResult<UserDto>>();
+
+        var internalServerError = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        internalServerError.Should().NotBeNull();
+        internalServerError.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+
+        var problemDetails = internalServerError.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        problemDetails.Should().NotBeNull();
+        problemDetails.Title.Should().Be("Internal Server Error");
+        problemDetails.Detail.Should().Be($"New user creation failed for username {createUserDto.Username}");
+        problemDetails.Status.Should().Be(StatusCodes.Status500InternalServerError);
+
+        mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserDto>(x =>
+                x.Username.Equals(createUserDto.Username)
+                && x.FirstName.Equals(createUserDto.FirstName)
+                && x.LastName.Equals(createUserDto.LastName)
+                && x.Password.Equals(createUserDto.Password)
+                && x.Role == createUserDto.Role)), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: CreateUser endpoint called for username: {createUserDto.Username} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User '{createUserDto.Username}' created successfully with ID: 0 by Admin.", Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Never());
+    }
 }

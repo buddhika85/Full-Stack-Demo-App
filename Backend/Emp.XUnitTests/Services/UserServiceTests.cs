@@ -453,4 +453,22 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"User with ID {unavailableId} username/email {updateUserDto.Username} was found, but no changes were applied or saved.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"Error in updating User with id {unavailableId} and username/email {updateUserDto.Username}", Times.Never());
     }
+
+    //[Theory]
+    //[InlineData("test1@gmail.com", "qwe123$")]
+    //[InlineData("test1@gmail.com", "qwe123$")]
+    //public async Task AuthenticateUserAsync_ReturnsJwtToken_WhenCredentialsValid(string username, string password)
+    //{
+    //    // arrange
+    //    var loginDto = new LoginDto
+    //    {
+    //        Password = password,
+    //        Username = username
+    //    };
+    //    mock
+
+    //    // act
+
+    //    // assert
+    //}
 }

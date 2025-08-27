@@ -19,6 +19,7 @@ public class UserServiceTests
     private readonly Mock<IUnitOfWork> mockUnitOfWork;
     private readonly Mock<ILogger<UserService>> mockLogger;
     private readonly Mock<IJwtService> mockJwtService;
+    private readonly Mock<IPasswordHasherService> passwordHasherService;
 
     private readonly UserService userService;
 
@@ -28,10 +29,11 @@ public class UserServiceTests
         mockUnitOfWork = new Mock<IUnitOfWork>();
         mockLogger = new Mock<ILogger<UserService>>();
         mockJwtService = new Mock<IJwtService>();
+        passwordHasherService = new Mock<IPasswordHasherService>();
 
         mockUnitOfWork.Setup(x => x.UserRepository).Returns(mockUserRepository.Object);
 
-        userService = new UserService(mockUnitOfWork.Object, mockLogger.Object, mockJwtService.Object);
+        userService = new UserService(mockUnitOfWork.Object, mockLogger.Object, mockJwtService.Object, passwordHasherService.Object);
     }
 
     [Fact]

@@ -11,12 +11,14 @@ public class UserService : IUserService
     private readonly IUnitOfWork unitOfWork;
     private readonly ILogger<UserService> logger;
     private readonly IJwtService jwtService;
+    private readonly IPasswordHasherService passwordHasherService;
 
-    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IJwtService jwtService)
+    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IJwtService jwtService, IPasswordHasherService passwordHasherService)
     {
         this.unitOfWork = unitOfWork;
         this.logger = logger;
         this.jwtService = jwtService;
+        this.passwordHasherService = passwordHasherService;
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -68,7 +70,7 @@ public class UserService : IUserService
             }
 
             var user = userDto.ToEntity();
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            user.PasswordHash = passwordHasherService.HashPassword(userDto.Password);
             await unitOfWork.UserRepository.AddAsync(user);
             if (await unitOfWork.CompleteAsync() > 0)
             {
@@ -144,7 +146,7 @@ public class UserService : IUserService
                 return null;
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            if (!passwordHasherService.VerifyPassword(loginDto.Password, user.PasswordHash))  // if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
             {
                 logger.LogError("User authetication failed: Password does not match for user {Username}", loginDto.Username);
                 return null;
@@ -174,13 +176,13 @@ public class UserService : IUserService
                 return false;
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
+            if (!passwordHasherService.VerifyPassword(changePasswordDto.CurrentPassword, user.PasswordHash)) //if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
             {
                 logger.LogWarning("Change password failed for user ID {UserId}: Current password mismatch.", userId);
                 return false;
             }
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+            user.PasswordHash = passwordHasherService.HashPassword(changePasswordDto.NewPassword);
             unitOfWork.UserRepository.Update(user);
             await unitOfWork.CompleteAsync();
             logger.LogInformation("Password for user ID {UserId} changed successfully.", userId);

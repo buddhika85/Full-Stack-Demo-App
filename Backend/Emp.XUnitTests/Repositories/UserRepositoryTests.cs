@@ -4,9 +4,7 @@ using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Emp.XUnitTests.Repositories;
 

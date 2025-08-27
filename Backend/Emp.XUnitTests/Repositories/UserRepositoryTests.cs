@@ -288,4 +288,22 @@ public class UserRepositoryTests
         // assert
         result.Should().BeNull();
     }
+
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task IsExistsAsync_ReturnsTrue_IfUserWithUsernameExists(User user)
+    {
+        // arrange 
+        var testDbContext = await GetInMemoryDbContext("IsExistsAsync_ReturnsTrue_IfUserWithUsernameExists");
+        var repository = new UserRepository(testDbContext);
+        var username = user.Username;
+
+
+        // act
+        var result = await repository.IsExistsAsync(username);
+
+        // assert
+        result.Should().BeTrue();
+    }
 }

@@ -234,6 +234,7 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Once());
     }
 
+
     [Theory]
     [ClassData(typeof(UserTestData))]
     public async Task CreateUser_ReturnsInternalServerError_WhenServiceReturnsNull(User user)
@@ -286,5 +287,58 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {createUserDto.Username}", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {createUserDto.Username}.", Times.Never());
+    }
+
+
+    [Theory]
+    [InlineData("invalid email 1", "qwe123$", "Test Fn", "Test Ln", UserRoles.Staff)]
+    [InlineData("invalid email 2", "qwe123$", "Test Fn", "Test Ln", UserRoles.Admin)]
+    public async Task CreateUser_ReturnsBadRequestResult_WhenEmailIsInvalid
+            (string invalidEmail, string password, string firstName, string lastName, UserRoles role)
+    {
+        // arrange
+        var createDtoWithInvalidEmail = new CreateUserDto
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Password = password,
+            Role = role,
+            Username = invalidEmail
+        };
+        Helpers.Helpers.ApplyModelStateErrors(createDtoWithInvalidEmail, usersController);          // In Unit Testing you need to programatically apply model state errors
+
+
+        // act
+        var result = await usersController.CreateUser(createDtoWithInvalidEmail);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ActionResult<UserDto>>();
+
+        var badRequestObjectResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestObjectResult.Should().NotBeNull();
+
+        var problemDetails = badRequestObjectResult.Value.Should().BeOfType<ValidationProblemDetails>().Subject;
+        problemDetails.Should().NotBeNull();
+
+        var modelStateError = problemDetails.Errors["Validation Errors"].FirstOrDefault();
+        modelStateError.Should().NotBeNull();
+        modelStateError.Should().Be("The Username field is not a valid e-mail address.");
+
+        mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserDto>(x =>
+                            x.Username.Equals(invalidEmail)
+                            && x.FirstName.Equals(createDtoWithInvalidEmail.FirstName)
+                            && x.LastName.Equals(createDtoWithInvalidEmail.LastName)
+                            && x.Password.Equals(createDtoWithInvalidEmail.Password)
+                            && x.Role == createDtoWithInvalidEmail.Role
+                            )), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: CreateUser endpoint called for username: {invalidEmail} by Admin.", Times.Once());
+
+
+        mockLogger.VerifyMessage(LogLevel.Warning, "API: CreateUser validation failed. Errors:", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: New user creation failed for username {invalidEmail}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {invalidEmail}.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User '{invalidEmail}' created successfully with ID: 0 by Admin.", Times.Never());
     }
 }

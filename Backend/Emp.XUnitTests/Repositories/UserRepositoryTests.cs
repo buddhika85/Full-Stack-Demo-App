@@ -4,9 +4,7 @@ using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Emp.XUnitTests.Repositories;
 
@@ -289,5 +287,23 @@ public class UserRepositoryTests
 
         // assert
         result.Should().BeNull();
+    }
+
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task IsExistsAsync_ReturnsTrue_IfUserWithUsernameExists(User user)
+    {
+        // arrange 
+        var testDbContext = await GetInMemoryDbContext("IsExistsAsync_ReturnsTrue_IfUserWithUsernameExists");
+        var repository = new UserRepository(testDbContext);
+        var username = user.Username;
+
+
+        // act
+        var result = await repository.IsExistsAsync(username);
+
+        // assert
+        result.Should().BeTrue();
     }
 }

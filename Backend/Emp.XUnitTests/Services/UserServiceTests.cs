@@ -19,6 +19,7 @@ public class UserServiceTests
     private readonly Mock<IUnitOfWork> mockUnitOfWork;
     private readonly Mock<ILogger<UserService>> mockLogger;
     private readonly Mock<IJwtService> mockJwtService;
+    private readonly Mock<IPasswordHasherService> passwordHasherService;
 
     private readonly UserService userService;
 
@@ -28,10 +29,11 @@ public class UserServiceTests
         mockUnitOfWork = new Mock<IUnitOfWork>();
         mockLogger = new Mock<ILogger<UserService>>();
         mockJwtService = new Mock<IJwtService>();
+        passwordHasherService = new Mock<IPasswordHasherService>();
 
         mockUnitOfWork.Setup(x => x.UserRepository).Returns(mockUserRepository.Object);
 
-        userService = new UserService(mockUnitOfWork.Object, mockLogger.Object, mockJwtService.Object);
+        userService = new UserService(mockUnitOfWork.Object, mockLogger.Object, mockJwtService.Object, passwordHasherService.Object);
     }
 
     [Fact]
@@ -453,4 +455,22 @@ public class UserServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, $"User with ID {unavailableId} username/email {updateUserDto.Username} was found, but no changes were applied or saved.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Error, $"Error in updating User with id {unavailableId} and username/email {updateUserDto.Username}", Times.Never());
     }
+
+    //[Theory]
+    //[InlineData("test1@gmail.com", "qwe123$")]
+    //[InlineData("test1@gmail.com", "qwe123$")]
+    //public async Task AuthenticateUserAsync_ReturnsJwtToken_WhenCredentialsValid(string username, string password)
+    //{
+    //    // arrange
+    //    var loginDto = new LoginDto
+    //    {
+    //        Password = password,
+    //        Username = username
+    //    };
+    //    mock
+
+    //    // act
+
+    //    // assert
+    //}
 }

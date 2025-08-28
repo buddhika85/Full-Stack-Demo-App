@@ -132,24 +132,24 @@ public class UsersController : BaseController
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeactivateUser(int id)
+    public async Task<IActionResult> ActivateDeactivateUser(int id)
     {
-        logger.LogInformation("API: DeactivateUser endpoint called for ID: {Id} by Admin.", id);
+        logger.LogInformation("API: Activate / Deactivate User endpoint called for ID: {Id} by Admin.", id);
         try
         {
-            var success = await userService.DeactivateUserAsync(id);
+            var success = await userService.ActivateDeactivateUserAsync(id);
             if (!success)
             {
-                logger.LogWarning("API: Deactivate failed: User with ID {Id} not found.", id);
-                return NotFoundError($"API: Deactivate failed: User with ID {id} not found.");
+                logger.LogWarning("API: Activate / Deactivate failed: User with ID {Id} not found.", id);
+                return NotFoundError($"API: Activate / Deactivate failed: User with ID {id} not found.");
             }
-            logger.LogInformation("API: User with ID {Id} deactivated successfully by Admin.", id);
+            logger.LogInformation("API: User with ID {Id} de / activated successfully by Admin.", id);
             return NoContent();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "API: Error in DeactivateUser endpoint for ID: {Id}.", id);
-            return InternalServerError($"API: Error in DeactivateUser endpoint for ID: {id}.");
+            logger.LogError(ex, "API: Error in Activate / Deactivate endpoint for ID: {Id}.", id);
+            return InternalServerError($"API: Error in Activate / Deactivate endpoint for ID: {id}.");
         }
     }
 }

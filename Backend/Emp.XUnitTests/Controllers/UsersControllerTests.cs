@@ -379,4 +379,9 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.", Times.Never());
     }
 
+
+    // DTO.Id != Route id returns BadRequestObjectResult
+    // service update method returns false returns internal server error
+    // exception, returns internal error
+    // model state validation error, returns BadRequestObject result
 }

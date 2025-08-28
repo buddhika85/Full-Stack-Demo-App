@@ -8,7 +8,7 @@ public interface IUserService
     Task<UserDto?> GetUserByIdAsync(int id);
     Task<UserDto?> CreateUserAsync(CreateUserDto userDto);
     Task<bool> UpdateUserAsync(int id, UpdateUserDto userDto);
-    Task<bool> DeactivateUserAsync(int id); // Changed from Delete to Deactivate
+    Task<bool> ActivateDeactivateUserAsync(int id); // toggle active status of user
     Task<string?> AuthenticateUserAsync(LoginDto loginDto); // For JWT token generation
     Task<UserProfileDto?> GetUserProfileAsync(int userId); // For "View Profile"
     Task<bool> UpdateUserProfileAsync(int userId, UpdateUserProfileDto userProfileDto);

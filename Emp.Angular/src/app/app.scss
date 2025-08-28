@@ -8,3 +8,11 @@
     @apply flex-1 px-4 py-6 sm:px-6 lg:px-8;
   }
 }
+
+.loading-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30;
+}
+
+.spinner-img {
+  @apply w-16 h-16 animate-spin;
+}

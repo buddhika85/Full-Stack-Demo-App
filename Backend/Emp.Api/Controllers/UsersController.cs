@@ -131,6 +131,8 @@ public class UsersController : BaseController
         }
     }
 
+
+    // activate / deactivate users
     [HttpDelete("{id}")]
     public async Task<IActionResult> ActivateDeactivateUser(int id)
     {

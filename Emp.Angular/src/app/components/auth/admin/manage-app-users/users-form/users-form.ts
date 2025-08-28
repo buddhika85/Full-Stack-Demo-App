@@ -192,7 +192,7 @@ export class UsersForm implements OnInit, OnChanges, AfterViewInit, OnDestroy {
           console.error('User edit error', err);
           let errorMsg: string =
             err.error.detail ??
-            `An error occured while creating a user with username ${updateUserDto.username}.`;
+            `An error occured while updating a user with username ${updateUserDto.username}.`;
           errorMsg = `Error - ${errorMsg}`;
           console.error(errorMsg);
           this.snackbarService.error(errorMsg);

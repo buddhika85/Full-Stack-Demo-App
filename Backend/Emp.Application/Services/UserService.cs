@@ -195,7 +195,6 @@ public class UserService : IUserService
         }
     }
 
-
     public async Task<bool> ActivateDeactivateUserAsync(int id)
     {
         logger.LogInformation("Attempting to activate / deactivate user with ID: {UserId}", id);

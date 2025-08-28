@@ -14,6 +14,7 @@ import {
 } from '@angular/common/http';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
 import { authInterceptor } from './interceptors/auth-interceptor';
+import { loadingInterceptor } from './interceptors/loading-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
 
     provideHttpClient(
-      withInterceptors([authInterceptor, jwtInterceptor]) // attaches your JWT interceptor
+      withInterceptors([authInterceptor, jwtInterceptor, loadingInterceptor]) // attaches your JWT interceptor
     ),
   ],
 };

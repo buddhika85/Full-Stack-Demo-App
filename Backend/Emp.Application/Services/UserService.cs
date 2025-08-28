@@ -196,28 +196,25 @@ public class UserService : IUserService
     }
 
 
-    public async Task<bool> DeactivateUserAsync(int id)
+    public async Task<bool> ActivateDeactivateUserAsync(int id)
     {
-        logger.LogInformation("Attempting to deactivate user with ID: {UserId}", id);
+        logger.LogInformation("Attempting to activate / deactivate user with ID: {UserId}", id);
         try
         {
             var user = await unitOfWork.UserRepository.GetByIdAsync(id);
             if (user == null)
             {
-                logger.LogWarning("Deactivation failed: User with ID {UserId} not found.", id);
+                logger.LogWarning("Activate / Deactivate failed: User with ID {UserId} not found.", id);
                 return false;
             }
 
-            if (!user.IsActive)
-            {
-                logger.LogInformation("User with ID {UserId} is already deactivated.", id);
-                return true; // Already deactivated, consider it a success
-            }
+            var logMsg = user.IsActive ? "deactivated" : "activated";
 
-            user.IsActive = false;
+            user.IsActive = !user.IsActive;                     // toggleing user isActive status
+
             unitOfWork.UserRepository.Update(user);             // Mark for update
             await unitOfWork.CompleteAsync();
-            logger.LogInformation("User with ID {UserId} deactivated successfully.", id);
+            logger.LogInformation("User with ID {UserId} {logMsg} successfully.", id, logMsg);
             return true;
         }
         catch (Exception ex)

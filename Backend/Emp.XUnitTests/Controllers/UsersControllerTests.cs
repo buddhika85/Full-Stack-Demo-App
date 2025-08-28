@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Emp.XUnitTests.Controllers;
 
@@ -341,4 +342,41 @@ public class UsersControllerTests
         mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in CreateUser endpoint for username: {invalidEmail}.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Information, $"API: User '{invalidEmail}' created successfully with ID: 0 by Admin.", Times.Never());
     }
+
+
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task UpdateUser_ReturnsNoContent_WhenUpdateSuccessful(User user)
+    {
+        // arrange
+        var updateUserDto = new UpdateUserDto
+        {
+            FirstName = "FN",
+            LastName = "LN",
+            Role = UserRoles.Staff,
+            IsActive = true,
+            Username = user.Username,
+            Id = user.Id
+        };
+        mockUserService.Setup(x => x.UpdateUserAsync(updateUserDto.Id, updateUserDto)).ReturnsAsync(true);
+
+        // act
+        var result = await usersController.UpdateUser(updateUserDto.Id, updateUserDto);
+
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<NoContentResult>();
+        var noContentResult = result.Should().BeOfType<NoContentResult>().Subject;
+
+        mockUserService.Verify(x => x.UpdateUserAsync(updateUserDto.Id, updateUserDto), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateUser endpoint called for ID: {updateUserDto.Id} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {user.Id}, DTO ID: {updateUserDto.Id}.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser validation failed for ID: {updateUserDto.Id}. Errors: ", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User with ID {updateUserDto.Id} updated successfully by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.", Times.Never());
+    }
+
 }

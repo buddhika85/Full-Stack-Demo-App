@@ -29,4 +29,8 @@ export class UserService {
     // returns no content - 204 result
     return this.httpClient.put<void>(`${this.baseUrl}/${id}`, updateUserDto);
   }
+
+  activateDeactivateUser(id: number): Observable<void> {
+    return this.httpClient.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

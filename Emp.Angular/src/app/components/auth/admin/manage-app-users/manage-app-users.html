@@ -51,7 +51,7 @@
       <th mat-header-cell *matHeaderCellDef>Active</th>
       <td mat-cell *matCellDef="let element">
         <span [ngClass]="element.isActive ? 'isActive' : 'isNotActive'">
-          {{ element.isActive | boolToYesNo : "Active" : "Inactive" }}
+          {{ element.isActive | boolToYesNo : "Active" : "In Active" }}
         </span>
       </td>
     </ng-container>

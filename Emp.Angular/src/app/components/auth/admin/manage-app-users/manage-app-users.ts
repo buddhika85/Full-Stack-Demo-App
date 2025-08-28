@@ -12,6 +12,7 @@ import { UserRoleEnumToUserRolePipe } from '../../../../pipes/user-role-enum-to-
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { SnackbarService } from '../../../../services/snackbar.service';
 
 @Component({
   selector: 'app-manage-app-users',
@@ -31,6 +32,7 @@ import { Router } from '@angular/router';
 export class ManageAppUsers implements OnInit, OnDestroy {
   private readonly router: Router = inject(Router);
   private readonly userService: UserService = inject(UserService);
+  private readonly snackbarService: SnackbarService = inject(SnackbarService);
   private readonly compositeSubscription: Subscription = new Subscription();
 
   private users!: UserDto[];
@@ -47,16 +49,7 @@ export class ManageAppUsers implements OnInit, OnDestroy {
   dataSource!: MatTableDataSource<UserDto>;
 
   ngOnInit(): void {
-    const sub = this.userService.getUsers().subscribe({
-      next: (users: UserDto[]) => {
-        this.users = users;
-        this.dataSource = new MatTableDataSource(this.users);
-      },
-      error: (error) => {
-        console.error(error);
-      },
-    });
-    this.compositeSubscription.add(sub);
+    this.loadUsersGrid();
   }
 
   applyFilter(event: Event) {
@@ -68,15 +61,43 @@ export class ManageAppUsers implements OnInit, OnDestroy {
     this.router.navigate(['manage-app-users/create']);
   }
 
-  onDeactivate(id: number) {
-    console.log(`Activate/Deactivate ${id}`);
-  }
-
   onEdit(id: number) {
     this.router.navigate(['manage-app-users/edit', id]);
   }
 
+  onDeactivate(id: number) {
+    const sub = this.userService.activateDeactivateUser(id).subscribe({
+      next: () => {
+        this.snackbarService.success('User active status updated');
+        this.loadUsersGrid(); // reload grid
+      },
+      error: (err: any) => {
+        console.error('User status change error', err);
+        let errorMsg: string =
+          err.error.detail ??
+          `An error occured while changing active status of the user with Id ${id}.`;
+        errorMsg = `Error - ${errorMsg}`;
+        console.error(errorMsg);
+        this.snackbarService.error(errorMsg);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
   ngOnDestroy(): void {
     this.compositeSubscription.unsubscribe();
+  }
+
+  private loadUsersGrid(): void {
+    const sub = this.userService.getUsers().subscribe({
+      next: (users: UserDto[]) => {
+        this.users = users;
+        this.dataSource = new MatTableDataSource(this.users);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
   }
 }

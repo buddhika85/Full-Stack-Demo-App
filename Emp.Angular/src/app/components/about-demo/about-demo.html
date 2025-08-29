@@ -1,1 +1,303 @@
-<p>about-demo works!</p>
+<section class="project-showcase container mx-auto px-4 py-10">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Full Stack Development Demo Project
+    </h1>
+    <p class="text-sm text-gray-500 mt-1">July 2026 – Present</p>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+    <!-- Left Column -->
+    <div class="space-y-8">
+      <!-- Overview -->
+      <div>
+        <h2 class="section-title">Project Overview</h2>
+        <ul class="section-list">
+          <li>
+            Showcases skills and experience gained from previous industry
+            projects.
+          </li>
+          <li>
+            <span class="tech-azure">Azure</span>-hosted
+            <span class="tech-angular">Angular 20</span> frontend consuming
+            <span class="tech-dotnet">ASP.NET Core Web API (.NET 9)</span>.
+          </li>
+          <li>
+            Backend API encapsulates reusable business logic and connects to
+            <span class="tech-sql">Azure SQL Server</span>.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Backend Architecture with Image -->
+      <div>
+        <h2 class="section-title">Backend Architecture</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div class="architecture-image">
+            <img
+              src="img/backend-architecture.png"
+              alt="Backend Architecture Diagram"
+              class="rounded-lg shadow-md"
+            />
+          </div>
+          <div class="architecture-content space-y-4">
+            <div class="architecture-block">
+              <h3>Emp.Api</h3>
+              <ul class="section-list">
+                <li>
+                  Handles routing, authentication, and delegates logic to
+                  Application layer.
+                </li>
+                <li>
+                  Includes Controllers, DI setup, Middleware, Filters,
+                  <span class="tech-dotnet">Serilog</span>, appsettings.json.
+                </li>
+                <li>
+                  References: Emp.Application, Emp.Core, Emp.Infrastructure
+                </li>
+              </ul>
+            </div>
+            <div class="architecture-block">
+              <h3>Emp.Application</h3>
+              <ul class="section-list">
+                <li>
+                  Contains business logic and orchestrates operations using
+                  DTOs.
+                </li>
+                <li>References: Emp.Core, Emp.Infrastructure</li>
+              </ul>
+            </div>
+            <div class="architecture-block">
+              <h3>Emp.Core</h3>
+              <ul class="section-list">
+                <li>
+                  Domain layer with entities, DTOs, enums, validation
+                  attributes, interfaces.
+                </li>
+                <li>References: None</li>
+              </ul>
+            </div>
+            <div class="architecture-block">
+              <h3>Emp.Infrastructure</h3>
+              <ul class="section-list">
+                <li>
+                  Implements data access, migrations, repositories, Unit of
+                  Work.
+                </li>
+                <li>
+                  References: Emp.Core,
+                  <span class="tech-sql">EF Core</span> packages
+                </li>
+              </ul>
+            </div>
+            <div class="architecture-block">
+              <h3>Emp.Tests</h3>
+              <ul class="section-list">
+                <li>
+                  <span class="tech-testing">xUnit</span> test project for
+                  Controllers, Services, Repositories.
+                </li>
+                <li>
+                  Uses <span class="tech-testing">xUnit</span>,
+                  <span class="tech-testing">Moq</span>, EF Core InMemory
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backend Technologies -->
+      <div>
+        <h2 class="section-title">Backend Technologies</h2>
+        <table class="tech-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Library</th>
+              <th>Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>.NET Framework</td>
+              <td>.NET</td>
+              <td>net9.0</td>
+            </tr>
+            <tr>
+              <td>Logging</td>
+              <td>Serilog</td>
+              <td>9.0.0</td>
+            </tr>
+            <tr>
+              <td>API UI Testing</td>
+              <td>Swagger</td>
+              <td>9.0.1</td>
+            </tr>
+            <tr>
+              <td>OpenAPI Docs</td>
+              <td>OpenApi</td>
+              <td>9.0.7</td>
+            </tr>
+            <tr>
+              <td>DB Access</td>
+              <td>EF Core SQL Server</td>
+              <td>9.0.7</td>
+            </tr>
+            <tr>
+              <td>DB Migrations</td>
+              <td>EF Core Design</td>
+              <td>9.0.7</td>
+            </tr>
+            <tr>
+              <td>Unit Testing</td>
+              <td>xUnit</td>
+              <td>2.9.2</td>
+            </tr>
+            <tr>
+              <td>Mocking</td>
+              <td>Moq</td>
+              <td>4.2</td>
+            </tr>
+            <tr>
+              <td>Assertions</td>
+              <td>FluentAssertions</td>
+              <td>8.5</td>
+            </tr>
+            <tr>
+              <td>Password Hashing</td>
+              <td>BCrypt.Net-Next</td>
+              <td>4.0.3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="space-y-8">
+      <!-- Backend Highlights -->
+      <div>
+        <h2 class="section-title">Backend Highlights</h2>
+        <ul class="section-list">
+          <li>
+            Modern architecture: Controllers, Services, Repositories, Unit of
+            Work
+          </li>
+          <li>
+            JWT token validation, blacklisting, and authorization via Program.cs
+          </li>
+          <li>Output caching and cache eviction</li>
+          <li>
+            <span class="tech-dotnet">Serilog</span> logging and custom
+            middleware
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Api/Middleware/CustomExceptionMiddleware.cs"
+              class="link"
+              >CustomExceptionMiddleware</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Api/Filters/ConsoleLoggerFilter.cs"
+              class="link"
+              >ConsoleLoggerFilter</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Core/ValidationAttributes/FirstLetterUpperCaseAttribute.cs"
+              class="link"
+              >FirstLetterUpperCaseAttribute</a
+            >
+          </li>
+          <li>
+            100+ unit tests using <span class="tech-testing">xUnit</span>,
+            <span class="tech-testing">Moq</span>,
+            <span class="tech-testing">FluentAssertions</span>
+          </li>
+        </ul>
+      </div>
+
+      <img src="img/unit-testing.png" />
+
+      <!-- Frontend Highlights -->
+      <div>
+        <h2 class="section-title">Frontend Highlights</h2>
+        <img src="img/frontend-architecture.png" />
+        <ul class="section-list">
+          <li>
+            <span class="tech-angular">Angular 20</span> app with components,
+            services, interceptors, pipes, guards
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/interceptors/jwt-interceptor.ts"
+              class="link"
+              >JWT Interceptor</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/pipes/user-role-enum-to-user-role-pipe.ts"
+              class="link"
+              >User Role Pipe</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/guards/auth-guard.ts"
+              class="link"
+              >Auth Guard</a
+            >
+          </li>
+          <li>
+            Reactive forms, lifecycle hooks, snack bar service, loading spinner
+          </li>
+        </ul>
+      </div>
+
+      <!-- Hosting & DevOps -->
+      <div>
+        <h2 class="section-title">Hosting & DevOps</h2>
+        <ul class="section-list">
+          <li>
+            <span class="tech-sql">Azure SQL Database</span>,
+            <span class="tech-azure">Azure App Service</span>,
+            <span class="tech-azure">Azure Static Web App</span>
+          </li>
+          <li>Secrets managed via environment variables</li>
+          <li>Git branching, tagging, pull requests</li>
+          <li>
+            <span class="tech-devops">CI/CD pipeline</span> planned via
+            <span class="tech-devops">Azure DevOps</span> (awaiting parallelism
+            grant)
+          </li>
+        </ul>
+      </div>
+
+      <!-- Hosted URLs -->
+      <div>
+        <h2 class="section-title">Hosted URLs</h2>
+        <ul class="section-list">
+          <li>
+            <a
+              href="https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/index.html"
+              class="link"
+              >API Swagger</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://delightful-desert-009c44900-preview.eastasia.2.azurestaticapps.net/"
+              class="link"
+              >Angular Frontend</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

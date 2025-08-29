@@ -24,8 +24,8 @@ export class Login implements OnInit, OnDestroy {
   private readonly authService: AuthService = inject(AuthService);
   private readonly compositeSubscription: Subscription = new Subscription();
   private loginDto: LoginDto = {
-    username: 'admin@emp.com',
-    password: 'Admin@123',
+    username: '',
+    password: '',
   };
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   formGroup!: FormGroup<{

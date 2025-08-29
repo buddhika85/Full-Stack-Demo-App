@@ -502,6 +502,38 @@ public class UserServiceTests
     }
 
     // user with username not found - returns null
+    [Theory]
+    [InlineData("test1@gmail.com")]
+    [InlineData("test2@gmail.com")]
+    public async Task AuthenticateUserAsync_ReturnsNull_WhenUserWithUsernameNotFound(string unavailableUsername)
+    {
+        // arrange 
+        var loginDto = new LoginDto
+        {
+            Username = unavailableUsername,
+            Password = "test"
+        };
+        mockUserRepository.Setup(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(loginDto.Username)))).ReturnsAsync((User?)null);
+
+        // act
+        var result = await userService.AuthenticateUserAsync(loginDto);
+
+        // assert
+        result.Should().BeNull();
+
+        mockUserRepository.Verify(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(loginDto.Username))), Times.Once());
+        mockPasswordHasherService.Verify(x => x.VerifyPassword(loginDto.Password, It.IsAny<string>()), Times.Never());
+        mockJwtService.Verify(x => x.GenerateJwtToken(It.IsAny<User>()), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Authenticating user - {loginDto.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: User with Username {loginDto.Username} unavailable", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: User with Username {loginDto.Username} is not active", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: Password does not match for user {loginDto.Username}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User authetication success: For user {loginDto.Username}. Now generating JWT token.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"JWT token generation success: For user {loginDto.Username}.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in autheticating User with id {loginDto.Username}", Times.Never());
+    }
+
     // user inactive - returns null
     // password verifucation failed - returns null
     // exception occurs, catch bock logs and bubbles up exception to caller

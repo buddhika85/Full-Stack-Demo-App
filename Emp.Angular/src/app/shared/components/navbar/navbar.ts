@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './navbar.scss',
 })
 export class Navbar implements OnDestroy {
-  readonly title = signal<string>('EMP - Angular');
+  readonly title = signal<string>('Demo Project');
 
   readonly authService: AuthService = inject(AuthService);
   private readonly router: Router = inject(Router);

@@ -27,6 +27,14 @@ export const routes: Routes = [
       import('./components/about-demo/about-demo').then((x) => x.AboutDemo),
   },
 
+  {
+    path: 'azure-integration-demo',
+    loadComponent: () =>
+      import('./components/azure-services/azure-services').then(
+        (x) => x.AzureServices
+      ),
+  },
+
   // staff and admin
   {
     path: 'manage-departments',

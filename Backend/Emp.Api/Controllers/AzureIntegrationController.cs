@@ -43,7 +43,7 @@ public class AzureIntegrationController : BaseController
             var json = JsonSerializer.Serialize(azPostToAzureFuncDto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await httpClient.PostAsync(settings.PublishToAzureService_Fn_Url, content);
+            var response = await httpClient.PostAsync(settings.PublishToServiceBusAzureServiceFnUrl, content);
 
             if (!response.IsSuccessStatusCode)
             {

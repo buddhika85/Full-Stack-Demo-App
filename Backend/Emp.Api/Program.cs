@@ -1,5 +1,7 @@
+using Emp.Api.Configurations;
 using Emp.Api.Filters;
 using Emp.Api.Middleware;
+using Emp.Api.PollyPolicies;
 using Emp.Application.Services;
 using Emp.Core;
 using Emp.Core.Interfaces.Repositories;
@@ -43,6 +45,20 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// read azure settings to AzureIntegrationSettings
+builder.Services.Configure<AzureIntegrationSettings>(
+    builder.Configuration.GetSection("AzureIntegration"));
+
+
+builder.Services.AddSingleton<ClientPolicy>();
+builder.Services.AddHttpClient("ExponentialBackOffForPost")
+    .AddPolicyHandler((sp, request) =>
+    {
+        var policy = sp.GetRequiredService<ClientPolicy>();             // get ClientPolicy singleton object from DI container
+        return request.Method == HttpMethod.Post
+            ? policy.ExponentialHttpRetryPolicy
+            : policy.LinearHttpRetryPolicy;
+    });
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");

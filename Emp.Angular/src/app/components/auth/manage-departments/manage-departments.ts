@@ -22,6 +22,7 @@ import { Router } from '@angular/router';
 export class ManageDepartments implements OnInit, OnDestroy {
   private readonly departmentService: DepartmentService =
     inject(DepartmentService);
+  private readonly router: Router = inject(Router);
   private readonly compositeSubscription: Subscription = new Subscription();
   private departmentsList!: DepartmentDto[];
 
@@ -41,9 +42,13 @@ export class ManageDepartments implements OnInit, OnDestroy {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  addDepartment(): void {}
+  addDepartment(): void {
+    this.router.navigate(['manage-departments/create']);
+  }
 
-  editDepartment(id: number): void {}
+  editDepartment(id: number): void {
+    this.router.navigate(['manage-departments/edit/', id]);
+  }
 
   deleteDepartment(id: number): void {}
 

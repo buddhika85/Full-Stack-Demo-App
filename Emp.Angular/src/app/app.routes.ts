@@ -37,6 +37,27 @@ export const routes: Routes = [
         (x) => x.ManageDepartments
       ),
   },
+
+  {
+    path: 'manage-departments/create',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin, UserRoles.Staff] },
+    loadComponent: () =>
+      import(
+        './components/auth/manage-departments/create-departments/create-departments'
+      ).then((x) => x.CreateDepartments),
+  },
+
+  {
+    path: 'manage-departments/edit/:id',
+    canActivate: [authGuard],
+    data: { roles: [UserRoles.Admin, UserRoles.Staff] },
+    loadComponent: () =>
+      import(
+        './components/auth/manage-departments/edit-departments/edit-departments'
+      ).then((x) => x.EditDepartments),
+  },
+
   {
     path: 'manage-employees',
     canActivate: [authGuard],

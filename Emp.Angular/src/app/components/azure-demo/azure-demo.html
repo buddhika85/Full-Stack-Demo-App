@@ -1,0 +1,311 @@
+<div class="az-demo-showcase p-6 space-y-8">
+  <!-- Main Heading -->
+  <header class="col-span-2">
+    <h1 class="text-3xl font-bold text-indigo-700 mb-4">Azure Services Demo</h1>
+    <p class="text-gray-700 text-base leading-relaxed">
+      This demo showcases a full-stack Azure-integrated workflow where an
+      Angular frontend posts numeric input to a
+      <span class="tech-apiapp">.NET Web API</span>. The API leverages
+      <span class="tech-devops">Polly</span> for resilient HTTP calls to an
+      <span class="tech-function">Azure Function</span>, which publishes the
+      number to an <span class="tech-servicebus">Azure Service Bus</span> topic.
+      A subscriber <span class="tech-function">Azure Function</span> then routes
+      the number to either an <span class="tech-apiapp">API App</span> or a
+      <span class="tech-container">Container Instance</span> based on its
+      parity, completing a robust, cloud-native message-driven architecture.
+
+      <br /><br />
+      Additionally, the full source code for this solution is available on
+      <a
+        href="https://github.com/buddhika85/Full-Stack-Demo-Azure-Functions"
+        class="link"
+        >GitHub</a
+      >. The project uses <span class="tech-devops">GitHub Actions</span> to
+      implement a <span class="tech-devops">CI/CD pipeline</span> that builds,
+      tests, and deploys the <span class="tech-apiapp">.NET Web API</span> to an
+      <span class="tech-apiapp">Azure Web App</span>:
+      <a
+        href="https://github.com/buddhika85/Full-Stack-Demo-Azure-Functions/actions"
+        class="link"
+        >View CI/CD Pipeline</a
+      >.
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Left Column -->
+    <div class="architecture-content">
+      <section>
+        <h2 class="section-title">Azure Services Used</h2>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+          <li><span class="tech-staticweb">Azure Static Web App</span></li>
+          <li><span class="tech-apiapp">Azure API App</span></li>
+          <li><span class="tech-function">Azure Function</span></li>
+          <li><span class="tech-servicebus">Azure Service Bus</span></li>
+          <li><span class="tech-container">Azure Container Instance</span></li>
+          <li><span class="tech-docker">Docker Hub - Hosted Image</span></li>
+        </ol>
+      </section>
+
+      <section class="mt-8">
+        <h2 class="section-title">Steps and Azure Resources Used</h2>
+        <table class="tech-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Azure Resource</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span class="tech-staticweb">Azure Static Web App</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>Allows user to input an integer.</li>
+                  <li>
+                    It posts that integer to a backend
+                    <span class="tech-dotnet">.NET Web API</span>
+                    which is hosted on
+                    <span class="tech-apiapp">Azure App Service</span>.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+
+            <tr>
+              <td>2</td>
+              <td><span class="tech-apiapp">Azure API App</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Hosted on
+                    <span class="tech-apiapp">Azure API App Service</span>.
+                  </li>
+                  <li>
+                    An endpoint in this API accepts the posted number from the
+                    frontend.
+                  </li>
+                  <li>
+                    Then invokes an
+                    <span class="tech-function"
+                      >HTTP-triggered Azure Function</span
+                    >, passing the integer as payload.
+                  </li>
+                  <li>
+                    Uses
+                    <span class="tech-dotnet">.NET HttpClientFactory</span> to
+                    manage the lifecycle of the HTTP client object efficiently.
+                  </li>
+                  <li>
+                    Implements <span class="tech-devops">Polly</span> with
+                    exponential backoff to retry posting to the Azure Function
+                    in case of transient failures.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+
+            <tr>
+              <td>3</td>
+              <td><span class="tech-function">Azure Function</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Triggered by
+                    <span class="tech-function-trigger">HTTP requests.</span>
+                  </li>
+                  <li>
+                    Accepts the number posted from the
+                    <span class="tech-dotnet">.NET Web API</span> endpoint.
+                  </li>
+                  <li>
+                    Publishes that number to a
+                    <span class="tech-servicebus">Azure Service Bus Topic</span
+                    >.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="tech-servicebus">Azure Service Bus</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    <span class="tech-servicebus">Azure Service Bus</span>
+                    contains a topic named
+                    <span class="highlight">OddEven</span>.
+                  </li>
+                  <li>
+                    Step 3’s
+                    <span class="tech-function">Azure Function</span> publishes
+                    messages to this topic.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="tech-function">Azure Function</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Triggered by
+                    <span class="tech-servicebus">Azure Service Bus</span> topic
+                    publishes.
+                  </li>
+                  <li>
+                    Subscribes to the topic
+                    <span class="highlight">OddEven</span>.
+                  </li>
+                  <li>
+                    Gets triggered when numbers are posted to the service bus.
+                  </li>
+                  <li>
+                    If the number is <span class="highlight">Even</span>, it
+                    posts to an API hosted on
+                    <span class="tech-container">Azure Container Instance</span
+                    >.
+                  </li>
+                  <li>
+                    If the number is <span class="highlight">Odd</span>, it
+                    posts to an API hosted on
+                    <span class="tech-apiapp">Azure Web API App</span>.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="tech-apiapp">Azure API App</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Hosted on <span class="tech-apiapp">Azure API App</span>.
+                  </li>
+                  <li>
+                    Built as a
+                    <span class="tech-dotnet">.NET 8 Minimal API</span>.
+                  </li>
+                  <li>
+                    Accepts numbers posted from the
+                    <span class="tech-function">Azure Function</span> in Step 5.
+                  </li>
+                  <li>
+                    Stores these numbers in
+                    <span class="tech-sql">EF Core In-Memory DB</span>.
+                  </li>
+                  <li>
+                    Returns all posted numbers via a
+                    <span class="highlight">Get All</span> endpoint.
+                  </li>
+                  <li>
+                    This service only returns
+                    <span class="highlight">Even</span> numbers.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+
+            <tr>
+              <td>7</td>
+              <td>
+                <span class="tech-container">Azure Container Instance</span>
+              </td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Hosted on
+                    <span class="tech-container">Azure Container Instance</span
+                    >.
+                  </li>
+                  <li>
+                    Linked to a public
+                    <span class="tech-docker">Docker image</span> on
+                    <a
+                      href="https://hub.docker.com/r/gsoft85512/docker-number-minimal-api"
+                      class="link"
+                      >Docker Hub</a
+                    >.
+                  </li>
+                  <li>
+                    Built as a
+                    <span class="tech-dotnet">.NET 8 Minimal API</span>.
+                  </li>
+                  <li>
+                    Accepts numbers posted from the
+                    <span class="tech-function">Azure Function</span> in Step 5.
+                  </li>
+                  <li>
+                    Stores these numbers in
+                    <span class="tech-sql">EF Core In-Memory DB</span>.
+                  </li>
+                  <li>
+                    Returns all posted numbers via a
+                    <span class="highlight">Get All</span> endpoint.
+                  </li>
+                  <li>
+                    This service only returns
+                    <span class="highlight">Odd</span> numbers.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+
+            <tr>
+              <td>8</td>
+              <td><span class="tech-staticweb">Azure Static Web App</span></td>
+              <td>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                  <li>
+                    Same <span class="tech-staticweb">Web App</span> used in
+                    Step 1.
+                  </li>
+                  <li>
+                    Consumes <span class="tech-dotnet">.NET API</span> hosted on
+                    <span class="tech-apiapp">Azure Web API App</span> for
+                    <span class="highlight">Even</span> numbers.
+                  </li>
+                  <li>
+                    Displays <span class="highlight">Even</span> numbers posted.
+                  </li>
+                  <li>
+                    Consumes <span class="tech-dotnet">.NET API</span> hosted on
+                    <span class="tech-container">Azure Container Instance</span>
+                    for <span class="highlight">Odd</span> numbers.
+                  </li>
+                  <li>
+                    Displays <span class="highlight">Odd</span> numbers posted.
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <!-- Right Column -->
+
+    <!-- Right Column -->
+    <div class="architecture-image flex flex-col space-y-6">
+      <h2 class="section-title">Workflow Diagram</h2>
+
+      <div>
+        <img
+          src="img/azure-demo-workflow-diagram.png"
+          alt="Workflow Diagram"
+          class="rounded shadow-md max-w-full h-auto"
+        />
+      </div>
+
+      <div>
+        <app-azure-data-form></app-azure-data-form>
+      </div>
+    </div>
+
+    <!-- end right-->
+  </div>
+</div>

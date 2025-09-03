@@ -1,4 +1,5 @@
 ﻿using Emp.Api.Configurations;
+using Emp.Core.DTOs;
 using Emp.Core.DTOs.AzureIntegration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -30,9 +31,12 @@ public class AzureIntegrationController : BaseController
 
     /// <summary>
     /// Calls an Azure Function with a payload
-    /// This azure publishes the payload to a Azure Service Bus Topic
+    /// Then this azure functionpublishes the payload to a Azure Service Bus Topic
     /// </summary>
-    /// <returns>AzPayloadReceivedDto</returns>  
+    /// <returns>AzPayloadReceivedDto</returns>     
+    [EndpointName("CallPublishToAzureService_Fn")]
+    [EndpointSummary("Calls an Azure Function with a payload. Then this azure functionpublishes the payload to a Azure Service Bus Topic.")]
+    [ProducesResponseType(typeof(AzPayloadReceivedDto), StatusCodes.Status200OK)]
     [HttpPost("CallPublishToAzureService_Fn")]
     public async Task<ActionResult<AzPayloadReceivedDto>> CallPublishToAzureServiceBusFn(AzPostToAzureFuncDto azPostToAzureFuncDto)
     {
@@ -43,7 +47,7 @@ public class AzureIntegrationController : BaseController
             var json = JsonSerializer.Serialize(azPostToAzureFuncDto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await httpClient.PostAsync(settings.PublishToAzureService_Fn_Url, content);
+            var response = await httpClient.PostAsync(settings.PublishToServiceBusAzureServiceFnUrl, content);
 
             if (!response.IsSuccessStatusCode)
             {

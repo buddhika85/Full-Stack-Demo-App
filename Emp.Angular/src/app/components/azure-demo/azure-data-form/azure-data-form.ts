@@ -11,10 +11,11 @@ import { AzPostToAzureFunc } from '../../../models/azPostToAzureFunc.dto';
 import { Subscription } from 'rxjs';
 import { AzPayloadReceivedDto } from '../../../models/azPayloadReceived.dto';
 import { AzNumberListDto } from '../../../models/azNumberListDto';
+import { AzureNumbersDisplayGrid } from '../azure-numbers-display-grid/azure-numbers-display-grid';
 
 @Component({
   selector: 'app-azure-data-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AzureNumbersDisplayGrid],
   templateUrl: './azure-data-form.html',
   styleUrl: './azure-data-form.scss',
 })
@@ -28,13 +29,18 @@ export class AzureDataForm implements OnInit, OnDestroy {
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   formGroup!: FormGroup<{ number: FormControl<number | null> }>;
 
+  oddNumbersDto!: AzNumberListDto;
+  evenNumbersDto!: AzNumberListDto;
+
+  evenNumbersHeading: string =
+    'Even Numbers Published to Azure Service Bus Topic';
+  oddNumbersHeading: string =
+    'Odd Numbers Published to Azure Service Bus Topic';
+
   ngOnInit(): void {
-    this.formGroup = this.formBuilder.group({
-      number: new FormControl(this.formDto.number, {
-        nonNullable: false,
-        validators: [Validators.required],
-      }),
-    });
+    this.getAllEvenNumbersPosted();
+    this.getAllOddNumbersPosted();
+    this.createForm();
   }
 
   ngOnDestroy(): void {
@@ -50,55 +56,68 @@ export class AzureDataForm implements OnInit, OnDestroy {
       this.formDto = this.formGroup.getRawValue();
       // console.log(this.formDto);
 
-      const sub = this.azureService
-        .postToAzureFunction(this.formDto)
-        .subscribe({
-          next: (value: AzPayloadReceivedDto) => {
-            if (value && value.isSuccess) {
-              console.log(value.message);
-              this.getAllEvenNumbersPosted();
-              this.getAllOddNumbersPosted();
-              this.formGroup.reset();
-            }
-          },
-          error: (error: any) => {
-            console.error(error);
-          },
-        });
-
-      this.compositeSubscription.add(sub);
+      this.postToAzureFunction();
     }
-  }
-
-  getAllOddNumbersPosted(): void {
-    const sub = this.azureService.getAllOddNumbers().subscribe({
-      next: (value: AzNumberListDto) => {
-        if (value && value.isSuccess) {
-          console.log('Odd: ', value.items);
-        }
-      },
-      error: (error: any) => {
-        console.error(error);
-      },
-    });
-    this.compositeSubscription.add(sub);
-  }
-
-  getAllEvenNumbersPosted(): void {
-    const sub = this.azureService.getAllEvenNumbers().subscribe({
-      next: (value: AzNumberListDto) => {
-        if (value && value.isSuccess) {
-          console.log('Even: ', value.items);
-        }
-      },
-      error: (error: any) => {
-        console.error(error);
-      },
-    });
-    this.compositeSubscription.add(sub);
   }
 
   onReset(): void {
     this.formGroup.reset();
+  }
+
+  private postToAzureFunction(): void {
+    const sub = this.azureService.postToAzureFunction(this.formDto).subscribe({
+      next: (value: AzPayloadReceivedDto) => {
+        if (value && value.isSuccess) {
+          console.log(value.message);
+          this.getAllEvenNumbersPosted();
+          this.getAllOddNumbersPosted();
+          this.formGroup.reset();
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+      },
+    });
+
+    this.compositeSubscription.add(sub);
+  }
+
+  private getAllOddNumbersPosted(): void {
+    const sub = this.azureService.getAllOddNumbers().subscribe({
+      next: (value: AzNumberListDto) => {
+        if (value && value.isSuccess) {
+          //console.log('Odd: ', value.items);
+          this.oddNumbersDto = value;
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
+  private getAllEvenNumbersPosted(): void {
+    const sub = this.azureService.getAllEvenNumbers().subscribe({
+      next: (value: AzNumberListDto) => {
+        if (value && value.isSuccess) {
+          //console.log('Even: ', value.items);
+          this.evenNumbersDto = value;
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
+  private createForm(): void {
+    this.formGroup = this.formBuilder.group({
+      number: new FormControl(this.formDto.number, {
+        nonNullable: false,
+        validators: [Validators.required],
+      }),
+    });
   }
 }

@@ -30,9 +30,7 @@ export const routes: Routes = [
   {
     path: 'azure-integration-demo',
     loadComponent: () =>
-      import('./components/azure-services/azure-services').then(
-        (x) => x.AzureServices
-      ),
+      import('./components/azure-demo/azure-demo').then((x) => x.AzureDemo),
   },
 
   // staff and admin

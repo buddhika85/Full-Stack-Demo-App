@@ -10,6 +10,7 @@ import {
 import { AzPostToAzureFunc } from '../../../models/azPostToAzureFunc.dto';
 import { Subscription } from 'rxjs';
 import { AzPayloadReceivedDto } from '../../../models/azPayloadReceived.dto';
+import { AzNumberListDto } from '../../../models/azNumberListDto';
 
 @Component({
   selector: 'app-azure-data-form',
@@ -54,15 +55,47 @@ export class AzureDataForm implements OnInit, OnDestroy {
         .subscribe({
           next: (value: AzPayloadReceivedDto) => {
             if (value && value.isSuccess) {
-              //
               console.log(value.message);
+              this.getAllEvenNumbersPosted();
+              this.getAllOddNumbersPosted();
               this.formGroup.reset();
             }
+          },
+          error: (error: any) => {
+            console.error(error);
           },
         });
 
       this.compositeSubscription.add(sub);
     }
+  }
+
+  getAllOddNumbersPosted(): void {
+    const sub = this.azureService.getAllOddNumbers().subscribe({
+      next: (value: AzNumberListDto) => {
+        if (value && value.isSuccess) {
+          console.log('Odd: ', value.items);
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
+  getAllEvenNumbersPosted(): void {
+    const sub = this.azureService.getAllEvenNumbers().subscribe({
+      next: (value: AzNumberListDto) => {
+        if (value && value.isSuccess) {
+          console.log('Even: ', value.items);
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+      },
+    });
+    this.compositeSubscription.add(sub);
   }
 
   onReset(): void {

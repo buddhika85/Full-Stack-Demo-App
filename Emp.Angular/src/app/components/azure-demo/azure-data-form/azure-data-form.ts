@@ -4,14 +4,16 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { AzPostToAzureFunc } from '../../../models/azPostToAzureFunc.dto';
 import { Subscription } from 'rxjs';
+import { AzPayloadReceivedDto } from '../../../models/azPayloadReceived.dto';
 
 @Component({
   selector: 'app-azure-data-form',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './azure-data-form.html',
   styleUrl: './azure-data-form.scss',
 })
@@ -45,7 +47,21 @@ export class AzureDataForm implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.formGroup.valid) {
       this.formDto = this.formGroup.getRawValue();
-      console.log(this.formDto);
+      // console.log(this.formDto);
+
+      const sub = this.azureService
+        .postToAzureFunction(this.formDto)
+        .subscribe({
+          next: (value: AzPayloadReceivedDto) => {
+            if (value && value.isSuccess) {
+              //
+              console.log(value.message);
+              this.formGroup.reset();
+            }
+          },
+        });
+
+      this.compositeSubscription.add(sub);
     }
   }
 

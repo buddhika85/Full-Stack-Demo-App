@@ -1,1 +1,26 @@
-<h2 class="section-title">Azure Workflow Test Form</h2>
+<h1 class="h1">Azure Workflow Test Form</h1>
+<form
+  class="three-col-form text-center"
+  [formGroup]="formGroup"
+  (ngSubmit)="onSubmit()"
+>
+  <label class="label text-blue-500">Number to Post to AZ Function:</label>
+  <input
+    type="number"
+    class="text-box text-blue-500"
+    formControlName="number"
+  />
+  <div class="error-lbl">
+    @if((numberInput.dirty || numberInput.touched) && numberInput.invalid) { @if
+    (numberInput.errors?.['required']) {
+    <span>Required</span>
+    } }
+  </div>
+
+  <div></div>
+  <div>
+    <button class="primary-btn float-start" [disabled]="formGroup.invalid">
+      Post To Azure Function
+    </button>
+  </div>
+</form>

@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { AzNumberListDto } from '../../../models/azNumberListDto';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +18,7 @@ import { AzNumItemDto } from '../../../models/azNumItemDto';
   templateUrl: './azure-numbers-display-grid.html',
   styleUrl: './azure-numbers-display-grid.scss',
 })
-export class AzureNumbersDisplayGrid implements OnChanges {
+export class AzureNumbersDisplayGrid implements OnChanges, OnInit {
   @Input() numbersDto: AzNumberListDto = {
     isSuccess: true,
     items: [],
@@ -21,6 +27,13 @@ export class AzureNumbersDisplayGrid implements OnChanges {
 
   readonly displayedColumns: string[] = ['id', 'number'];
   dataSource!: MatTableDataSource<AzNumItemDto>;
+
+  ngOnInit(): void {
+    this.dataSource.filterPredicate = (data: AzNumItemDto, filter: string) => {
+      const normalizedFilter = filter.trim().toLowerCase();
+      return data.number.toString().includes(normalizedFilter);
+    };
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.numbersDto && this.numbersDto.items) {

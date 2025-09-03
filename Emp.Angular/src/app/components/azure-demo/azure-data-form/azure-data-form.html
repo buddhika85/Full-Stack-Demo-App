@@ -1,4 +1,6 @@
-<h1 class="h1">Azure Workflow Test Form</h1>
+<h1 class="col-span-2 text-2xl font-bold text-indigo-700 mb-3 mt-3">
+  Step 1,2,3,4,5,6,7 - Publish to Service Bus...etc
+</h1>
 <form
   class="three-col-form text-center"
   [formGroup]="formGroup"
@@ -25,12 +27,25 @@
   </div>
 </form>
 
-<app-azure-numbers-display-grid
-  [numbersDto]="evenNumbersDto"
-  [heading]="evenNumbersHeading"
-/>
+<div class="grid grid-cols-2 gap-4 mt-10">
+  <!-- Full-width heading -->
+  <h1 class="col-span-2 text-2xl font-bold text-indigo-700 mb-3">
+    Setp 8 - Subscriber Recieved from Service Bus Topic...etc
+  </h1>
 
-<app-azure-numbers-display-grid
-  [numbersDto]="oddNumbersDto"
-  [heading]="oddNumbersHeading"
-/>
+  <!-- Left Column: Even Numbers -->
+  <div class="w-full">
+    <app-azure-numbers-display-grid
+      [numbersDto]="evenNumbersDto"
+      [heading]="evenNumbersHeading"
+    ></app-azure-numbers-display-grid>
+  </div>
+
+  <!-- Right Column: Odd Numbers -->
+  <div class="w-full">
+    <app-azure-numbers-display-grid
+      [numbersDto]="oddNumbersDto"
+      [heading]="oddNumbersHeading"
+    ></app-azure-numbers-display-grid>
+  </div>
+</div>

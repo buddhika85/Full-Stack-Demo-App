@@ -32,10 +32,8 @@ export class AzureDataForm implements OnInit, OnDestroy {
   oddNumbersDto!: AzNumberListDto;
   evenNumbersDto!: AzNumberListDto;
 
-  evenNumbersHeading: string =
-    'Even Numbers Published to Azure Service Bus Topic';
-  oddNumbersHeading: string =
-    'Odd Numbers Published to Azure Service Bus Topic';
+  evenNumbersHeading: string = 'Even Numbers';
+  oddNumbersHeading: string = 'Odd Numbers';
 
   ngOnInit(): void {
     this.getAllEvenNumbersPosted();

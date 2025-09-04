@@ -44,7 +44,7 @@ steps:
   inputs:
     command: 'test'
     projects: 'Backend/Emp.XUnitTests/*.csproj'    
-    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'             
+    arguments: '--configuration Release --no-build --no-restore --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'             
     publishTestResults: false                                   # We'll handle publishing ourselves
 
     
@@ -66,3 +66,14 @@ steps:
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'              # coverage.cobertura.xml (inside GUID folder
     reportDirectory: '$(System.DefaultWorkingDirectory)/**'
   condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.
+  
+
+
+# 8 Publish HTML coverage report as artifact
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/**/TestResults'
+    ArtifactName: 'coverage-report'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()
+

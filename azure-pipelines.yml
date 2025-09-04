@@ -43,9 +43,10 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
-    projects: 'Backend/XUnitTests/*.csproj'
-    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage"'
+    projects: 'Backend/Emp.XUnitTests/*.csproj'
+    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage" --logger "xunit;LogFilePath=$(System.DefaultWorkingDirectory)/TestResults/test-results.xml"'
     publishTestResults: true
+
     
     
 # 6 Publish test results
@@ -63,5 +64,5 @@ steps:
   inputs:
     codeCoverageTool: 'cobertura'                                                                   # Publishes the coverage report using the Cobertura format, which is compatible with Azure DevOps UI.
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
-    reportDirectory: '$(System.DefaultWorkingDirectory)/**'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/TestResults'
   condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.

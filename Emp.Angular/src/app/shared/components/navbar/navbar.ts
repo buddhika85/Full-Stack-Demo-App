@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './navbar.scss',
 })
 export class Navbar implements OnDestroy {
-  readonly title = signal<string>('Demo Project');
+  readonly title = signal<string>('Buddhika Gunasekera - Demo Project');
 
   readonly authService: AuthService = inject(AuthService);
   private readonly router: Router = inject(Router);
@@ -31,7 +31,7 @@ export class Navbar implements OnDestroy {
   logOut() {
     const sub = this.authService.logout().subscribe({
       next: (response) => {
-        if (response.loggedOut) this.router.navigate(['']);
+        if (response.loggedOut) this.router.navigate(['login']);
       },
       error: (error) => {
         console.error(error);

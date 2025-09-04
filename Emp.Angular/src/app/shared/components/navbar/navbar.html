@@ -1,6 +1,12 @@
 <mat-toolbar>
-  <mat-toolbar-row class="app-toolbar">
-    <span class="brand">{{ title() }}</span>
+  <mat-toolbar-row
+    class="app-toolbar flex flex-wrap items-center justify-between gap-2"
+  >
+    <span
+      class="brand hover:cursor-pointer text-blue-700 tracking-wide"
+      routerLink="about-demo"
+      >{{ title() }}</span
+    >
 
     <span class="spacer"></span>
     <button mat-button routerLink="about-demo" class="nav-button">
@@ -15,7 +21,9 @@
       Azure Integration Demo
     </button>
 
-    <button mat-button routerLink="" class="nav-button">Dashboard</button>
+    <button mat-button routerLink="landing" class="nav-button">
+      Dashboard
+    </button>
 
     <!-- not logged in -->
     @if (authService.currentUser() === null) {

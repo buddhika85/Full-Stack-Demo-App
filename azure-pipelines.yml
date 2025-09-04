@@ -43,8 +43,8 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
-    projects: 'Backend/Emp.XUnitTests/*.csproj'
-    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage" --logger "xunit;LogFilePath=$(System.DefaultWorkingDirectory)/TestResults/test-results.xml"'
+    projects: 'Backend/Emp.XUnitTests/*.csproj'    
+    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'             
     publishTestResults: false                                   # We'll handle publishing ourselves
 
     
@@ -53,16 +53,16 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'VSTest'
-    testResultsFiles: '**/TestResults/test-results.trx'
+    testResultsFiles: '**/TestResults/test-results.trx'     # test results in /TestResults/test-results.trx
     failTaskOnFailedTests: true                             # ensures the pipeline fails if any test fails.
   condition: succeededOrFailed()                            # ensures results are published even if tests fail.
 
 
 
 # 7 Publish coverage
-- task: PublishCodeCoverageResults@2
+- task: PublishCodeCoverageResults@2                                                                # PublishCodeCoverageResults@2 picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
   inputs:
     codeCoverageTool: 'cobertura'                                                                   # Publishes the coverage report using the Cobertura format, which is compatible with Azure DevOps UI.
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'              # coverage.cobertura.xml (inside GUID folder
     reportDirectory: '$(System.DefaultWorkingDirectory)/**'
   condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.

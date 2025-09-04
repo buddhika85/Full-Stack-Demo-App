@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AzPostToAzureFunc } from '../../../models/azPostToAzureFunc.dto';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap, timer } from 'rxjs';
 import { AzPayloadReceivedDto } from '../../../models/azPayloadReceived.dto';
 import { AzNumberListDto } from '../../../models/azNumberListDto';
 import { AzureNumbersDisplayGrid } from '../azure-numbers-display-grid/azure-numbers-display-grid';
@@ -81,32 +81,38 @@ export class AzureDataForm implements OnInit, OnDestroy {
   }
 
   private getAllOddNumbersPosted(): void {
-    const sub = this.azureService.getAllOddNumbers().subscribe({
-      next: (value: AzNumberListDto) => {
-        if (value && value.isSuccess) {
-          //console.log('Odd: ', value.items);
-          this.oddNumbersDto = value;
-        }
-      },
-      error: (error: any) => {
-        console.error(error);
-      },
-    });
+    // delay API call by 1 second - so Azure has enough time and no unpredictable behaviours
+    const sub = timer(1000)
+      .pipe(switchMap(() => this.azureService.getAllOddNumbers()))
+      .subscribe({
+        next: (value: AzNumberListDto) => {
+          if (value && value.isSuccess) {
+            //console.log('Odd: ', value.items);
+            this.oddNumbersDto = value;
+          }
+        },
+        error: (error: any) => {
+          console.error(error);
+        },
+      });
     this.compositeSubscription.add(sub);
   }
 
   private getAllEvenNumbersPosted(): void {
-    const sub = this.azureService.getAllEvenNumbers().subscribe({
-      next: (value: AzNumberListDto) => {
-        if (value && value.isSuccess) {
-          //console.log('Even: ', value.items);
-          this.evenNumbersDto = value;
-        }
-      },
-      error: (error: any) => {
-        console.error(error);
-      },
-    });
+    // delay API call by 1 second - so Azure has enough time and no unpredictable behaviours
+    const sub = timer(1000)
+      .pipe(switchMap(() => this.azureService.getAllEvenNumbers()))
+      .subscribe({
+        next: (value: AzNumberListDto) => {
+          if (value && value.isSuccess) {
+            //console.log('Even: ', value.items);
+            this.evenNumbersDto = value;
+          }
+        },
+        error: (error: any) => {
+          console.error(error);
+        },
+      });
     this.compositeSubscription.add(sub);
   }
 

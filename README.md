@@ -1,3 +1,8 @@
+# Full Stack Demo App
+
+[![Build Status](https://dev.azure.com/gsoft85512/FullStackInterviewDemo/_apis/build/status/buddhika85.Full-Stack-Demo-App?branchName=main)](https://dev.azure.com/gsoft85512/FullStackInterviewDemo/_build/latest?definitionId=1&branchName=main)
+
+
 # 🧰 Full Stack Development Demo Project
 
 **Duration**: July 2026 – Present  

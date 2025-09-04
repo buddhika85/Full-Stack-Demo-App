@@ -28,17 +28,20 @@ export class AzureNumbersDisplayGrid implements OnChanges, OnInit {
   readonly displayedColumns: string[] = ['id', 'number'];
   dataSource!: MatTableDataSource<AzNumItemDto>;
 
-  ngOnInit(): void {
-    this.dataSource.filterPredicate = (data: AzNumItemDto, filter: string) => {
-      const normalizedFilter = filter.trim().toLowerCase();
-      return data.number.toString().includes(normalizedFilter);
-    };
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.numbersDto && this.numbersDto.items) {
-      //debugger;
+    // was numbersDto received in this ngOnChanges ?
+    if (changes['numbersDto'] && this.numbersDto?.items) {
       this.dataSource = new MatTableDataSource(this.numbersDto.items);
+
+      this.dataSource.filterPredicate = (
+        data: AzNumItemDto,
+        filter: string
+      ) => {
+        const normalizedFilter = filter.trim().toLowerCase();
+        return data.number.toString().includes(normalizedFilter);
+      };
     }
   }
 

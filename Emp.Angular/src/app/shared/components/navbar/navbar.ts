@@ -31,7 +31,7 @@ export class Navbar implements OnDestroy {
   logOut() {
     const sub = this.authService.logout().subscribe({
       next: (response) => {
-        if (response.loggedOut) this.router.navigate(['']);
+        if (response.loggedOut) this.router.navigate(['login']);
       },
       error: (error) => {
         console.error(error);

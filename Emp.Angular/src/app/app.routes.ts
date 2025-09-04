@@ -2,10 +2,11 @@ import { Routes } from '@angular/router';
 import { LandingPage } from './components/landing-page/landing-page';
 import { UserRoles } from './models/userRoles';
 import { authGuard } from './guards/auth-guard';
+import { AboutDemo } from './components/about-demo/about-demo';
 
 export const routes: Routes = [
   // landing page is eagerly loaded route
-  { path: '', component: LandingPage },
+  { path: '', component: AboutDemo },
 
   // lazy loaded routes
   // anonymouse
@@ -22,9 +23,15 @@ export const routes: Routes = [
   },
 
   {
-    path: 'about-demo',
+    // path: 'about-demo',
+    // loadComponent: () =>
+    //   import('./components/about-demo/about-demo').then((x) => x.AboutDemo),
+
+    path: 'landing',
     loadComponent: () =>
-      import('./components/about-demo/about-demo').then((x) => x.AboutDemo),
+      import('./components/landing-page/landing-page').then(
+        (x) => x.LandingPage
+      ),
   },
 
   {

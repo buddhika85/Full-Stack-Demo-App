@@ -69,10 +69,10 @@ steps:
   
 
 
-# 8 Publish **entire HTML coverage folder** as artifact
+# 8 Publish HTML coverage report as artifact
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/**/TestResults/*'   # publish whole TestResults subfolder (includes index.html, css, js)
-    ArtifactName: 'coverage-report'                                      # downloadable artifact name
-    publishLocation: 'Container'
+    PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'     # Explicit path to TestResults folder
+    ArtifactName: 'coverage-report'                         # Name in DevOps UI
+    publishLocation: 'Container'                            # Store inside pipeline run container
   condition: succeededOrFailed()

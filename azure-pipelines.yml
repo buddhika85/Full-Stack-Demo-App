@@ -2,14 +2,15 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'   # Better for .NET builds
+  vmImage: 'windows-latest'   # Windows is safer for full .NET SDKs
 
 steps:
-# Install .NET SDK 
+# Install .NET 9 SDK explicitly
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
     version: '9.0.x'
+    includePreviewVersions: true
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 # Restore NuGet packages
@@ -25,9 +26,10 @@ steps:
     projects: 'Backend/*.sln'
     arguments: '--configuration Release'
 
-# Run XUnit tests
+# Run XUnit tests and collect coverage
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
     projects: 'Backend/XUnitTests/*.csproj'
     arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage"'
+    publishTestResults: true

@@ -1,6 +1,5 @@
 ﻿using Emp.Api.Controllers;
 using Emp.Core.DTOs;
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Emp.XUnitTests.Helpers;
@@ -20,6 +19,6 @@ public static class Helpers
         Validator.TryValidateObject(dto, context, results, true);
 
         foreach (var error in results)
-            controller.ModelState.AddModelError(error.MemberNames.First(), error.ErrorMessage);
+            controller.ModelState.AddModelError(error.MemberNames.First(), error.ErrorMessage ?? "Error - Model Validation");
     }
 }

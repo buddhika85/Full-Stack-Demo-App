@@ -9,21 +9,22 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '9.0.x'
-    includePreviewVersions: true
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+    version: '9.0.304'   # exact version from your machine
+    includePreviewVersions: false
+
+# Ensure NuGet tooling is available
+- task: NuGetToolInstaller@1
 
 # Restore NuGet packages
-- task: DotNetCoreCLI@2
+- task: NuGetCommand@2
   inputs:
-    command: 'restore'
-    projects: 'Backend/*.sln'
+    restoreSolution: 'Backend/Backend.sln'
 
 # Build solution
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: 'Backend/*.sln'
+    projects: 'Backend/Backend.sln'
     arguments: '--configuration Release'
 
 # Run XUnit tests and collect coverage

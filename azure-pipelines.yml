@@ -1,35 +1,45 @@
 trigger:
-- main
+- main                          # Tells Azure DevOps to run the pipeline whenever code is pushed to the main branch.
+
 
 pool:
-  vmImage: 'windows-latest'   # Windows is safer for full .NET SDKs
+  vmImage: 'windows-latest'     # Build agent OS
+  
+  
 
 steps:
-# Install .NET 9 SDK explicitly
+
+# 1 Install .NET 9 SDK explicitly
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '9.0.304'   # exact version from your machine
+    version: '9.0.304'   # exact version from my DEV machine
     includePreviewVersions: true
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-# Ensure NuGet tooling is available
+
+
+# 2 Install NugetCLI for restoring packages
 - task: NuGetToolInstaller@1
 
-# Restore NuGet packages
+
+# 3 Restore NuGet packages - all dependencies defined in Backend.sln are installed
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
     restoreSolution: 'Backend/Backend.sln'
 
-# Build solution
+
+
+# 4 Build solution - compiles all projects in Release mode
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
     projects: 'Backend/Backend.sln'
     arguments: '--configuration Release'
+    
 
-# Run XUnit tests and collect coverage
+# 5 Run XUnit tests + collect coverage
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
@@ -38,18 +48,20 @@ steps:
     publishTestResults: true
     
     
-# Publish test results
+# 6 Publish test results
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'xUnit'
     testResultsFiles: '**/TestResults/*.xml'
-    failTaskOnFailedTests: true
-  condition: succeededOrFailed()
+    failTaskOnFailedTests: true                             # ensures the pipeline fails if any test fails.
+  condition: succeededOrFailed()                            # ensures results are published even if tests fail.
 
-# Publish coverage
+
+
+# 7 Publish coverage
 - task: PublishCodeCoverageResults@2
   inputs:
-    codeCoverageTool: 'cobertura'
+    codeCoverageTool: 'cobertura'                                                                   # Publishes the coverage report using the Cobertura format, which is compatible with Azure DevOps UI.
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
     reportDirectory: '$(System.DefaultWorkingDirectory)/**'
-  condition: succeededOrFailed()
+  condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.

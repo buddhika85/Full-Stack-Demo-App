@@ -10,7 +10,8 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '9.0.304'   # exact version from your machine
-    includePreviewVersions: false
+    includePreviewVersions: true
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
 # Ensure NuGet tooling is available
 - task: NuGetToolInstaller@1
@@ -18,6 +19,7 @@ steps:
 # Restore NuGet packages
 - task: NuGetCommand@2
   inputs:
+    command: 'restore'
     restoreSolution: 'Backend/Backend.sln'
 
 # Build solution
@@ -34,3 +36,20 @@ steps:
     projects: 'Backend/XUnitTests/*.csproj'
     arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage"'
     publishTestResults: true
+    
+    
+# Publish test results
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'xUnit'
+    testResultsFiles: '**/TestResults/*.xml'
+    failTaskOnFailedTests: true
+  condition: succeededOrFailed()
+
+# Publish coverage
+- task: PublishCodeCoverageResults@2
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/**'
+  condition: succeededOrFailed()

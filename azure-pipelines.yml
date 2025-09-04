@@ -1,19 +1,33 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'windows-latest'   # Better for .NET builds
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+# Install .NET SDK 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# Restore NuGet packages
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: 'Backend/*.sln'
+
+# Build solution
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'Backend/*.sln'
+    arguments: '--configuration Release'
+
+# Run XUnit tests
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: 'Backend/XUnitTests/*.csproj'
+    arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage"'

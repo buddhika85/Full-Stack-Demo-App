@@ -81,4 +81,16 @@
   .tech-testing {
     @apply text-orange-500 font-semibold;
   }
+
+  .tech-git {
+    @apply text-green-500 font-semibold;
+  }
+
+  .tech-git-main-branch {
+    @apply text-pink-500 font-semibold;
+  }
+
+  .curr-time {
+    @apply text-indigo-500 font-semibold;
+  }
 }

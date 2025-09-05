@@ -141,34 +141,23 @@ steps:
 # 11. CD — Angular SPA
 # ----------------------------
 
-# Build Angular app (Windows agent)
-stages:
-  - stage: Build_Angular
-    displayName: 'Build Angular App'
-    pool:
-      vmImage: 'windows-latest'
-    jobs:
-      - job: BuildSPA
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '20.x'
+# Build Angular app (still on Windows agent)
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
 
-          - script: |
-              cd Emp.Angular
-              npm install
-              npm run build -- --configuration production
-            displayName: 'Build Angular App'
+- script: |
+    cd Emp.Angular
+    npm install
+    npm run build -- --configuration production
+  displayName: 'Build Angular App'
 
-  - stage: Deploy_Angular                                                       # Deploy Angular app (Linux agent required - AzureStaticWebApp@0 task is Linux-only)
-    displayName: 'Deploy Angular to Azure Static Web Apps'
-    dependsOn: Build_Angular
-    pool:
-      vmImage: 'ubuntu-latest'
-    jobs:
-      - job: DeploySPA
-        steps:
-          - task: AzureStaticWebApp@0
-            inputs:
-              app_location: 'Emp.Angular/dist/Emp.Angular/browser'
-              azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+# Deploy Angular app (Linux agent required)
+- task: AzureStaticWebApp@0
+  displayName: 'Deploy Angular to Azure Static Web Apps'
+  inputs:
+    app_location: 'Emp.Angular/dist/Emp.Angular/browser'
+    azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+  pool:
+    vmImage: 'ubuntu-latest'
+

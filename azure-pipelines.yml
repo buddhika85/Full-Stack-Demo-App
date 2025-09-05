@@ -124,13 +124,14 @@ stages:
       - script: |
           cd Emp.Angular
           npm install
-          npm run build -- --configuration production
+          npx ng build -c production
         displayName: 'Build Angular App'
 
       # Debug step to confirm actual output folder name (Angular 20 uses package.json name)
       - script: |
           dir "$(Build.SourcesDirectory)\Emp.Angular\dist" /b
         displayName: 'List Angular dist folder contents'
+
 
       # Updated path based on actual output folder name (likely "emp-angular" from package.json)
       # If this fails, confirm the folder name from the debug step above

@@ -156,10 +156,11 @@ stages:
       # ✅ Final fix — publish everything inside dist/debug-check/browser folder
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check/browser'   # ✅ Corrected path to compiled Angular output
+          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check/browser'          # ✅ Corrected path to compiled Angular output
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
           
+
 
 
 
@@ -180,6 +181,10 @@ stages:
         inputs:
           artifact: angular-dist
           targetPath: '$(Pipeline.Workspace)/angular-dist'           # ✅ Ensures correct folder structure
+
+      # ✅ Verify contents of downloaded artifact before deployment
+      - script: ls $(Pipeline.Workspace)/angular-dist
+        displayName: 'Verify downloaded Angular artifact contents'
 
       # Deploy pre-built Angular app using AzureStaticWebApp@0
       # skip_app_build: true disables Oryx build since app is already built

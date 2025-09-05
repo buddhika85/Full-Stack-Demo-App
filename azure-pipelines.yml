@@ -3,7 +3,7 @@ trigger:
 
 
 pool:
-  vmImage: 'ubuntu-latest'     # Build agent OS
+  vmImage: 'windows-latest'     # Build agent OS
   
 
 variables:
@@ -141,6 +141,8 @@ steps:
 # ----------------------------
 # 11. CD — Angular SPA
 # ----------------------------
+
+# Build Angular app (Windows agent)
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
@@ -151,8 +153,14 @@ steps:
     npm run build -- --configuration production
   displayName: 'Build Angular App'
 
-- task: AzureStaticWebApp@0
+
+# Deploy Angular app (Linux agent required - AzureStaticWebApp@0 task is Linux-only)
+- job: Deploy_Static_Web_App
   displayName: 'Deploy Angular to Azure Static Web Apps'
-  inputs:
-    app_location: 'Emp.Angular/dist/Emp.Angular/browser'
-    azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - task: AzureStaticWebApp@0
+      inputs:
+        app_location: 'Emp.Angular/dist/Emp.Angular/browser'
+        azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'

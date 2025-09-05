@@ -148,7 +148,7 @@ stages:
       # If this fails, confirm the folder name from the debug step above
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/emp-angular/browser' # ✅ Updated path based on Angular 20 output convention
+          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/browser' # ✅ Updated path based on Angular 20 output convention
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
 

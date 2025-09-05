@@ -165,20 +165,21 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      # ✅ Download artifact to repo-relative path
+      # ✅ Download artifact to known path
       - task: DownloadPipelineArtifact@2
         inputs:
           artifact: angular-dist
-          targetPath: '$(System.DefaultWorkingDirectory)/angular-dist'   # ✅ Ensures compatibility with AzureStaticWebApp@0
+          targetPath: '$(System.DefaultWorkingDirectory)/angular-dist'
 
       # ✅ Verify contents of downloaded artifact before deployment
       - script: ls $(System.DefaultWorkingDirectory)/angular-dist
         displayName: 'Verify downloaded Angular artifact contents'
 
-      # ✅ Deploy from repo-relative path
+      # ✅ Deploy from current directory
       - task: AzureStaticWebApp@0
         inputs:
-          app_location: '$(System.DefaultWorkingDirectory)/angular-dist' # ✅ Relative path expected by the task
-          skip_app_build: true                                           # Skip Oryx build
-          output_location: ''                                            # Required when skipping build
-          azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'     # Deployment token from pipeline variables
+          app_location: '.'                                         # ✅ Deploy from current directory
+          skip_app_build: true
+          output_location: ''
+          azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/angular-dist'      # ✅ Set working directory for deployment

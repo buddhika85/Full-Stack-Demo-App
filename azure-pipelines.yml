@@ -141,23 +141,42 @@ steps:
 # 11. CD — Angular SPA
 # ----------------------------
 
-# Build Angular app (still on Windows agent)
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-
-- script: |
-    cd Emp.Angular
-    npm install
-    npm run build -- --configuration production
+# Job 1: Build Angular app (Windows agent)
+- job: BuildAngular
   displayName: 'Build Angular App'
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
 
-# Deploy Angular app (Linux agent required)
-- task: AzureStaticWebApp@0
+    - script: |
+        cd Emp.Angular
+        npm install
+        npm run build -- --configuration production
+      displayName: 'Build Angular App'
+
+    # Publish Angular dist folder as artifact to pass to next job
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'Emp.Angular/dist/Emp.Angular/browser'
+        ArtifactName: 'angular-dist'
+        publishLocation: 'Container'
+
+# Job 2: Deploy Angular app (Linux agent required for AzureStaticWebApp@0)
+- job: DeployAngular
   displayName: 'Deploy Angular to Azure Static Web Apps'
-  inputs:
-    app_location: 'Emp.Angular/dist/Emp.Angular/browser'
-    azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+  dependsOn: BuildAngular
   pool:
     vmImage: 'ubuntu-latest'
+  steps:
+    - download: current
+      artifact: angular-dist
+
+    - task: AzureStaticWebApp@0
+      inputs:
+        app_location: '$(Pipeline.Workspace)/angular-dist'
+        azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+
 

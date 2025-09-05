@@ -128,10 +128,12 @@ stages:
         displayName: 'Build Angular App'
 
       # Debug step to confirm actual output folder name (Angular 20 uses package.json name)
-      - script: dir Emp.Angular\dist /b
+      - script: |
+          dir "$(Build.SourcesDirectory)\Emp.Angular\dist" /b
         displayName: 'List Angular dist folder contents'
 
       # Updated path based on actual output folder name (likely "emp-angular" from package.json)
+      # If this fails, confirm the folder name from the debug step above
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/emp-angular/browser' # ✅ Updated path based on Angular 20 output convention

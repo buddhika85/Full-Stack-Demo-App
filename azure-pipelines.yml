@@ -111,6 +111,7 @@ stages:
 
 
 
+
   # ----------------------------
   # JOB 2 - Angular SPA Build (Windows agent)
   # ----------------------------
@@ -126,10 +127,12 @@ stages:
       # Step 1 — Build Angular app using npx (ensures CLI runs even if not globally installed)
       # Explicitly set output path to dist/debug-check to avoid ambiguity
       - script: |
-          cd Emp.Angular
+          cd $(Build.SourcesDirectory)/Emp.Angular
           npm install
           npx ng build -c production --output-path=dist/debug-check
-        displayName: 'Build Angular App'
+          echo "✅ Build completed. Listing contents:"
+          dir dist\debug-check /s
+        displayName: 'Build Angular App and List Output'
 
       # Step 2 — Recursively list contents of dist/debug-check folder to confirm actual output structure
       - powershell: |

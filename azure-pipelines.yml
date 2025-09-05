@@ -131,7 +131,7 @@ steps:
 
 # Run migrations
 - script: |
-    dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build --no-restore
+    dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
   displayName: 'Run EF Core Migrations'
   env:
     ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'                                                                         # stored in pipeline variables

@@ -26,6 +26,39 @@
             Backend API encapsulates reusable business logic and connects to
             <span class="tech-sql">Azure SQL Server</span>.
           </li>
+          <li>
+            <span class="tech-devops">Azure DevOps</span> CI/CD pipeline which
+            uses <span class="tech-testing">XUnit</span> unit tests. Build
+            status as of - <span class="curr-time">{{ currentTime() }}</span>
+
+            <a
+              href="https://dev.azure.com/gsoft85512/FullStackInterviewDemo/_build/latest?definitionId=1&branchName=main"
+              target="_blank"
+            >
+              <img
+                src="https://dev.azure.com/gsoft85512/FullStackInterviewDemo/_apis/build/status/buddhika85.Full-Stack-Demo-App?branchName=main"
+                alt="Build Status"
+              />
+            </a>
+          </li>
+          <li>
+            On merge to the
+            <a
+              href="https://github.com/buddhika85/Full-Stack-Demo-App/tree/main"
+              target="_blank"
+              class="tech-git-main-branch"
+              >Main branch</a
+            >
+            of
+            <span class="tech-git"
+              ><a
+                href="https://github.com/buddhika85/Full-Stack-Demo-App/tree/main"
+                target="_blank"
+                >Git</a
+              ></span
+            >, the <span class="tech-devops">CI pipeline</span> initiates a
+            build and runs all <span class="tech-testing">XUnit</span> tests.
+          </li>
         </ul>
       </div>
 

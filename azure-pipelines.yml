@@ -122,15 +122,19 @@ steps:
 # ----------------------------
 # 10. CD — Database Migrations
 # ----------------------------
-- task: DotNetCoreCLI@2
+
+# Install dotnet-ef tool (global)
+- script: |
+    dotnet tool install --global dotnet-ef --version 9.*
+    echo ##vso[task.prependpath]$HOME/.dotnet/tools
+  displayName: 'Install dotnet-ef tool'
+
+# Run migrations
+- script: |
+    dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build --no-restore
   displayName: 'Run EF Core Migrations'
-  inputs:
-    command: 'custom'
-    projects: 'Backend/Emp.Api/Emp.Api.csproj'
-    custom: 'ef'
-    arguments: 'database update --configuration Release --no-build --no-restore'
   env:
-    ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'   # stored in pipeline variables
+    ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'                                                                         # stored in pipeline variables
 
 
 

@@ -112,6 +112,8 @@ stages:
 
 
 
+
+
   # ----------------------------
   # JOB 2 - Angular SPA Build (Windows agent)
   # ----------------------------
@@ -124,15 +126,18 @@ stages:
         inputs:
           versionSpec: '20.x'
 
-      # Step 1 — Build Angular app using npx (ensures CLI runs even if not globally installed)
+      # Step 1 — Build Angular app using PowerShell for reliable execution
       # Explicitly set output path to dist/debug-check to avoid ambiguity
-      - script: |
-          cd $(Build.SourcesDirectory)/Emp.Angular
-          npm install
-          npx ng build -c production --output-path=dist/debug-check
-          echo "✅ Build completed. Listing contents:"
-          dir dist\debug-check /s
+      - task: PowerShell@2
         displayName: 'Build Angular App and List Output'
+        inputs:
+          targetType: 'inline'
+          script: |
+            cd "$(Build.SourcesDirectory)\Emp.Angular"
+            npm install
+            npx ng build -c production --output-path=dist/debug-check
+            Write-Host "✅ Build completed. Listing contents:"
+            Get-ChildItem "dist/debug-check" -Recurse
 
       # Step 2 — Recursively list contents of dist/debug-check folder to confirm actual output structure
       - powershell: |
@@ -154,6 +159,7 @@ stages:
           PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check'   # ✅ Explicit output path from build step
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
+          
 
 
 

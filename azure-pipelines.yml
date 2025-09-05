@@ -129,7 +129,7 @@ stages:
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: 'Emp.Angular/dist/Emp.Angular/browser'
+          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/Emp.Angular/browser'
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
 

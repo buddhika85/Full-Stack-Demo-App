@@ -11,7 +11,6 @@ using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
@@ -19,7 +18,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // services
-builder.Services.AddScoped<CustomExceptionMiddleware>();     // scoped as it needs be accessed by multiple threads for multiple requests
+builder.Services.AddScoped<CustomExceptionMiddleware>();     // scoped as it needs be accessed by multiple threads of same request
 builder.Services.AddScoped<ConsoleLoggerFilter>();
 
 //builder.Services.AddSingleton<IInMemoryRepository, InMemoryRepository>();

@@ -3,7 +3,7 @@ trigger:
 
 
 pool:
-  vmImage: 'windows-latest'     # Build agent OS
+  vmImage: 'ubuntu-latest'     # Build agent OS
   
 
 variables:

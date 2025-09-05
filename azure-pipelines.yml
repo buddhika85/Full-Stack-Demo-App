@@ -133,6 +133,7 @@ stages:
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
 
+
   # ----------------------------
   # JOB 3 - Angular SPA Deploy (Linux Agent)
   # ----------------------------
@@ -146,7 +147,12 @@ stages:
       - download: current
         artifact: angular-dist
 
+      # Deploy pre-built Angular app using AzureStaticWebApp@0
+      # skip_app_build: true disables Oryx build since app is already built
+      # output_location: '' is required when skipping build
       - task: AzureStaticWebApp@0
         inputs:
-          app_location: '$(Pipeline.Workspace)/angular-dist'
-          azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
+          app_location: '$(Pipeline.Workspace)/angular-dist'         # Path to built Angular app
+          skip_app_build: true                                       # Skip Oryx build
+          output_location: ''                                        # Required when skipping build
+          azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)' # Deployment token from pipeline variables

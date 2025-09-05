@@ -11,172 +11,195 @@ variables:
 
 
 
-steps:
+jobs:
 # ----------------------------
-# CI steps 1 to 8
-# CD steps 9 to 11
+# Uses 2 jobs which are - 
+# JOB 1 - CI + API + DB (runs on Windows agent) - CI steps 1 to 8
+# JOB 2 - Angular Build On Windows agent
+# JOB 3 - Angular Deployment on Linux agent
 # ----------------------------
 
-# ----------------------------
-# 1. CI — Install .NET 9 SDK explicitly
-# ----------------------------
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '9.0.304'   # exact version from my DEV machine
-    includePreviewVersions: true
-    installationPath: $(Agent.ToolsDirectory)/dotnet
 
 
 # ----------------------------
-# 2. CI — Install NugetCLI for restoring packages
+# JOB 1 - CI steps 1 to 8
 # ----------------------------
-- task: NuGetToolInstaller@1
+- job: CI_Backend
+  displayName: 'Build, Test, Deploy API + DB'
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+
+  # ----------------------------
+  # 1. CI — Install .NET 9 SDK explicitly
+  # ----------------------------
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '9.0.304'   # exact version from my DEV machine
+      includePreviewVersions: true
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
 
-# ----------------------------
-# 3. CI — Restore NuGet packages - all dependencies defined in Backend.sln are installed
-# ----------------------------
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: 'Backend/Backend.sln'
+  # ----------------------------
+  # 2. CI — Install NugetCLI for restoring packages
+  # ----------------------------
+  - task: NuGetToolInstaller@1
 
 
-# ----------------------------
-# 4. CI — Build solution - compiles all projects in Release mode
-# ----------------------------
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: 'Backend/Backend.sln'
-    arguments: '--configuration Release'
+  # ----------------------------
+  # 3. CI — Restore NuGet packages - all dependencies defined in Backend.sln are installed
+  # ----------------------------
+  - task: NuGetCommand@2
+    inputs:
+      command: 'restore'
+      restoreSolution: 'Backend/Backend.sln'
+
+
+  # ----------------------------
+  # 4. CI — Build solution - compiles all projects in Release mode
+  # ----------------------------
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: 'Backend/Backend.sln'
+      arguments: '--configuration Release'
     
     
-# ----------------------------
-# 5. CI — Run XUnit tests with TRX logger + collect coverage
-# ----------------------------
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    projects: 'Backend/Emp.XUnitTests/*.csproj'    
-    arguments: '--configuration Release --no-build --no-restore --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'             
-    publishTestResults: false                                   # We'll handle publishing ourselves
+  # ----------------------------
+  # 5. CI — Run XUnit tests with TRX logger + collect coverage
+  # ----------------------------
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      projects: 'Backend/Emp.XUnitTests/*.csproj'    
+      arguments: '--configuration Release --no-build --no-restore --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'             
+      publishTestResults: false                                   # We'll handle publishing ourselves
 
     
-# ----------------------------    
-# 6. CI — Publish test results
-# ----------------------------
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'VSTest'
-    testResultsFiles: '**/TestResults/test-results.trx'     # test results in /TestResults/test-results.trx
-    failTaskOnFailedTests: true                             # ensures the pipeline fails if any test fails.
-  condition: succeededOrFailed()                            # ensures results are published even if tests fail.
+  # ----------------------------    
+  # 6. CI — Publish test results
+  # ----------------------------
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/TestResults/test-results.trx'     # test results in /TestResults/test-results.trx
+      failTaskOnFailedTests: true                             # ensures the pipeline fails if any test fails.
+    condition: succeededOrFailed()                            # ensures results are published even if tests fail.
 
 
-# ----------------------------
-# 7. CI — Publish coverage
-# ----------------------------
-- task: PublishCodeCoverageResults@2                                                                # PublishCodeCoverageResults@2 picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
-  inputs:
-    codeCoverageTool: 'cobertura'                                                                   # Publishes the coverage report using the Cobertura format, which is compatible with Azure DevOps UI.
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'              # coverage.cobertura.xml (inside GUID folder
-    reportDirectory: '$(System.DefaultWorkingDirectory)/**'
-  condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.
+  # ----------------------------
+  # 7. CI — Publish coverage
+  # ----------------------------
+  - task: PublishCodeCoverageResults@2                                                                # PublishCodeCoverageResults@2 picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
+    inputs:
+      codeCoverageTool: 'cobertura'                                                                   # Publishes the coverage report using the Cobertura format, which is compatible with Azure DevOps UI.
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'              # coverage.cobertura.xml (inside GUID folder
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**'
+    condition: succeededOrFailed()                                                                    # ensures coverage is published even if tests fail.
   
 
-# ----------------------------
-# 8. CI — Publish HTML coverage report as artifact
-# ----------------------------
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'     # Explicit path to TestResults folder
-    ArtifactName: 'coverage-report'                         # Name in DevOps UI
-    publishLocation: 'Container'                            # Store inside pipeline run container
-  condition: succeededOrFailed()
+  # ----------------------------
+  # 8. CI — Publish HTML coverage report as artifact
+  # ----------------------------
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'     # Explicit path to TestResults folder
+      ArtifactName: 'coverage-report'                         # Name in DevOps UI
+      publishLocation: 'Container'                            # Store inside pipeline run container
+    condition: succeededOrFailed()
+
+
+
+
+
+  # ----------------------------
+  # 9. CD — Publish Backend API
+  # ----------------------------
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Backend API'
+    inputs:
+      command: 'publish'
+      projects: 'Backend/Emp.Api/Emp.Api.csproj'
+      arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/api'
+
+  # ----------------------------
+  # 10. CD — Deploy Backend API
+  # ----------------------------
+  - task: AzureWebApp@1
+    displayName: 'Deploy API to Azure App Service'
+    inputs:
+      azureSubscription: 'sc-azure-rg-interview-demo'     # ARM service connection in DevOps
+      appName: 'api-interview-demo'                       # Name of the Backend Azure App Service
+      package: '$(Build.ArtifactStagingDirectory)/api'
+
+
+
+  # ----------------------------
+  # 11. CD — Database Migrations - Install dotnet-ef + run migrations
+  # ----------------------------
+
+  # Install dotnet-ef tool (global)
+  - script: |
+      dotnet tool install --global dotnet-ef --version 9.*
+      echo ##vso[task.prependpath]$HOME/.dotnet/tools
+    displayName: 'Install dotnet-ef tool'
+
+  # Run migrations
+  - script: |
+      dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
+    displayName: 'Run EF Core Migrations'
+    env:
+      ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'                                                                         # stored in pipeline variables
 
 
 
 
 
 # ----------------------------
-# 9. CD — Backend API
+# Job 2: Angular SPA Build (Windows agent)
 # ----------------------------
-- task: DotNetCoreCLI@2
-  displayName: 'Publish Backend API'
-  inputs:
-    command: 'publish'
-    projects: 'Backend/Emp.Api/Emp.Api.csproj'
-    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/api'
+ 
+- job: BuildAngular
+  displayName: 'Build Angular App'
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
 
-- task: AzureWebApp@1
-  displayName: 'Deploy API to Azure App Service'
-  inputs:
-    azureSubscription: 'sc-azure-rg-interview-demo'     # ARM service connection in DevOps
-    appName: 'api-interview-demo'                       # Name of the Backend Azure App Service
-    package: '$(Build.ArtifactStagingDirectory)/api'
+    - script: |
+        cd Emp.Angular
+        npm install
+        npm run build -- --configuration production
+      displayName: 'Build Angular App'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'Emp.Angular/dist/Emp.Angular/browser'
+        ArtifactName: 'angular-dist'
+        publishLocation: 'Container
+
+
 
 
 
 # ----------------------------
-# 10. CD — Database Migrations
+# Job 3: Angular SPA Deploy (Linux Agent)
 # ----------------------------
 
-# Install dotnet-ef tool (global)
-- script: |
-    dotnet tool install --global dotnet-ef --version 9.*
-    echo ##vso[task.prependpath]$HOME/.dotnet/tools
-  displayName: 'Install dotnet-ef tool'
+- job: DeployAngular
+  displayName: 'Deploy Angular to Azure Static Web Apps'
+  dependsOn: BuildAngular
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - download: current
+      artifact: angular-dist
 
-# Run migrations
-- script: |
-    dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
-  displayName: 'Run EF Core Migrations'
-  env:
-    ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'                                                                         # stored in pipeline variables
-
-        
-# # ----------------------------
-# # 11. CD — Angular SPA
-# # ----------------------------
-
-# # Job 1: Build Angular app (Windows agent)
-# - job: BuildAngular
-  # displayName: 'Build Angular App'
-  # pool:
-    # vmImage: 'windows-latest'
-  # steps:
-    # - task: NodeTool@0
-      # inputs:
-        # versionSpec: '20.x'
-
-    # - script: |
-        # cd Emp.Angular
-        # npm install
-        # npm run build -- --configuration production
-      # displayName: 'Build Angular App'
-
-    # # Publish Angular dist folder as artifact to pass to next job
-    # - task: PublishBuildArtifacts@1
-      # inputs:
-        # PathtoPublish: 'Emp.Angular/dist/Emp.Angular/browser'
-        # ArtifactName: 'angular-dist'
-        # publishLocation: 'Container'
-
-# # Job 2: Deploy Angular app (Linux agent required for AzureStaticWebApp@0)
-# - job: DeployAngular
-  # displayName: 'Deploy Angular to Azure Static Web Apps'
-  # dependsOn: BuildAngular
-  # pool:
-    # vmImage: 'ubuntu-latest'
-  # steps:
-    # - download: current
-      # artifact: angular-dist
-
-    # - task: AzureStaticWebApp@0
-      # inputs:
-        # app_location: '$(Pipeline.Workspace)/angular-dist'
-        # azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
-
+    - task: AzureStaticWebApp@0
+      inputs:
+        app_location: '$(Pipeline.Workspace)/angular-dist'
+        azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)'
 

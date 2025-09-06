@@ -12,6 +12,14 @@ export class HomeService {
   private baseUrl: string = `${environment.apiUrl}`;
 
   landingContent(): Observable<LandingDto> {
-    return this.httpClient.get<LandingDto>(`${this.baseUrl}/Home`);
+    return this.httpClient.get<LandingDto>(
+      `${this.baseUrl}/home/landing-content`
+    );
+  }
+
+  allowedOrigins(): Observable<string[]> {
+    return this.httpClient.get<string[]>(
+      `${this.baseUrl}/home/allowed-origins`
+    );
   }
 }

@@ -23,7 +23,7 @@ public class HomeController : BaseController
 
     [EndpointSummary("Gets Landing Page Content - Department names and their employee counts")]
     [AllowAnonymous]
-    [HttpGet]
+    [HttpGet("landing-content")]
     [OutputCache(Tags = [cacheTag])]       // this is configured to keep 15 seconds in Program.cs
     public async Task<ActionResult<LandingDto>> LandingContent()
     {
@@ -44,7 +44,7 @@ public class HomeController : BaseController
 
     [EndpointSummary("Returns Allowed Origins By Backend API")]
     //[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
-    [HttpGet]
+    [HttpGet("allowed-origins")]
     public ActionResult<IEnumerable<string>> GetAllowedOriginList(IConfiguration configuration)
     {
         try

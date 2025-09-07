@@ -151,9 +151,11 @@ stages:
           # }
 
     # 13. CD — Use local dotnet-ef tool via manifest
+    # Creates a local manifest file
+    # Use exact version to avoid ambiguity
     - script: |
-        dotnet new tool-manifest --force                                                                # Creates a local manifest file
-        dotnet tool install dotnet-ef --version 9.0.0-preview.3.24172.4                                 # Use exact version to avoid ambiguity
+        dotnet new tool-manifest --force                                                               
+        dotnet tool install dotnet-ef --version 9.0.0-preview.3.24172.4                                 
         echo ##vso[task.prependpath]$(System.DefaultWorkingDirectory)/.config/dotnet-tools
       displayName: 'Install dotnet-ef as local tool'
 

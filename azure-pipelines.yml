@@ -17,7 +17,7 @@ stages:
   jobs:
 
   # ----------------------------
-  # JOB 1 - CI steps 1 to 11
+  # JOB 1 - CI steps 1 to 14
   # ----------------------------
   - job: CI_Backend
     displayName: 'Build, Test, Deploy API + DB'
@@ -97,7 +97,7 @@ stages:
         appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
         package: '$(Build.ArtifactStagingDirectory)/api'
         
-    # List contents of published API artifact
+    # 11. List contents of published API artifact
     - task: PowerShell@2
       displayName: 'List API Artifact Contents'
       inputs:
@@ -105,8 +105,22 @@ stages:
         script: |
           Write-Host "📦 Listing contents of published API artifact:"
           Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse
+    
+    # Inspect contents of Emp.Api.zip to confirm Swagger JSON is included    
+    - task: PowerShell@2
+      displayName: 'Inspect ZIP Contents'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zipPath = "$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip"
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+          foreach ($entry in $zip.Entries) {
+            Write-Host $entry.FullName
+          }
+          $zip.Dispose()
 
-    # Post-deploy health check for Swagger JSON
+    # 12. Post-deploy health check for Swagger JSON
     - task: PowerShell@2
       displayName: 'Check Swagger JSON Availability'
       inputs:
@@ -127,13 +141,13 @@ stages:
             exit 1
           }
 
-    # List pending EF Core migrations before applying
+    # 13. List pending EF Core migrations before applying
     - script: |
         dotnet ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
       displayName: 'List Pending EF Core Migrations'
 
 
-    # 11. CD — Database Migrations - Install dotnet-ef + run migrations
+    # 14. CD — Database Migrations - Install dotnet-ef + run migrations
     - script: |
         dotnet tool install --global dotnet-ef --version 9.*
         echo ##vso[task.prependpath]$HOME/.dotnet/tools

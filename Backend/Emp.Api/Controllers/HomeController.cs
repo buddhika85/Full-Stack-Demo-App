@@ -85,7 +85,9 @@ public class HomeController : BaseController
 
     [HttpGet("diagnostics")]
     [AllowAnonymous]
-    public ActionResult<object> GetDeploymentDiagnostics(IConfiguration configuration)
+    public async Task<ActionResult<object>> GetDeploymentDiagnostics(
+    IConfiguration configuration,
+    IHttpClientFactory httpClientFactory)
     {
         try
         {
@@ -96,6 +98,22 @@ public class HomeController : BaseController
             var jwtIssuer = configuration["Jwt:Issuer"];
             var jwtAudience = configuration["Jwt:Audience"];
             var serviceBusUrl = configuration["AzureIntegration:PublishToServiceBusAzureServiceFnUrl"];
+
+            var swaggerUrl = "/swagger/v1/swagger.json";
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var fullSwaggerUrl = $"{baseUrl}{swaggerUrl}";
+
+            bool swaggerAvailable = false;
+            try
+            {
+                var client = httpClientFactory.CreateClient();
+                var response = await client.GetAsync(fullSwaggerUrl);
+                swaggerAvailable = response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to ping Swagger JSON endpoint.");
+            }
 
             logger.LogInformation("Diagnostics endpoint called.");
             logger.LogInformation("Environment: {env}", environment);
@@ -109,7 +127,8 @@ public class HomeController : BaseController
                 JwtIssuer = jwtIssuer,
                 JwtAudience = jwtAudience,
                 ServiceBusUrl = serviceBusUrl,
-                SwaggerUrl = "/swagger/v1/swagger.json"
+                SwaggerUrl = fullSwaggerUrl,
+                SwaggerAvailable = swaggerAvailable
             });
         }
         catch (Exception ex)

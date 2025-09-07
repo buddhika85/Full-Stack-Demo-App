@@ -88,6 +88,7 @@ public class HomeController : BaseController
     IConfiguration configuration,
     IHttpClientFactory httpClientFactory)
     {
+        logger.LogInformation("API: Get Deployment Diagnostics endpoint called.");
         try
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";

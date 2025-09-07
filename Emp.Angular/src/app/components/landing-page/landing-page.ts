@@ -16,8 +16,32 @@ export class LandingPage implements OnInit, OnDestroy {
   allowedOrgins: string[] | null = null;
 
   ngOnInit(): void {
-    this.fetchLandingContent();
     this.fetchAllowedOrings();
+    this.fetchLandingContent();
+  }
+
+  fetchApiHealth(): void {
+    const sub = this.homeService.health().subscribe({
+      next: (value: string[]) => {
+        console.log('Health: ', value);
+      },
+      error: (error: any) => {
+        console.error('Error retrieving API Health:', error);
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
+
+  fetchDiagnostics(): void {
+    const sub = this.homeService.diagnostics().subscribe({
+      next: (value: string[]) => {
+        console.log('Diagnostics: ', value);
+      },
+      error: (error: any) => {
+        console.error('Error retrieving API Diagnostics:', error);
+      },
+    });
+    this.compositeSubscription.add(sub);
   }
 
   fetchLandingContent(): void {

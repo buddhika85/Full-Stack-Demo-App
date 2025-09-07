@@ -81,13 +81,22 @@ stages:
         publishLocation: 'Container'
       condition: succeededOrFailed()
 
-    # 9. CD — Publish Backend API
+    # 9. CD — Publish Backend API to generate ZIP for Azure deployment
     - task: DotNetCoreCLI@2
       displayName: 'Publish Backend API'
       inputs:
         command: 'publish'
         projects: 'Backend/Emp.Api/Emp.Api.csproj'
         arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/api'
+      
+    # Verify Published API Contents - Emp.Api.DLL, swagger/index.html, swagger/v1/swagger.json must be present
+    - task: PowerShell@2
+      displayName: 'Verify Published API Contents'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "🔍 Verifying published API contents:"
+          Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse | Select-String -Pattern "Emp.Api.dll|swagger"
 
     # 10. CD — Deploy Backend API
     - task: AzureWebApp@1

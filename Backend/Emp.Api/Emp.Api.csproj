@@ -4,6 +4,10 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!--generate an XML documentation file during build, which is essential for Swagger to include method summaries, parameter descriptions, and other comments-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -39,5 +43,5 @@
 		</None>
 	</ItemGroup>
 
-
+	<!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
 </Project>

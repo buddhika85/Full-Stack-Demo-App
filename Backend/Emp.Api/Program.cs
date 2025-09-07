@@ -203,7 +203,11 @@ app.UseMiddleware<CustomExceptionMiddleware>(); // custom middleware to tackle e
 
 // using swagger
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Emp API v1");
+    c.RoutePrefix = "swagger"; // Ensures Swagger UI is served at /swagger/index.html
+});
 //}
 //else
 //{

@@ -152,7 +152,7 @@ stages:
 
     # 13. CD — Install dotnet-ef tool BEFORE using it for listing migrations
     - script: |
-        dotnet tool install --global dotnet-ef --version 9.*         # Installs EF CLI globally for .NET 9
+        dotnet tool install --global dotnet-ef --prerelease          # Installs EF CLI globally for .NET 9
         echo ##vso[task.prependpath]$HOME/.dotnet/tools              # Adds EF CLI to PATH so it's usable in next steps
       displayName: 'Install dotnet-ef tool'
 

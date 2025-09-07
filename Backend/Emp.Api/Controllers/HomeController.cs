@@ -45,7 +45,6 @@ public class HomeController : BaseController
     [EndpointSummary("Returns Allowed Origins By Backend API")]
     ////[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
     [HttpGet("allowed-origins")]
-    [HttpGet("/api/test1")]
     public ActionResult<IEnumerable<string>> GetAllowedOriginList(IConfiguration configuration)
     {
         try

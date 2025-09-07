@@ -148,13 +148,16 @@ builder.Services.AddCors(options =>
 
 
 // Seri Log Logger
+var logPath = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
+    ? @"D:\home\LogFiles\apiLog-.txt"                                                           // for azure KUDU console log views
+    : "Logs/apiLog-.txt";
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File("Logs/apiLog-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Services.AddSerilog();
-
 
 
 builder.Services.AddControllers();

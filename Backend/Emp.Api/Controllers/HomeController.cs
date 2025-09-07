@@ -1,5 +1,4 @@
 ﻿using Emp.Core.DTOs;
-using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

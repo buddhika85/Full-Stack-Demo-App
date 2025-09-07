@@ -26,7 +26,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure()
+        sqlOptions => sqlOptions.EnableRetryOnFailure(maxRetryCount: 10,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorNumbersToAdd: new[] { 40613 }
+)
     )
 );
 

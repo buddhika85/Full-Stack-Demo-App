@@ -23,6 +23,7 @@ public class HomeController : BaseController
 
     [EndpointSummary("Gets Landing Page Content - Department names and their employee counts")]
     [AllowAnonymous]
+    [HttpGet("/api/home")]
     [HttpGet("landing-content")]
     [OutputCache(Tags = [cacheTag])]       // this is configured to keep 15 seconds in Program.cs
     public async Task<ActionResult<LandingDto>> LandingContent()

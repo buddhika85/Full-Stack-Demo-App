@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { LandingDto } from '../../models/landing.dtos';
 import { HomeService } from '../../services/home.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -10,13 +11,20 @@ import { Subscription } from 'rxjs';
   styleUrl: './landing-page.scss',
 })
 export class LandingPage implements OnInit, OnDestroy {
+  private readonly authService: AuthService = inject(AuthService);
   private readonly homeService: HomeService = inject(HomeService);
   private readonly compositeSubscription: Subscription = new Subscription(); // Composite Subscription Pattern. - can hold multiple subscriptions
   landingDto: LandingDto | null = null;
   allowedOrgins: string[] | null = null;
 
   ngOnInit(): void {
-    this.fetchAllowedOrings();
+    this.fetchApiHealth();
+
+    if (this.authService.isAdmin() || this.authService.isStaff()) {
+      this.fetchAllowedOrings();
+      this.fetchDiagnostics();
+    }
+
     this.fetchLandingContent();
   }
 

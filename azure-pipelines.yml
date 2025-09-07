@@ -150,22 +150,21 @@ stages:
             # exit 1
           # }
 
-    # 13. CD — Install dotnet-ef tool BEFORE using it for listing migrations
-    # Installs EF CLI globally for .NET 9
-    # Adds EF CLI to PATH so it's usable in next steps
+    # 13. CD — Use local dotnet-ef tool via manifest
     - script: |
-        dotnet tool install --global dotnet-ef --prerelease --source https://api.nuget.org/v3/index.json
-        echo ##vso[task.prependpath]$HOME/.dotnet/tools
-      displayName: 'Install dotnet-ef tool (from NuGet.org only)'
+        dotnet new tool-manifest --force                                                                # Creates a local manifest file
+        dotnet tool install dotnet-ef --version 9.0.0-preview.3.24172.4                                 # Use exact version to avoid ambiguity
+        echo ##vso[task.prependpath]$(System.DefaultWorkingDirectory)/.config/dotnet-tools
+      displayName: 'Install dotnet-ef as local tool'
 
-    # 14. List pending EF Core migrations after tool is installed
+    # 14. List pending EF Core migrations using local tool
     - script: |
-        dotnet ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
+        dotnet tool run dotnet-ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
       displayName: 'List Pending EF Core Migrations'
 
-    # 15. CD — Apply EF Core migrations to Azure SQL DB
+    # 15. Apply EF Core migrations using local tool
     - script: |
-        dotnet ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
+        dotnet tool run dotnet-ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
       displayName: 'Run EF Core Migrations'
       env:
         ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'   # stored in pipeline variables

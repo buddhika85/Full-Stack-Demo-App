@@ -43,7 +43,7 @@ public class HomeController : BaseController
     }
 
     [EndpointSummary("Returns Allowed Origins By Backend API")]
-    //[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
+    ////[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
     [HttpGet("allowed-origins")]
     public ActionResult<IEnumerable<string>> GetAllowedOriginList(IConfiguration configuration)
     {

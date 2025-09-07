@@ -154,9 +154,9 @@ stages:
     # Installs EF CLI globally for .NET 9
     # Adds EF CLI to PATH so it's usable in next steps
     - script: |
-        dotnet tool install --global dotnet-ef --prerelease          
-        echo ##vso[task.prependpath]$HOME/.dotnet/tools             
-      displayName: 'Install dotnet-ef tool'
+        dotnet tool install --global dotnet-ef --prerelease --source https://api.nuget.org/v3/index.json
+        echo ##vso[task.prependpath]$HOME/.dotnet/tools
+      displayName: 'Install dotnet-ef tool (from NuGet.org only)'
 
     # 14. List pending EF Core migrations after tool is installed
     - script: |

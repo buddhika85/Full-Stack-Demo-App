@@ -104,7 +104,7 @@ stages:
       inputs:
         azureSubscription: 'sc-azure-rg-interview-demo'             # ARM service connection in DevOps
         appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
-        package: '$(Build.ArtifactStagingDirectory)/api'
+        package: '$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip'
         
     # 11. List contents of published API artifact
     - task: PowerShell@2

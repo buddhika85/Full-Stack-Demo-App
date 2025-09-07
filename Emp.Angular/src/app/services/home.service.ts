@@ -22,4 +22,12 @@ export class HomeService {
       `${this.baseUrl}/home/allowed-origins`
     );
   }
+
+  diagnostics(): Observable<any> {
+    return this.httpClient.get<any>(`${this.baseUrl}/home/diagnostics`);
+  }
+
+  health(): Observable<any> {
+    return this.httpClient.get<any>(`${this.baseUrl}/health`);
+  }
 }

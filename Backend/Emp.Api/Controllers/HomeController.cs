@@ -1,4 +1,5 @@
 ﻿using Emp.Core.DTOs;
+using Emp.Core.Enums;
 using Emp.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,7 @@ public class HomeController : BaseController
     }
 
     [EndpointSummary("Returns Allowed Origins By Backend API")]
-    ////[Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
+    [Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
     [HttpGet("allowed-origins")]
     public ActionResult<IEnumerable<string>> GetAllowedOriginList(IConfiguration configuration)
     {
@@ -82,7 +83,7 @@ public class HomeController : BaseController
     }
 
     [HttpGet("diagnostics")]
-    [AllowAnonymous]
+    [Authorize(Roles = $"{nameof(UserRoles.Admin)},{nameof(UserRoles.Staff)}")]
     public async Task<ActionResult<object>> GetDeploymentDiagnostics(
     IConfiguration configuration,
     IHttpClientFactory httpClientFactory)

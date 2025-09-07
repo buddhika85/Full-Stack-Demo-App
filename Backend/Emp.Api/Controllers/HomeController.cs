@@ -83,4 +83,40 @@ public class HomeController : BaseController
         }
     }
 
+    [HttpGet("diagnostics")]
+    [AllowAnonymous]
+    public ActionResult<object> GetDeploymentDiagnostics(IConfiguration configuration)
+    {
+        try
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+            var allowedOriginsRaw = configuration["AllowedOrigins"];
+            var allowedOrigins = allowedOriginsRaw?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+
+            var jwtIssuer = configuration["Jwt:Issuer"];
+            var jwtAudience = configuration["Jwt:Audience"];
+            var serviceBusUrl = configuration["AzureIntegration:PublishToServiceBusAzureServiceFnUrl"];
+
+            logger.LogInformation("Diagnostics endpoint called.");
+            logger.LogInformation("Environment: {env}", environment);
+            logger.LogInformation("AllowedOrigins: {origins}", allowedOriginsRaw);
+            logger.LogInformation("Parsed Origins: {@list}", allowedOrigins);
+
+            return Ok(new
+            {
+                Environment = environment,
+                AllowedOrigins = allowedOrigins,
+                JwtIssuer = jwtIssuer,
+                JwtAudience = jwtAudience,
+                ServiceBusUrl = serviceBusUrl,
+                SwaggerUrl = "/swagger/v1/swagger.json"
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in diagnostics endpoint.");
+            return StatusCode(500, "Diagnostics failed.");
+        }
+    }
+
 }

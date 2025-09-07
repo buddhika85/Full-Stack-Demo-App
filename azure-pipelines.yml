@@ -96,6 +96,42 @@ stages:
         azureSubscription: 'sc-azure-rg-interview-demo'             # ARM service connection in DevOps
         appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
         package: '$(Build.ArtifactStagingDirectory)/api'
+        
+    # List contents of published API artifact
+    - task: PowerShell@2
+      displayName: 'List API Artifact Contents'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "📦 Listing contents of published API artifact:"
+          Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse
+
+    # Post-deploy health check for Swagger JSON
+    - task: PowerShell@2
+      displayName: 'Check Swagger JSON Availability'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
+          Write-Host "🌐 Checking Swagger endpoint: $url"
+          try {
+            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+            if ($response.StatusCode -eq 200) {
+              Write-Host "✅ Swagger JSON is available."
+            } else {
+              Write-Error "❌ Swagger JSON returned status code $($response.StatusCode)"
+              exit 1
+            }
+          } catch {
+            Write-Error "❌ Failed to reach Swagger JSON: $($_.Exception.Message)"
+            exit 1
+          }
+
+    # List pending EF Core migrations before applying
+    - script: |
+        dotnet ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
+      displayName: 'List Pending EF Core Migrations'
+
 
     # 11. CD — Database Migrations - Install dotnet-ef + run migrations
     - script: |

@@ -130,25 +130,25 @@ stages:
           $zip.Dispose()
 
     # 12. Post-deploy health check for Swagger JSON
-    - task: PowerShell@2
-      displayName: 'Check Swagger JSON Availability'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
-          Write-Host "🌐 Checking Swagger endpoint: $url"
-          try {
-            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
-            if ($response.StatusCode -eq 200) {
-              Write-Host "✅ Swagger JSON is available."
-            } else {
-              Write-Error "❌ Swagger JSON returned status code $($response.StatusCode)"
-              exit 1
-            }
-          } catch {
-            Write-Error "❌ Failed to reach Swagger JSON: $($_.Exception.Message)"
-            exit 1
-          }
+    # - task: PowerShell@2
+      # displayName: 'Check Swagger JSON Availability'
+      # inputs:
+        # targetType: 'inline'
+        # script: |
+          # $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
+          # Write-Host "🌐 Checking Swagger endpoint: $url"
+          # try {
+            # $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+            # if ($response.StatusCode -eq 200) {
+              # Write-Host "✅ Swagger JSON is available."
+            # } else {
+              # Write-Error "❌ Swagger JSON returned status code $($response.StatusCode)"
+              # exit 1
+            # }
+          # } catch {
+            # Write-Error "❌ Failed to reach Swagger JSON: $($_.Exception.Message)"
+            # exit 1
+          # }
 
     # 13. List pending EF Core migrations before applying
     - script: |

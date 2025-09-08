@@ -13,6 +13,17 @@ This demo showcases full-stack development skills and architectural patterns gai
 
 ---
 
+## 🎯 Purpose
+
+This project demonstrates:
+
+- End-to-end solution delivery using modern Microsoft technologies  
+- Clean separation of concerns across frontend, backend, and data layers  
+- Real-world patterns for scalable, maintainable enterprise applications  
+- Interview-ready code showcasing technical depth and presentation polish
+
+---
+
 ## 🧱 Architecture Overview
 
 ### 🔧 Backend
@@ -47,6 +58,8 @@ This demo showcases full-stack development skills and architectural patterns gai
 - [CustomExceptionMiddleware](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Api/Middleware/CustomExceptionMiddleware.cs)
 - [ConsoleLoggerFilter](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Api/Filters/ConsoleLoggerFilter.cs)
 - [FirstLetterUpperCaseAttribute](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Backend/Emp.Core/ValidationAttributes/FirstLetterUpperCaseAttribute.cs)
+- 100+ unit tests using `xUnit`, `Moq`, and `FluentAssertions`
+- ...
 
 ![Unit Testing Preview](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/public/img/unit-testing.png?raw=true)
 
@@ -58,6 +71,7 @@ This demo showcases full-stack development skills and architectural patterns gai
 - Modular components, route-based navigation
 - Deployed via Azure Static Web Apps
 - Reactive forms, lifecycle hooks, snack bar service, loading spinner
+- ...
 
 ![Frontend Architecture](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/public/img/frontend-architecture.png?raw=true)
 
@@ -66,27 +80,51 @@ This demo showcases full-stack development skills and architectural patterns gai
 - [JWT Interceptor](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/interceptors/jwt-interceptor.ts)
 - [User Role Pipe](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/pipes/user-role-enum-to-user-role-pipe.ts)
 - [Auth Guard](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/src/app/guards/auth-guard.ts)
+- ...
 
 ---
 
-### ⚙️ DevOps
+### 🔄 CI/CD Workflow Summary
 
 - CI/CD pipeline using Azure DevOps  
 - Automated build, test, and deployment  
 - API deployed to Azure App Service via ZIP Deploy  
 - Angular app deployed to Azure Static Web App  
-- Serilog logs accessible via Kudu console
+
+
+![Dev Ops](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/public/img/Azure-devOps.png?raw=true)
 
 ---
 
-## 🎯 Purpose
+### ⚙️ Azure Hosting
 
-This project demonstrates:
+- Azure SQL Database, Azure App Service, Azure Static Web App was utilized for hosting.
+- Secrets managed securely via Environment variables and Azure App Settings
+- Serilog logs accessible via Kudu console
+![SeriLog ](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/public/img/Azure-Kudu-Logs.png?raw=true)
 
-- End-to-end solution delivery using modern Microsoft technologies  
-- Clean separation of concerns across frontend, backend, and data layers  
-- Real-world patterns for scalable, maintainable enterprise applications  
-- Interview-ready code showcasing technical depth and presentation polish
+
+###  Other Azure Services used
+
+- Azure Static Web App
+- Azure API App
+- Azure Function
+- Azure Service Bus
+- Azure Container Instance
+
+And Docker Hub (Hosted [Image](https://hub.docker.com/r/gsoft85512/docker-number-minimal-api))
+
+
+
+---
+
+## 🖼️ Screenshots / Preview
+
+![Application ](https://github.com/buddhika85/Full-Stack-Demo-App/blob/main/Emp.Angular/public/img/deplopyed-app.png?raw=true)
+
+---
+
+
 
 ---
 
@@ -101,25 +139,6 @@ To run locally:
 5. Serve the Angular app with `ng serve`  
 
 > Requires .NET 9 SDK and Node.js 20+
-
----
-
-## 🔄 CI/CD Workflow Summary
-
-- ✅ Automated build and test via Azure DevOps  
-- ✅ EF Core migrations applied during pipeline execution  
-- ✅ Angular app deployed to Azure Static Web App  
-- ✅ API deployed to Azure App Service  
-- ✅ Logs accessible via Kudu console
-
----
-
-## 🖼️ Screenshots / Preview
-
-Coming soon...
-
----
-
 ## 🛠️ Known Issues / Roadmap
 
 - EF CLI version mismatch warning (resolved via local tool manifest)  

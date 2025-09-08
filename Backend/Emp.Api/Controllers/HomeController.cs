@@ -126,7 +126,7 @@ public class HomeController : BaseController
                 AllowedOrigins = allowedOrigins,
                 JwtIssuer = jwtIssuer,
                 JwtAudience = jwtAudience,
-                ServiceBusUrl = serviceBusUrl,
+                //ServiceBusUrl = serviceBusUrl,
                 SwaggerUrl = fullSwaggerUrl,
                 SwaggerAvailable = swaggerAvailable
             });

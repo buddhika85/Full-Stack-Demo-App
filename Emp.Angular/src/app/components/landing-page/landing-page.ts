@@ -18,8 +18,6 @@ export class LandingPage implements OnInit, OnDestroy {
   allowedOrgins: string[] | null = null;
 
   ngOnInit(): void {
-    this.fetchApiHealth();
-
     if (this.authService.isAdmin() || this.authService.isStaff()) {
       this.fetchAllowedOrings();
       this.fetchDiagnostics();
@@ -30,10 +28,12 @@ export class LandingPage implements OnInit, OnDestroy {
 
   fetchApiHealth(): void {
     const sub = this.homeService.health().subscribe({
-      next: (value: string[]) => {
+      next: (value: string) => {
+        debugger;
         console.log('Health: ', value);
       },
       error: (error: any) => {
+        debugger;
         console.error('Error retrieving API Health:', error);
       },
     });

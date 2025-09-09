@@ -535,6 +535,46 @@ public class UserServiceTests
     }
 
     // user inactive - returns null
-    // password verifucation failed - returns null
+    [Theory]
+    [InlineData("a@inactive.com")]
+    [InlineData("b@inactive.com")]
+    public async Task AuthenticateUserAsync_ReturnsNull_WhenUserIsInactive(string inactiveUsername)
+    {
+        // arrange
+        var loginDto = new LoginDto
+        {
+            Username = inactiveUsername,
+            Password = "abc123$"
+        };
+        var inactiveUser = new User
+        {
+            IsActive = false,
+            FirstName = "FN",
+            LastName = "LN",
+            Role = UserRoles.Staff.ToString(),
+            Username = inactiveUsername,
+            Id = 1
+        };
+        mockUserRepository.Setup(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(inactiveUsername)))).ReturnsAsync(inactiveUser);
+
+        // act
+        var result = await userService.AuthenticateUserAsync(loginDto);
+
+        // assert
+        result.Should().BeNull();
+        mockUserRepository.Verify(x => x.GetByUsernameAsync(It.Is<string>(x => x.Equals(inactiveUsername))), Times.Once());
+        mockPasswordHasherService.Verify(x => x.VerifyPassword(It.Is<string>(x => x.Equals(inactiveUsername)), It.IsAny<string>()), Times.Never());
+        mockJwtService.Verify(x => x.GenerateJwtToken(It.Is<User>(x => x == inactiveUser)), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Authenticating user - {inactiveUser.Username}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: User with Username {inactiveUser.Username} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: User with Username {inactiveUser.Username} is not active", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Error, $"User authetication failed: Password does not match for user {inactiveUser.Username}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"User authetication success: For user {inactiveUser.Username}. Now generating JWT token.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"JWT token generation success: For user {inactiveUser.Username}", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in autheticating User with id {inactiveUser.Username}", Times.Never());
+    }
+
+    // password verification failed - returns null
     // exception occurs, catch bock logs and bubbles up exception to caller
 }

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
+import { DepartmentsForm } from '../departments-form/departments-form';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-create-departments',
-  imports: [],
+  imports: [DepartmentsForm, RouterLink],
   templateUrl: './create-departments.html',
-  styleUrl: './create-departments.scss'
+  styleUrl: './create-departments.scss',
 })
-export class CreateDepartments {
-
-}
+export class CreateDepartments {}

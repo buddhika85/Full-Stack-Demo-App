@@ -1,1 +1,9 @@
-<p>edit-departments works!</p>
+<div class="main-container">
+  <h1 class="h1">Edit Department {{ departmentIdToEdit }}</h1>
+
+  <app-departments-form [departmentId]="departmentIdToEdit" />
+
+  <a routerLink="/manage-departments" class="back-btn"
+    >&laquo; Back to Departments List</a
+  >
+</div>

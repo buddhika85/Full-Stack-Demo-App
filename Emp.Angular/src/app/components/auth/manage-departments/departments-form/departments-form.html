@@ -1,1 +1,28 @@
-<p>departments-form works!</p>
+<form
+  [formGroup]="formGroup"
+  class="three-col-form w-3/5 text-center mb-5"
+  (ngSubmit)="onSubmit()"
+>
+  <label class="label">Department Name: </label>
+  <input type="text" formControlName="name" class="text-box" />
+  <div class="error-lbl">
+    @if ((name.touched || name.dirty) && name.invalid) { @if
+    (name.errors?.['required']) {
+    <span>Required</span>
+    } @if (name.errors?.['minlength']){
+    <span>Min length should be 2</span>
+    } }
+  </div>
+
+  <div></div>
+  <div>
+    <button
+      type="submit"
+      class="primary-btn float-start"
+      [disabled]="formGroup.invalid || !formGroup.dirty"
+    >
+      Save
+    </button>
+    <button type="button" class="reset-btn" (click)="onReset()">Reset</button>
+  </div>
+</form>

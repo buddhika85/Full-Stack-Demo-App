@@ -15,12 +15,13 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 
 @Component({
   selector: 'app-departments-form',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './departments-form.html',
   styleUrl: './departments-form.scss',
 })
@@ -49,6 +50,18 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.compositeSubscription.unsubscribe();
+  }
+
+  get name(): FormControl<string> {
+    return this.formGroup.controls.name;
+  }
+
+  onSubmit(): void {
+    console.log(this.formGroup.getRawValue());
+  }
+
+  onReset(): void {
+    this.formGroup.reset();
   }
 
   private buildForm(): void {

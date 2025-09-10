@@ -2,6 +2,7 @@
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Enums;
+using Emp.Core.Extensions;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using Emp.XUnitTests.TestData;
@@ -381,6 +382,49 @@ public class UsersControllerTests
 
 
     // DTO.Id != Route id returns BadRequestObjectResult
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task UpdateUser_ReturnsBadRequestError_WhenRouteIdAndDtoIdNotSame(User user)
+    {
+        // arrange        
+        var updateUserDto = new UpdateUserDto
+        {
+            Id = user.Id,
+            FirstName = $"{user.FirstName} updated",
+            LastName = $"{user.LastName} updated",
+            Username = $"{user.Username} updated",
+            IsActive = !user.IsActive,
+            Role = user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? UserRoles.Staff : UserRoles.Admin
+        };
+        var routeId = user.Id + 1;
+
+        // act
+        var result = await usersController.UpdateUser(routeId, updateUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        var badRequestObjectResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var validationProblemDetails = badRequestObjectResult.Value.Should().BeAssignableTo<ValidationProblemDetails>().Subject;
+
+        var errors = validationProblemDetails.Errors.Should().BeAssignableTo<Dictionary<string, string[]>>().Subject;
+        errors.Should().HaveCount(1);
+
+        errors.First().Key.Should().Be("ID");
+        var errorArray = errors.First().Value.Should().BeAssignableTo<string[]>().Subject;
+        errorArray.Should().NotBeNull();
+        errorArray.Should().HaveCount(1);
+        errorArray.First().Should().Be($"ID mismatch.Route ID: {routeId}, DTO ID: {updateUserDto.Id}.");
+
+        mockUserService.Verify(x => x.UpdateUserAsync(routeId, updateUserDto), Times.Never());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateUser endpoint called for ID: {routeId} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {user.Id}, DTO ID: {updateUserDto.Id}.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser validation failed for ID: {updateUserDto.Id}. Errors: ", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User with ID {updateUserDto.Id} updated successfully by Admin.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.", Times.Never());
+    }
+
     // service update method returns false returns internal server error
     // exception, returns internal error
     // model state validation error, returns BadRequestObject result

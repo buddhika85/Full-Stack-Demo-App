@@ -9,19 +9,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { Subscription } from 'rxjs';
 
-import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { SnackbarService } from '../../../services/snackbar.service';
 
 @Component({
   selector: 'app-manage-departments',
   imports: [MatFormFieldModule, MatInputModule, MatTableModule, MatIconModule],
+
   templateUrl: './manage-departments.html',
   styleUrl: './manage-departments.scss',
 })
 export class ManageDepartments implements OnInit, OnDestroy {
   private readonly departmentService: DepartmentService =
     inject(DepartmentService);
+  private readonly snackbarService: SnackbarService = inject(SnackbarService);
   private readonly router: Router = inject(Router);
   private readonly compositeSubscription: Subscription = new Subscription();
   private departmentsList!: DepartmentDto[];
@@ -50,7 +52,25 @@ export class ManageDepartments implements OnInit, OnDestroy {
     this.router.navigate(['manage-departments/edit/', id]);
   }
 
-  deleteDepartment(id: number): void {}
+  deleteDepartment(id: number): void {
+    const sub = this.departmentService.deleteDepartment(id).subscribe({
+      next: () => {
+        this.snackbarService.success(`Department with ID ${id} was deleted`);
+        this.loadDepartmentsToGrid();
+      },
+      error: (error) => {
+        //console.log('Error: ', error);
+        if (error?.error?.detail) {
+          this.snackbarService.error(`Error - ${error.error.detail}`);
+          return;
+        }
+        this.snackbarService.error(
+          `Error occured while deleting department with ID: ${id}`
+        );
+      },
+    });
+    this.compositeSubscription.add(sub);
+  }
 
   private loadDepartmentsToGrid(): void {
     const sub = this.departmentService.getDepartments().subscribe({

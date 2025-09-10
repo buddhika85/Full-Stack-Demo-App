@@ -18,6 +18,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { CreateDepartmentDto } from '../../../../models/createDepartment.dto';
+import { UpdateDepartmentDto } from '../../../../models/updateDepartment.dto';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-departments-form',
@@ -27,6 +30,7 @@ import {
 })
 export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
   private readonly compositeSubscription: Subscription = new Subscription();
+  private readonly router: Router = inject(Router);
   private readonly snackBarService: SnackbarService = inject(SnackbarService);
   private readonly departmentService: DepartmentService =
     inject(DepartmentService);
@@ -34,6 +38,7 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
 
   private departmentModel: DepartmentDto = { id: 0, name: '' };
   private readonly formBuilder: FormBuilder = new FormBuilder();
+  private editMode: boolean = false;
   formGroup!: FormGroup<{
     name: FormControl<string>;
   }>;
@@ -44,6 +49,7 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.departmentId) {
+      this.editMode = true;
       this.prepareFormForEditMode(this.departmentId);
     }
   }
@@ -57,11 +63,18 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
   }
 
   onSubmit(): void {
-    console.log(this.formGroup.getRawValue());
+    // console.log(this.formGroup.getRawValue());
+    if (this.formGroup.invalid) return;
+    if (this.editMode) {
+      this.updateDepartment();
+      return;
+    }
+    this.createDepartment();
   }
 
   onReset(): void {
     this.formGroup.reset();
+    if (this.editMode) this.prepareFormForEditMode(this.departmentModel.id);
   }
 
   private buildForm(): void {
@@ -81,6 +94,7 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
     const sub = this.departmentService.getDepartmentById(editId).subscribe({
       next: (value: DepartmentDto) => {
         this.departmentModel = { ...value };
+        this.formGroup.patchValue(this.departmentModel);
       },
       error: (error: any) => {
         //console.error('Error - ', error);
@@ -94,6 +108,70 @@ export class DepartmentsForm implements OnInit, OnChanges, OnDestroy {
         );
       },
     });
+    this.compositeSubscription.add(sub);
+  }
+
+  private createDepartment(): void {
+    const createDepartmentDto: CreateDepartmentDto = {
+      ...this.formGroup.getRawValue(),
+    };
+    const sub = this.departmentService
+      .createDepartment(createDepartmentDto)
+      .subscribe({
+        next: (value: DepartmentDto) => {
+          if (value) {
+            this.snackBarService.success(
+              `New Department with ID ${value.id} and Name ${value.name} was created`
+            );
+            setTimeout(() => {
+              this.router.navigate(['manage-departments']);
+            }, 3000);
+            return;
+          }
+          this.snackBarService.warn(`Please check`);
+        },
+        error: (error: any) => {
+          if (error.error && error.error.detail) {
+            this.snackBarService.error(`${error.error.detail}`);
+            return;
+          }
+
+          this.snackBarService.error(
+            `Error occured while creating new department with Name ${createDepartmentDto.name}`
+          );
+        },
+      });
+    this.compositeSubscription.add(sub);
+  }
+
+  private updateDepartment(): void {
+    const updateDepartmentDto: UpdateDepartmentDto = {
+      id: this.departmentModel.id,
+      ...this.formGroup.getRawValue(),
+    };
+    const sub = this.departmentService
+      .updateDepartment(this.departmentModel.id, updateDepartmentDto)
+      .subscribe({
+        next: () => {
+          this.snackBarService.success(
+            `Department with ID ${this.departmentModel.id} was updated`
+          );
+
+          setTimeout(() => {
+            this.router.navigate(['manage-departments']);
+          }, 3000);
+        },
+        error: (error: any) => {
+          if (error.error && error.error.detail) {
+            this.snackBarService.error(`${error.error.detail}`);
+            return;
+          }
+
+          this.snackBarService.error(
+            `Error occured while updating department with ID ${updateDepartmentDto.id}`
+          );
+        },
+      });
     this.compositeSubscription.add(sub);
   }
 }

@@ -91,8 +91,7 @@ stages:
 
     # 9. CD — Publish Backend API to generate ZIP for Azure deployment
     - task: DotNetCoreCLI@2
-      displayName: 'CD — Publish Backend API to ZIP folder'
-      displayName: 'Publish Backend API'
+      displayName: 'CD — Publish Backend API to ZIP folder'     
       inputs:
         command: 'publish'
         projects: 'Backend/Emp.Api/Emp.Api.csproj'

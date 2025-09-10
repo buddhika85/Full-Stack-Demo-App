@@ -418,7 +418,7 @@ public class UsersControllerTests
         mockUserService.Verify(x => x.UpdateUserAsync(routeId, updateUserDto), Times.Never());
 
         mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateUser endpoint called for ID: {routeId} by Admin.", Times.Once());
-        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {user.Id}, DTO ID: {updateUserDto.Id}.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {routeId}, DTO ID: {updateUserDto.Id}.", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser validation failed for ID: {updateUserDto.Id}. Errors: ", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Warning, $"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.", Times.Never());
         mockLogger.VerifyMessage(LogLevel.Information, $"API: User with ID {updateUserDto.Id} updated successfully by Admin.", Times.Never());

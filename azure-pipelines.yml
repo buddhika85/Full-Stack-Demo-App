@@ -20,13 +20,14 @@ stages:
   # JOB 1 - CI steps 1 to 14
   # ----------------------------
   - job: CI_Backend
-    displayName: 'Build, Test, Deploy API + DB'
+    displayName: 'CI + CD - Build, Test, Deploy API + DB'
     pool:
       vmImage: 'windows-latest'
     steps:
 
     # 1. CI — Install .NET 9 SDK explicitly
     - task: UseDotNet@2
+      displayName: 'CI - Install .NET 9.0.304 SDK'
       inputs:
         packageType: 'sdk'
         version: '9.0.304'   # exact version from my DEV machine
@@ -35,15 +36,18 @@ stages:
 
     # 2. CI — Install NugetCLI for restoring packages
     - task: NuGetToolInstaller@1
+      displayName: 'CI - Install NugetCLI for restoring packages'
 
     # 3. CI — Restore NuGet packages - all dependencies defined in Backend.sln are installed
     - task: NuGetCommand@2
+      displayName: 'CI - Restore NuGet packages in Backend.sln'
       inputs:
         command: 'restore'
         restoreSolution: 'Backend/Backend.sln'
 
     # 4. CI — Build solution - compiles all projects in Release mode
     - task: DotNetCoreCLI@2
+      displayName: 'CI - Build solution in Release mode'
       inputs:
         command: 'build'
         projects: 'Backend/Backend.sln'
@@ -51,6 +55,7 @@ stages:
 
     # 5. CI — Run XUnit tests with TRX logger + collect coverage
     - task: DotNetCoreCLI@2
+      displayName: 'CI - Run XUnit tests'
       inputs:
         command: 'test'
         projects: 'Backend/Emp.XUnitTests/*.csproj'
@@ -59,6 +64,7 @@ stages:
 
     # 6. CI — Publish test results
     - task: PublishTestResults@2
+      displayName: 'CI - Publish XUnit tests'
       inputs:
         testResultsFormat: 'VSTest'
         testResultsFiles: '**/TestResults/test-results.trx'         # test results in /TestResults/test-results.trx
@@ -67,6 +73,7 @@ stages:
 
     # 7. CI — Publish coverage
     - task: PublishCodeCoverageResults@2                            # Picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
+      displayName: 'CI - Publish XUnit tests in DevOps Test Plans/Runs'
       inputs:
         codeCoverageTool: 'cobertura'
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
@@ -75,6 +82,7 @@ stages:
 
     # 8. CI — Publish HTML coverage report as artifact
     - task: PublishBuildArtifacts@1
+      displayName: 'CI - Publish XUnit tests in HTML coverage report'
       inputs:
         PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'         # Explicit path to TestResults folder
         ArtifactName: 'coverage-report'
@@ -83,6 +91,7 @@ stages:
 
     # 9. CD — Publish Backend API to generate ZIP for Azure deployment
     - task: DotNetCoreCLI@2
+      displayName: 'CD — Publish Backend API to ZIP folder'
       displayName: 'Publish Backend API'
       inputs:
         command: 'publish'
@@ -91,7 +100,7 @@ stages:
       
     # Verify Published API Contents - Emp.Api.DLL, swagger/index.html, swagger/v1/swagger.json must be present
     - task: PowerShell@2
-      displayName: 'Verify Published API Contents'
+      displayName: 'CD- Verify Published API ZIP Contents'
       inputs:
         targetType: 'inline'
         script: |
@@ -100,7 +109,7 @@ stages:
 
     # 10. CD — Deploy Backend API
     - task: AzureWebApp@1
-      displayName: 'Deploy API to Azure App Service'
+      displayName: 'CD - Deploy API to Azure App Service'      
       inputs:
         azureSubscription: 'sc-azure-rg-interview-demo'             # ARM service connection in DevOps
         appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
@@ -108,7 +117,7 @@ stages:
         
     # 11. List contents of published API artifact
     - task: PowerShell@2
-      displayName: 'List API Artifact Contents'
+      displayName: 'CD - List Azure Deployed API Artifact For Testing'
       inputs:
         targetType: 'inline'
         script: |
@@ -117,7 +126,7 @@ stages:
     
     # Inspect contents of Emp.Api.zip to confirm Swagger JSON is included    
     - task: PowerShell@2
-      displayName: 'Inspect ZIP Contents'
+      displayName: 'CD - Inspect ZIP Contents For Testing'
       inputs:
         targetType: 'inline'
         script: |
@@ -131,7 +140,7 @@ stages:
 
     # 12. Post-deploy health check for Swagger JSON
     - task: PowerShell@2
-      displayName: 'Check Swagger JSON Availability'
+      displayName: 'CD - Check Swagger JSON Availability - Health Check'
       inputs:
         targetType: 'inline'
         script: |
@@ -165,17 +174,17 @@ stages:
         dotnet new tool-manifest --force                                                               
         dotnet tool install dotnet-ef --version 9.0.7                                 
         echo ##vso[task.prependpath]$(System.DefaultWorkingDirectory)/.config/dotnet-tools
-      displayName: 'Install dotnet-ef as local tool (v9.0.7)'
+      displayName: 'CD - Install dotnet-ef as local tool (v9.0.7) for migrations'
 
     # 14. List pending EF Core migrations using local tool
     - script: |
         dotnet tool run dotnet-ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
-      displayName: 'List Pending EF Core Migrations'
+      displayName: 'CD- List Pending EF Core Migrations'
 
     # 15. Apply EF Core migrations using local tool
     - script: |
         dotnet tool run dotnet-ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
-      displayName: 'Run EF Core Migrations'
+      displayName: 'CD - Run EF Core Migrations'
       env:
         ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'   # stored in pipeline variables
         
@@ -189,7 +198,7 @@ stages:
   # JOB 2 - Angular SPA Build (Windows agent)
   # ----------------------------
   - job: BuildAngular
-    displayName: 'Build Angular App'
+    displayName: 'CD - Build Angular App'
     pool:
       vmImage: 'windows-latest'
     steps:
@@ -248,7 +257,7 @@ stages:
   # JOB 3 - Angular SPA Deploy (Linux Agent)
   # ----------------------------
   - job: DeployAngular
-    displayName: 'Deploy Angular to Azure Static Web Apps'
+    displayName: 'CD - Deploy Angular to Azure Static Web Apps'
     dependsOn: BuildAngular
     condition: succeeded()                                           # Ensures deployment only runs if build succeeds
     pool:

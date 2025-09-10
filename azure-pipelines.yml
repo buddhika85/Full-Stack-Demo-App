@@ -137,18 +137,26 @@ stages:
         script: |
           $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
           Write-Host "🌐 Checking Swagger endpoint: $url"
-          try {
-            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
-            if ($response.StatusCode -eq 200) {
-              Write-Host "✅ Swagger JSON is available."
-            } else {
-              Write-Error "❌ Swagger JSON returned status code $($response.StatusCode)"
-              exit 1
+          $maxRetries = 5
+          $delay = 10
+
+          for ($i = 1; $i -le $maxRetries; $i++) {
+            try {
+              $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+              if ($response.StatusCode -eq 200) {
+                Write-Host "✅ Swagger JSON is available."
+                exit 0
+              }
+            } catch {
+              Write-Host "Attempt $i failed. Retrying in $delay seconds..."
+              Start-Sleep -Seconds $delay
             }
-          } catch {
-            Write-Error "❌ Failed to reach Swagger JSON: $($_.Exception.Message)"
-            exit 1
           }
+
+          Write-Error "❌ Swagger JSON failed after $maxRetries attempts."
+          exit 1
+
+          
 
     # 13. CD — Use local dotnet-ef tool via manifest
     # Creates a local manifest file

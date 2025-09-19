@@ -1,7 +1,10 @@
-﻿using Emp.Infrastructure.Data;
+﻿using Emp.Core.Entities;
+using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 
 namespace Emp.XUnitTests.Repositories;
@@ -46,5 +49,30 @@ public class EmployeeRepositoryTests
         johnEmployee.LastName.Should().Be("Doe");
         johnEmployee.DepartmentId.Should().Be(2);
         johnEmployee.Department.Should().BeNull();    // navigational properties are not loaded
+    }
+
+
+    [Theory]
+    [InlineData(1, "John", "Doe", "john.doe@example.com", 2)]
+    [InlineData(2, "Jane", "Smith", "jane.smith@example.com", 1)]
+    [InlineData(3, "Peter", "Jones", "peter.jones@example.com", 2)]
+    public async Task GetByIdAsync_ReturnsEmployeeById_WhenEmployeeAvailableById(int id, string firstName, string lastName, string email, int deptId)
+    {
+        // arrange 
+        var inMemoryDb = await GetInMemoryDbContext(Guid.NewGuid().ToString());
+        var repository = new EmployeeRepository(inMemoryDb);
+
+
+        // act
+        var result = await repository.GetByIdAsync(id);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<Employee>();
+        result.Id.Should().Be(id);
+        result.FirstName.Should().BeEquivalentTo(firstName);
+        result.LastName.Should().BeEquivalentTo(lastName);
+        result.Email.Should().BeEquivalentTo(email);
+        result.DepartmentId.Should().Be(deptId);
     }
 }

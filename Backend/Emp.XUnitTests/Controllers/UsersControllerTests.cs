@@ -8,6 +8,7 @@ using Emp.XUnitTests.Helpers;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -426,6 +427,46 @@ public class UsersControllerTests
     }
 
     // service update method returns false returns internal server error
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task UpdateUser_ReturnsInternalServerError_WhenServiceReturnsFalse(User user)
+    {
+        // arrange
+        var updateUserDto = new UpdateUserDto
+        {
+            Id = user.Id,
+            FirstName = $"{user.FirstName} updated",
+            LastName = $"{user.LastName} updated",
+            Username = $"{user.Username} updated",
+            IsActive = !user.IsActive,
+            Role = user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? UserRoles.Staff : UserRoles.Admin
+        };
+        mockUserService.Setup(x => x.UpdateUserAsync(It.Is<int>(x => x == updateUserDto.Id), It.Is<UpdateUserDto>(x => x == updateUserDto))).ReturnsAsync(false);
+
+        // act
+        var result = await usersController.UpdateUser(updateUserDto.Id, updateUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        var objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+
+        var problemDetails = objectResult.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        problemDetails.Title.Should().Be("Internal Server Error");
+        problemDetails.Detail.Should().Be($"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.");
+        problemDetails.Status.Should().Be(StatusCodes.Status500InternalServerError);
+
+        mockUserService.Verify(x => x.UpdateUserAsync(It.Is<int>(x => x == updateUserDto.Id), It.Is<UpdateUserDto>(x => x == updateUserDto)), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateUser endpoint called for ID: {updateUserDto.Id} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {updateUserDto.Id}, DTO ID: {updateUserDto.Id}.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser validation failed for ID: {updateUserDto.Id}. Errors: ", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User with ID {updateUserDto.Id} updated successfully by Admin.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.", Times.Never());
+    }
+
+
     // exception, returns internal error
     // model state validation error, returns BadRequestObject result
 }

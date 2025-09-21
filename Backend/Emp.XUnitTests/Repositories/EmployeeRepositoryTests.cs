@@ -75,4 +75,21 @@ public class EmployeeRepositoryTests
         result.Email.Should().BeEquivalentTo(email);
         result.DepartmentId.Should().Be(deptId);
     }
+
+
+    [Theory]
+    [InlineData(-100)]
+    [InlineData(0)]
+    public async Task GetByIdAsync_ReturnsNull_WhenEmployeeWithIdUnAvailable(int unavailableId)
+    {
+        // arrange
+        var dbContext = await GetInMemoryDbContext(Guid.NewGuid().ToString());
+        var employeeReposistory = new EmployeeRepository(dbContext);
+
+        // act
+        var result = await employeeReposistory.GetByIdAsync(unavailableId);
+
+        // assert
+        result.Should().BeNull();
+    }
 }

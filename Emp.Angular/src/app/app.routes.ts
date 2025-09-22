@@ -3,6 +3,7 @@ import { LandingPage } from './components/landing-page/landing-page';
 import { UserRoles } from './models/userRoles';
 import { authGuard } from './guards/auth-guard';
 import { AboutDemo } from './components/about-demo/about-demo';
+import { angularCourseRoutes } from './components/angular-course/angular-course.routes';
 
 export const routes: Routes = [
   // landing page is eagerly loaded route
@@ -38,6 +39,13 @@ export const routes: Routes = [
     path: 'azure-integration-demo',
     loadComponent: () =>
       import('./components/azure-demo/azure-demo').then((x) => x.AzureDemo),
+  },
+
+  {
+    path: 'angular-course',
+    loadComponent: () =>
+      import('./components/angular-course/index/index').then((x) => x.Index),
+    children: angularCourseRoutes, // 👈 This wires up child routes
   },
 
   // staff and admin

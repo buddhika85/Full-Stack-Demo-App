@@ -2,17 +2,15 @@
 using Emp.Core.DTOs;
 using Emp.Core.Entities;
 using Emp.Core.Enums;
-using Emp.Core.Extensions;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
 using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace Emp.XUnitTests.Controllers;
 
@@ -468,5 +466,45 @@ public class UsersControllerTests
 
 
     // exception, returns internal error
+    [Theory]
+    [ClassData(typeof(UserTestData))]
+    public async Task UpdateUser_ReturnsInternalServerError_WhenExceptionThrownByUserService(User user)
+    {
+        // arrange
+        var updateUserDto = new UpdateUserDto
+        {
+            Id = user.Id,
+            FirstName = $"{user.FirstName} updated",
+            LastName = $"{user.LastName} updated",
+            Username = $"{user.Username} updated",
+            IsActive = !user.IsActive,
+            Role = user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? UserRoles.Staff : UserRoles.Admin
+        };
+        var exceptionMessage = $"Error in updating User with id {updateUserDto.Id} and username/email {updateUserDto.Username}";
+        mockUserService.Setup(x => x.UpdateUserAsync(It.Is<int>(x => x == updateUserDto.Id), It.Is<UpdateUserDto>(x => x == updateUserDto))).ThrowsAsync(new Exception(exceptionMessage));
+
+        // act
+        var result = await usersController.UpdateUser(updateUserDto.Id, updateUserDto);
+
+        // assert
+        result.Should().NotBeNull();
+        var internalServerError = result.Should().BeOfType<ObjectResult>().Subject;
+        internalServerError.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        var problemDetails = internalServerError.Value.Should().BeAssignableTo<ProblemDetails>().Subject;
+        problemDetails.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problemDetails.Detail.Should().Be(exceptionMessage);
+        problemDetails.Title.Should().Be($"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.");
+
+        mockUserService.Verify(x => x.UpdateUserAsync(It.Is<int>(x => x == updateUserDto.Id), It.Is<UpdateUserDto>(x => x == updateUserDto)), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: UpdateUser endpoint called for ID: {updateUserDto.Id} by Admin.", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser BadRequest - ID mismatch. Route ID: {updateUserDto.Id}, DTO ID: {updateUserDto.Id}.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: UpdateUser validation failed for ID: {updateUserDto.Id}. Errors: ", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"API: Update failed: User with ID {updateUserDto.Id} not found or no changes applied.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Information, $"API: User with ID {updateUserDto.Id} updated successfully by Admin.", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"API: Error in UpdateUser endpoint for ID: {updateUserDto.Id}.", Times.Once());
+    }
+
+
     // model state validation error, returns BadRequestObject result
 }

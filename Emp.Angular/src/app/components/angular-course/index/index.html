@@ -1,0 +1,26 @@
+<div class="course-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <nav class="nav-list">
+      <a
+        [routerLink]="['profile-card']"
+        routerLinkActive="active"
+        class="nav-link"
+        appActiveLinkDirective
+        >1 Profile Card</a
+      >
+      <a
+        [routerLink]="['counter']"
+        routerLinkActive="active"
+        class="nav-link"
+        appActiveLinkDirective
+        >2 Counter</a
+      >
+    </nav>
+  </aside>
+
+  <!-- Nested Content -->
+  <main class="course-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

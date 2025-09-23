@@ -90,3 +90,7 @@ $disabled-color: #a5a9b1;
 .isNotActive {
   @apply bg-orange-300 p-1;
 }
+
+.active-link {
+  @apply bg-blue-200 text-blue-800 font-semibold;
+}

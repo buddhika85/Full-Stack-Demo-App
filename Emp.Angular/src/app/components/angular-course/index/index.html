@@ -6,9 +6,14 @@
         [routerLink]="['profile-card']"
         routerLinkActive="active"
         class="nav-link"
+        appActiveLinkDirective
         >1 Profile Card</a
       >
-      <a [routerLink]="['counter']" routerLinkActive="active" class="nav-link"
+      <a
+        [routerLink]="['counter']"
+        routerLinkActive="active"
+        class="nav-link"
+        appActiveLinkDirective
         >2 Counter</a
       >
     </nav>

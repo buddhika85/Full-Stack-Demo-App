@@ -92,4 +92,32 @@ public class EmployeeRepositoryTests
         // assert
         result.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("Test FN", "Test LN", "test@example.com", 2)]
+    [InlineData("Test FN A", "Test LN B", "testAB@example.com", 1)]
+    public async Task AddAsync_IncreasesRecordCountByOne_WhenInsertSuccess(string firstName, string lastName, string email, int deptId)
+    {
+        // arrange
+        var dbContext = await GetInMemoryDbContext(Guid.NewGuid().ToString());
+        var repository = new EmployeeRepository(dbContext);
+        var employee = new Employee { FirstName = firstName, LastName = lastName, Email = email, DepartmentId = deptId };
+        var countBeforeAdding = dbContext.Employees.Count();
+        var empByEmailBefore = await dbContext.Employees.FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+        // act
+        await repository.AddAsync(employee);
+        await dbContext.SaveChangesAsync();
+        var countAfterAdding = await dbContext.Employees.CountAsync();
+        var empByEmailAfter = await dbContext.Employees.FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+        // assert        
+        countAfterAdding.Should().Be(countBeforeAdding + 1);
+        empByEmailBefore.Should().BeNull();
+        empByEmailAfter.Should().NotBeNull();
+        empByEmailAfter.FirstName.Should().Be(firstName);
+        empByEmailAfter.LastName.Should().Be(lastName);
+        empByEmailAfter.Email.Should().Be(email);
+        empByEmailAfter.DepartmentId.Should().Be(deptId);
+    }
 }

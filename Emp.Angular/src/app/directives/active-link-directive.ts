@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Renderer2 } from '@angular/core';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 
 @Directive({
@@ -9,8 +9,7 @@ export class ActiveLinkDirective {
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))

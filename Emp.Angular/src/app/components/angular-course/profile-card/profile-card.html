@@ -1,1 +1,27 @@
-<p>profile-card works!</p>
+<div class="main-container text-center p-5 w-3/5 grid grid-cols-2">
+  <p class="col-span-2 font-semibold">
+    Angular concepts used:
+    <span class="text-red-400">String Interpolation & Model Binding</span>
+  </p>
+  <h1 class="h1 col-span-2 text-blue-400">Profile Card</h1>
+
+  <label class="label">Name:</label>
+  <label>{{ profile.name }}</label>
+
+  <label class="label">Age:</label>
+  <label>{{ profile.age }}</label>
+
+  <label class="label">Description:</label>
+  <label>{{ profile.description }}</label>
+
+  <h1 class="h1 col-span-2 pt-5 text-orange-400">Update Profile</h1>
+
+  <label class="label">Name:</label>
+  <input type="text" [(ngModel)]="profile.name" class="text-box" />
+
+  <label class="label">Age:</label>
+  <input type="text" [(ngModel)]="profile.age" class="text-box" />
+
+  <label class="label">Description:</label>
+  <input type="text" [(ngModel)]="profile.description" class="text-box" />
+</div>

@@ -1,10 +1,9 @@
 ﻿using Emp.Core.Entities;
 using Emp.Infrastructure.Data;
 using Emp.Infrastructure.Repositories;
-using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
+
 
 
 namespace Emp.XUnitTests.Repositories;

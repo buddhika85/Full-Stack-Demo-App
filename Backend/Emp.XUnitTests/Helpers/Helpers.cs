@@ -12,7 +12,17 @@ public static class Helpers
             && message.Contains(expectedLogMessage);
     }
 
-    public static void ApplyModelStateErrors(CreateUserDto dto, BaseController controller)
+    public static void ApplyModelStateErrors(BaseDto dto, BaseController controller)            // polymorphic
+    {
+        var context = new ValidationContext(dto);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(dto, context, results, true);
+
+        foreach (var error in results)
+            controller.ModelState.AddModelError(error.MemberNames.First(), error.ErrorMessage ?? "Error - Model Validation");
+    }
+
+    public static void ApplyModelStateErrors(CreateUserDto dto, BaseController controller)            // specific
     {
         var context = new ValidationContext(dto);
         var results = new List<ValidationResult>();

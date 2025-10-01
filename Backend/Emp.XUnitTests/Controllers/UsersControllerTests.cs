@@ -291,6 +291,7 @@ public class UsersControllerTests
     }
 
 
+    // Model state invalid
     [Theory]
     [InlineData("invalid email 1", "qwe123$", "Test Fn", "Test Ln", UserRoles.Staff)]
     [InlineData("invalid email 2", "qwe123$", "Test Fn", "Test Ln", UserRoles.Admin)]
@@ -507,4 +508,12 @@ public class UsersControllerTests
 
 
     // model state validation error, returns BadRequestObject result
+    public async Task UpdateUser_ReturnsBadRequestObjectResult_OnInvalidModelState()
+    {
+        // arrange
+
+        // act
+
+        // assert
+    }
 }

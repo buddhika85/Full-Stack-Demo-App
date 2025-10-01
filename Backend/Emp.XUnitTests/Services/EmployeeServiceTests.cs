@@ -5,6 +5,7 @@ using Emp.Core.Extensions;
 using Emp.Core.Interfaces.Repositories;
 using Emp.Core.Interfaces.Services;
 using Emp.XUnitTests.Helpers;
+using Emp.XUnitTests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -62,5 +63,29 @@ public class EmployeeServiceTests
         mockLogger.VerifyMessage(LogLevel.Information, "Attempting to get all employees", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Information, $"Successfully retrieved {allEmps.Count()} employees.", Times.Once());
         mockLogger.VerifyMessage(LogLevel.Error, "Error retrieving all employees.", Times.Never());
+    }
+
+    [Theory]
+    [ClassData(typeof(EmployeeTestData))]
+    public async Task GetEmployeeByIdAsync_ReturnsEmployee_WhenAvailable(Employee employee)
+    {
+        // arrange
+        employee.Id = 1;     // some known number
+        var expectedResultDto = employee.ToDto();
+        mockEmployeeRepo.Setup(x => x.GetByIdAsync(It.Is<int>(x => x == employee.Id))).ReturnsAsync(employee);
+
+        // act
+        var result = await employeeService.GetEmployeeByIdAsync(employee.Id);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(expectedResultDto);
+
+        mockEmployeeRepo.Verify(x => x.GetByIdAsync(It.Is<int>(x => x == employee.Id)), Times.Once());
+
+        mockLogger.VerifyMessage(LogLevel.Information, $"Atempting to get an employee with ID {employee.Id}", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Information, $"Employee with id {employee.Id} retrieved", Times.Once());
+        mockLogger.VerifyMessage(LogLevel.Warning, $"Employee with id {employee.Id} unavailable", Times.Never());
+        mockLogger.VerifyMessage(LogLevel.Error, $"Error in retrieving an employee with id {employee.Id}", Times.Never());
     }
 }

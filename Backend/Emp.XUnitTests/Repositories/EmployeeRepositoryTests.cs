@@ -119,4 +119,32 @@ public class EmployeeRepositoryTests
         empByEmailAfter.Email.Should().Be(email);
         empByEmailAfter.DepartmentId.Should().Be(deptId);
     }
+
+    [Theory]
+    [InlineData(1, "John Updated", "Doe Updated", "johnUpdated.doe@example.com", 1)]
+    [InlineData(2, "Jane Updated", "Smith Updated", "janeUpdated.smith@example.com", 2)]
+    [InlineData(3, "Peter Updated", "Jones Updated", "peterUpdated.jones@example.com", 1)]
+    public async Task Update_UpdatesEmployeeAttributes_WhenAvailabled(int id, string firstName, string lastName, string email, int deptId)
+    {
+        // arrange
+        var dbContext = await GetInMemoryDbContext(Guid.NewGuid().ToString());
+        var repository = new EmployeeRepository(dbContext);
+        var employee = dbContext.Employees.Single(x => x.Id == id);                 // we know employee with such Id exits due to seed data
+        employee.FirstName = firstName;
+        employee.LastName = lastName;
+        employee.Email = email;
+        employee.DepartmentId = deptId;
+
+        // act
+        repository.Update(employee);
+        await dbContext.SaveChangesAsync();
+
+        // assert
+        var employeeUpdated = await repository.GetByIdAsync(employee.Id);
+        employeeUpdated.Should().NotBeNull();
+        employeeUpdated.FirstName.Should().Be(firstName);
+        employeeUpdated.LastName.Should().Be(lastName);
+        employeeUpdated.Email.Should().Be(email);
+        employeeUpdated.DepartmentId.Should().Be(deptId);
+    }
 }

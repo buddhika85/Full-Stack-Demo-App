@@ -16,176 +16,176 @@ stages:
   displayName: 'CI/CD Pipeline'
   jobs:
 
-  # ----------------------------
-  # JOB 1 - CI steps 1 to 14
-  # ----------------------------
-  - job: CI_Backend
-    displayName: 'CI + CD - Build, Test, Deploy API + DB'
-    pool:
-      vmImage: 'windows-latest'
-    steps:
+  # # ----------------------------
+  # # JOB 1 - CI steps 1 to 14
+  # # ----------------------------
+  # - job: CI_Backend
+    # displayName: 'CI + CD - Build, Test, Deploy API + DB'
+    # pool:
+      # vmImage: 'windows-latest'
+    # steps:
 
-    # 1. CI — Install .NET 9 SDK explicitly
-    - task: UseDotNet@2
-      displayName: 'CI - Install .NET 9.0.304 SDK'
-      inputs:
-        packageType: 'sdk'
-        version: '9.0.304'   # exact version from my DEV machine
-        includePreviewVersions: true
-        installationPath: $(Agent.ToolsDirectory)/dotnet
+    # # 1. CI — Install .NET 9 SDK explicitly
+    # - task: UseDotNet@2
+      # displayName: 'CI - Install .NET 9.0.304 SDK'
+      # inputs:
+        # packageType: 'sdk'
+        # version: '9.0.304'   # exact version from my DEV machine
+        # includePreviewVersions: true
+        # installationPath: $(Agent.ToolsDirectory)/dotnet
 
-    # 2. CI — Install NugetCLI for restoring packages
-    - task: NuGetToolInstaller@1
-      displayName: 'CI - Install NugetCLI for restoring packages'
+    # # 2. CI — Install NugetCLI for restoring packages
+    # - task: NuGetToolInstaller@1
+      # displayName: 'CI - Install NugetCLI for restoring packages'
 
-    # 3. CI — Restore NuGet packages - all dependencies defined in Backend.sln are installed
-    - task: NuGetCommand@2
-      displayName: 'CI - Restore NuGet packages in Backend.sln'
-      inputs:
-        command: 'restore'
-        restoreSolution: 'Backend/Backend.sln'
+    # # 3. CI — Restore NuGet packages - all dependencies defined in Backend.sln are installed
+    # - task: NuGetCommand@2
+      # displayName: 'CI - Restore NuGet packages in Backend.sln'
+      # inputs:
+        # command: 'restore'
+        # restoreSolution: 'Backend/Backend.sln'
 
-    # 4. CI — Build solution - compiles all projects in Release mode
-    - task: DotNetCoreCLI@2
-      displayName: 'CI - Build solution in Release mode'
-      inputs:
-        command: 'build'
-        projects: 'Backend/Backend.sln'
-        arguments: '--configuration Release'
+    # # 4. CI — Build solution - compiles all projects in Release mode
+    # - task: DotNetCoreCLI@2
+      # displayName: 'CI - Build solution in Release mode'
+      # inputs:
+        # command: 'build'
+        # projects: 'Backend/Backend.sln'
+        # arguments: '--configuration Release'
 
-    # 5. CI — Run XUnit tests with TRX logger + collect coverage
-    - task: DotNetCoreCLI@2
-      displayName: 'CI - Run XUnit tests'
-      inputs:
-        command: 'test'
-        projects: 'Backend/Emp.XUnitTests/*.csproj'
-        arguments: '--configuration Release --no-build --no-restore --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'
-        publishTestResults: false                                   # We'll handle publishing ourselves
+    # # 5. CI — Run XUnit tests with TRX logger + collect coverage
+    # - task: DotNetCoreCLI@2
+      # displayName: 'CI - Run XUnit tests'
+      # inputs:
+        # command: 'test'
+        # projects: 'Backend/Emp.XUnitTests/*.csproj'
+        # arguments: '--configuration Release --no-build --no-restore --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"'
+        # publishTestResults: false                                   # We'll handle publishing ourselves
 
-    # 6. CI — Publish test results
-    - task: PublishTestResults@2
-      displayName: 'CI - Publish XUnit tests'
-      inputs:
-        testResultsFormat: 'VSTest'
-        testResultsFiles: '**/TestResults/test-results.trx'         # test results in /TestResults/test-results.trx
-        failTaskOnFailedTests: true                                 # ensures the pipeline fails if any test fails.
-      condition: succeededOrFailed()                                # ensures results are published even if tests fail.
+    # # 6. CI — Publish test results
+    # - task: PublishTestResults@2
+      # displayName: 'CI - Publish XUnit tests'
+      # inputs:
+        # testResultsFormat: 'VSTest'
+        # testResultsFiles: '**/TestResults/test-results.trx'         # test results in /TestResults/test-results.trx
+        # failTaskOnFailedTests: true                                 # ensures the pipeline fails if any test fails.
+      # condition: succeededOrFailed()                                # ensures results are published even if tests fail.
 
-    # 7. CI — Publish coverage
-    - task: PublishCodeCoverageResults@2                            # Picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
-      displayName: 'CI - Publish XUnit tests in DevOps Test Plans/Runs'
-      inputs:
-        codeCoverageTool: 'cobertura'
-        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
-        reportDirectory: '$(System.DefaultWorkingDirectory)/**'
-      condition: succeededOrFailed()
+    # # 7. CI — Publish coverage
+    # - task: PublishCodeCoverageResults@2                            # Picks up coverage.cobertura.xml and shows coverage % in DevOps summary.
+      # displayName: 'CI - Publish XUnit tests in DevOps Test Plans/Runs'
+      # inputs:
+        # codeCoverageTool: 'cobertura'
+        # summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
+        # reportDirectory: '$(System.DefaultWorkingDirectory)/**'
+      # condition: succeededOrFailed()
 
-    # 8. CI — Publish HTML coverage report as artifact
-    - task: PublishBuildArtifacts@1
-      displayName: 'CI - Publish XUnit tests in HTML coverage report'
-      inputs:
-        PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'         # Explicit path to TestResults folder
-        ArtifactName: 'coverage-report'
-        publishLocation: 'Container'
-      condition: succeededOrFailed()
+    # # 8. CI — Publish HTML coverage report as artifact
+    # - task: PublishBuildArtifacts@1
+      # displayName: 'CI - Publish XUnit tests in HTML coverage report'
+      # inputs:
+        # PathtoPublish: 'Backend/Emp.XUnitTests/TestResults'         # Explicit path to TestResults folder
+        # ArtifactName: 'coverage-report'
+        # publishLocation: 'Container'
+      # condition: succeededOrFailed()
 
-    # 9. CD — Publish Backend API to generate ZIP for Azure deployment
-    - task: DotNetCoreCLI@2
-      displayName: 'CD — Publish Backend API to ZIP folder'     
-      inputs:
-        command: 'publish'
-        projects: 'Backend/Emp.Api/Emp.Api.csproj'
-        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/api'
+    # # 9. CD — Publish Backend API to generate ZIP for Azure deployment
+    # - task: DotNetCoreCLI@2
+      # displayName: 'CD — Publish Backend API to ZIP folder'     
+      # inputs:
+        # command: 'publish'
+        # projects: 'Backend/Emp.Api/Emp.Api.csproj'
+        # arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/api'
       
-    # Verify Published API Contents - Emp.Api.DLL, swagger/index.html, swagger/v1/swagger.json must be present
-    - task: PowerShell@2
-      displayName: 'CD- Verify Published API ZIP Contents'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "🔍 Verifying published API contents:"
-          Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse | Select-String -Pattern "Emp.Api.dll|swagger"
+    # # Verify Published API Contents - Emp.Api.DLL, swagger/index.html, swagger/v1/swagger.json must be present
+    # - task: PowerShell@2
+      # displayName: 'CD- Verify Published API ZIP Contents'
+      # inputs:
+        # targetType: 'inline'
+        # script: |
+          # Write-Host "🔍 Verifying published API contents:"
+          # Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse | Select-String -Pattern "Emp.Api.dll|swagger"
 
-    # 10. CD — Deploy Backend API
-    - task: AzureWebApp@1
-      displayName: 'CD - Deploy API to Azure App Service'      
-      inputs:
-        azureSubscription: 'sc-azure-rg-interview-demo'             # ARM service connection in DevOps
-        appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
-        package: '$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip'
+    # # 10. CD — Deploy Backend API
+    # - task: AzureWebApp@1
+      # displayName: 'CD - Deploy API to Azure App Service'      
+      # inputs:
+        # azureSubscription: 'sc-azure-rg-interview-demo'             # ARM service connection in DevOps
+        # appName: 'api-interview-demo'                               # Name of the Backend Azure App Service
+        # package: '$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip'
         
-    # 11. List contents of published API artifact
-    - task: PowerShell@2
-      displayName: 'CD - List Azure Deployed API Artifact For Testing'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "📦 Listing contents of published API artifact:"
-          Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse
+    # # 11. List contents of published API artifact
+    # - task: PowerShell@2
+      # displayName: 'CD - List Azure Deployed API Artifact For Testing'
+      # inputs:
+        # targetType: 'inline'
+        # script: |
+          # Write-Host "📦 Listing contents of published API artifact:"
+          # Get-ChildItem "$(Build.ArtifactStagingDirectory)/api" -Recurse
     
-    # Inspect contents of Emp.Api.zip to confirm Swagger JSON is included    
-    - task: PowerShell@2
-      displayName: 'CD - Inspect ZIP Contents For Testing'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $zipPath = "$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip"
-          $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
-          foreach ($entry in $zip.Entries) {
-            Write-Host $entry.FullName
-          }
-          $zip.Dispose()
+    # # Inspect contents of Emp.Api.zip to confirm Swagger JSON is included    
+    # - task: PowerShell@2
+      # displayName: 'CD - Inspect ZIP Contents For Testing'
+      # inputs:
+        # targetType: 'inline'
+        # script: |
+          # Add-Type -AssemblyName System.IO.Compression.FileSystem
+          # $zipPath = "$(Build.ArtifactStagingDirectory)/api/Emp.Api.zip"
+          # $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+          # foreach ($entry in $zip.Entries) {
+            # Write-Host $entry.FullName
+          # }
+          # $zip.Dispose()
 
-    # 12. Post-deploy health check for Swagger JSON
-    - task: PowerShell@2
-      displayName: 'CD - Check Swagger JSON Availability - Health Check'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
-          Write-Host "🌐 Checking Swagger endpoint: $url"
-          $maxRetries = 5
-          $delay = 10
+    # # 12. Post-deploy health check for Swagger JSON
+    # - task: PowerShell@2
+      # displayName: 'CD - Check Swagger JSON Availability - Health Check'
+      # inputs:
+        # targetType: 'inline'
+        # script: |
+          # $url = "https://api-interview-demo-gug3dwcbecg7emb6.australiaeast-01.azurewebsites.net/swagger/v1/swagger.json"
+          # Write-Host "🌐 Checking Swagger endpoint: $url"
+          # $maxRetries = 5
+          # $delay = 10
 
-          for ($i = 1; $i -le $maxRetries; $i++) {
-            try {
-              $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
-              if ($response.StatusCode -eq 200) {
-                Write-Host "✅ Swagger JSON is available."
-                exit 0
-              }
-            } catch {
-              Write-Host "Attempt $i failed. Retrying in $delay seconds..."
-              Start-Sleep -Seconds $delay
-            }
-          }
+          # for ($i = 1; $i -le $maxRetries; $i++) {
+            # try {
+              # $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+              # if ($response.StatusCode -eq 200) {
+                # Write-Host "✅ Swagger JSON is available."
+                # exit 0
+              # }
+            # } catch {
+              # Write-Host "Attempt $i failed. Retrying in $delay seconds..."
+              # Start-Sleep -Seconds $delay
+            # }
+          # }
 
-          Write-Error "❌ Swagger JSON failed after $maxRetries attempts."
-          exit 1
+          # Write-Error "❌ Swagger JSON failed after $maxRetries attempts."
+          # exit 1
 
           
 
-    # 13. CD — Use local dotnet-ef tool via manifest
-    # Creates a local manifest file
-    # Use exact version to avoid ambiguity
-    - script: |
-        dotnet new tool-manifest --force                                                               
-        dotnet tool install dotnet-ef --version 9.0.7                                 
-        echo ##vso[task.prependpath]$(System.DefaultWorkingDirectory)/.config/dotnet-tools
-      displayName: 'CD - Install dotnet-ef as local tool (v9.0.7) for migrations'
+    # # 13. CD — Use local dotnet-ef tool via manifest
+    # # Creates a local manifest file
+    # # Use exact version to avoid ambiguity
+    # - script: |
+        # dotnet new tool-manifest --force                                                               
+        # dotnet tool install dotnet-ef --version 9.0.7                                 
+        # echo ##vso[task.prependpath]$(System.DefaultWorkingDirectory)/.config/dotnet-tools
+      # displayName: 'CD - Install dotnet-ef as local tool (v9.0.7) for migrations'
 
-    # 14. List pending EF Core migrations using local tool
-    - script: |
-        dotnet tool run dotnet-ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
-      displayName: 'CD- List Pending EF Core Migrations'
+    # # 14. List pending EF Core migrations using local tool
+    # - script: |
+        # dotnet tool run dotnet-ef migrations list --project Backend/Emp.Api/Emp.Api.csproj --configuration Release
+      # displayName: 'CD- List Pending EF Core Migrations'
 
-    # 15. Apply EF Core migrations using local tool
-    - script: |
-        dotnet tool run dotnet-ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
-      displayName: 'CD - Run EF Core Migrations'
-      env:
-        ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'   # stored in pipeline variables
+    # # 15. Apply EF Core migrations using local tool
+    # - script: |
+        # dotnet tool run dotnet-ef database update --project Backend/Emp.Api/Emp.Api.csproj --configuration Release --no-build
+      # displayName: 'CD - Run EF Core Migrations'
+      # env:
+        # ConnectionStrings__DefaultConnection: '$(ConnectionStrings__DefaultConnection)'   # stored in pipeline variables
         
         
         
@@ -237,8 +237,21 @@ stages:
             } else {
               Write-Host "❌ Angular dist/debug-check folder not found. Check build output."
             }
+            
+      
+      # ✅ Step 4 — Move contents of browser folder up one level to flatten structure
+      # This ensures index.html is directly inside dist/debug-check for Azure Static Web Apps
+      - task: PowerShell@2
+        displayName: 'Flatten Angular build output by moving browser contents'
+        inputs:
+          targetType: 'inline'
+          script: |
+            $source = "$(Build.SourcesDirectory)\Emp.Angular\dist\debug-check\browser\*"
+            $destination = "$(Build.SourcesDirectory)\Emp.Angular\dist\debug-check"
+            Move-Item -Path $source -Destination $destination -Force
 
-      # ✅ Final fix — publish everything inside dist/debug-check/browser folder
+
+      # ✅ Final — publish everything inside dist/debug-check/browser folder
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check/browser'          # ✅ Corrected path to compiled Angular output

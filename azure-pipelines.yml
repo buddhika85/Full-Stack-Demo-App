@@ -273,35 +273,35 @@ stages:
 
 
 
-  # # ----------------------------
-  # # JOB 3 - Angular SPA Deploy (Linux Agent)
-  # # ----------------------------
-  # - job: DeployAngular
-    # displayName: 'CD - Deploy Angular to Azure Static Web Apps'
-    # dependsOn: BuildAngular
-    # condition: succeeded()                                           # Ensures deployment only runs if build succeeds
-    # pool:
-      # vmImage: 'ubuntu-latest'
-    # steps:
-      # # ✅ Download artifact to repo-relative path
-      # # This ensures the deployment task can detect the folder correctly
-      # - task: DownloadPipelineArtifact@2
-        # inputs:
-          # artifact: angular-dist
-          # targetPath: 'angular-dist'                                 # ✅ Relative to $(System.DefaultWorkingDirectory)
+  # ----------------------------
+  # JOB 3 - Angular SPA Deploy (Linux Agent)
+  # ----------------------------
+  - job: DeployAngular
+    displayName: 'CD - Deploy Angular to Azure Static Web Apps'
+    dependsOn: BuildAngular
+    condition: succeeded()                                           # Ensures deployment only runs if build succeeds
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # ✅ Download artifact to repo-relative path
+      # This ensures the deployment task can detect the folder correctly
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: angular-dist
+          targetPath: 'angular-dist'                                 # ✅ Relative to $(System.DefaultWorkingDirectory)
 
-      # # ✅ Verify contents of downloaded artifact before deployment
-      # # Confirms index.html and static assets are present
-      # - script: ls $(System.DefaultWorkingDirectory)/angular-dist
-        # displayName: 'Verify downloaded Angular artifact contents'
+      # ✅ Verify contents of downloaded artifact before deployment
+      # Confirms index.html and static assets are present
+      - script: ls $(System.DefaultWorkingDirectory)/angular-dist
+        displayName: 'Verify downloaded Angular artifact contents'
 
-      # # ✅ Deploy pre-built Angular app using AzureStaticWebApp@0
-      # # app_location must be relative to repo root — absolute paths will fail
-      # # skip_app_build: true disables Oryx build since app is already built
-      # # output_location: '' is required when skipping build
-      # - task: AzureStaticWebApp@0
-        # inputs:
-          # app_location: 'angular-dist'                               # ✅ Relative path from repo root
-          # skip_app_build: true                                       # Skip Oryx build
-          # output_location: ''                                        # Required when skipping build
-          # azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)' # Deployment token from pipeline variables
+      # ✅ Deploy pre-built Angular app using AzureStaticWebApp@0
+      # app_location must be relative to repo root — absolute paths will fail
+      # skip_app_build: true disables Oryx build since app is already built
+      # output_location: '' is required when skipping build
+      - task: AzureStaticWebApp@0
+        inputs:
+          app_location: 'angular-dist'                               # ✅ Relative path from repo root
+          skip_app_build: true                                       # Skip Oryx build
+          output_location: ''                                        # Required when skipping build
+          azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)' # Deployment token from pipeline variables

@@ -7,4 +7,14 @@ import { Component } from '@angular/core';
   templateUrl: './counter.html',
   styleUrl: './counter.scss',
 })
-export class Counter {}
+export class Counter {
+  count: number = 0;
+
+  increase(): void {
+    ++this.count;
+  }
+
+  decrease(): void {
+    --this.count;
+  }
+}

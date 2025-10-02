@@ -1,1 +1,8 @@
-<p>counter works!</p>
+<div class="main-container">
+  <div class="grid grid-cols-2 gap-1 text-center w-1/5">
+    <h1 class="h1">Counter {{ count }}</h1>
+    <div></div>
+    <button class="edit-btn w-52" (click)="increase()">Increase</button>
+    <button class="activate-btn w-52" (click)="decrease()">Decrease</button>
+  </div>
+</div>

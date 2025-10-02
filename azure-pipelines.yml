@@ -214,7 +214,7 @@ stages:
           script: |
             cd "$(Build.SourcesDirectory)\Emp.Angular"
             npm install
-            npx ng build -c production --output-path=dist/debug-check
+            npx ng build -c production --base-href "/" --output-path=dist/debug-check
             Write-Host "✅ Build completed. Listing contents:"
             Get-ChildItem "dist/debug-check" -Recurse
 

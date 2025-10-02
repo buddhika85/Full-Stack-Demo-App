@@ -283,17 +283,21 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      # ✅ Download artifact to repo-relative path
-      # This ensures the deployment task can detect the folder correctly
+      # ✅ Download artifact to repo-relative path with explicit build reference
+      # This ensures the deployment task can detect the folder correctly and pull from the current pipeline run
       - task: DownloadPipelineArtifact@2
         inputs:
           artifact: angular-dist
           targetPath: 'angular-dist'                                 # ✅ Relative to $(System.DefaultWorkingDirectory)
+          buildType: 'current'                                       # ✅ Ensures it pulls from the current pipeline run
+          project: '$(System.TeamProject)'                           # ✅ Ensures correct project context
 
-      # ✅ Verify contents of downloaded artifact before deployment
-      # Confirms index.html and static assets are present
-      - script: ls $(System.DefaultWorkingDirectory)/angular-dist
-        displayName: 'Verify downloaded Angular artifact contents'
+      # ✅ Debug step — List contents of downloaded artifact folder
+      # Confirms index.html and static assets are present before deployment
+      - script: |
+          echo "📂 Listing contents of angular-dist:"
+          ls $(System.DefaultWorkingDirectory)/angular-dist
+        displayName: 'Debug: List contents of angular-dist after download'
 
       # ✅ Deploy pre-built Angular app using AzureStaticWebApp@0
       # app_location must be relative to repo root — absolute paths will fail

@@ -281,14 +281,12 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-      # ✅ Download artifact to repo-relative path with explicit build reference
-      # This ensures the deployment task can detect the folder correctly and pull from the current pipeline run
+      # ✅ Download artifact to repo-relative path
+      # Pulls from the current pipeline job without build number mismatch
       - task: DownloadPipelineArtifact@2
         inputs:
           artifact: angular-dist
           targetPath: 'angular-dist'                                 # ✅ Relative to $(System.DefaultWorkingDirectory)
-          buildType: 'current'                                       # ✅ Ensures it pulls from the current pipeline run
-          project: '$(System.TeamProject)'                           # ✅ Ensures correct project context
 
       # ✅ Debug step — List contents of downloaded artifact folder
       # Confirms index.html and static assets are present before deployment

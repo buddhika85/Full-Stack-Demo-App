@@ -260,7 +260,7 @@ stages:
             Get-ChildItem "$(Build.SourcesDirectory)\Emp.Angular\dist\debug-check" -Recurse
 
       # ✅ Final — publish everything inside dist/debug-check folder
-      - task: PublishBuildArtifacts@1
+      - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check'  # ✅ Flat structure
           artifact: 'angular-dist'

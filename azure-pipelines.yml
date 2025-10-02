@@ -305,3 +305,8 @@ stages:
           skip_app_build: true                                       # Skip Oryx build
           output_location: ''                                        # Required when skipping build
           azure_static_web_apps_api_token: '$(SWA_DEPLOYMENT_TOKEN)' # Deployment token from pipeline variables
+          
+      - script: |
+           echo "📦 Full structure of working_dir:"
+           find /working_dir
+        displayName: 'Debug: Show full structure of working_dir'

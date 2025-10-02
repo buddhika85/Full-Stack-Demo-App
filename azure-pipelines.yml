@@ -254,7 +254,7 @@ stages:
       # ✅ Final — publish everything inside dist/debug-check/browser folder
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check/browser'          # ✅ Corrected path to compiled Angular output
+          PathtoPublish: '$(Build.SourcesDirectory)/Emp.Angular/dist/debug-check'
           ArtifactName: 'angular-dist'
           publishLocation: 'Container'
 

@@ -294,6 +294,11 @@ stages:
           echo "📂 Listing contents of angular-dist:"
           ls $(System.DefaultWorkingDirectory)/angular-dist
         displayName: 'Debug: List contents of angular-dist after download'
+        
+      - script: |
+           echo "📦 Previewing contents of angular-dist before deployment:"
+           find $(System.DefaultWorkingDirectory)/angular-dist
+        displayName: 'Preview: Show full contents of angular-dist'
 
       # ✅ Deploy pre-built Angular app using AzureStaticWebApp@0
       # app_location must be relative to repo root — absolute paths will fail

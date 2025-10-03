@@ -147,4 +147,35 @@ public class EmployeeRepositoryTests
         employeeUpdated.Email.Should().Be(email);
         employeeUpdated.DepartmentId.Should().Be(deptId);
     }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task Delete_DeletesEmployee_WhenAvailable(int id)
+    {
+        // arrange
+        var dbContext = await GetInMemoryDbContext(Guid.NewGuid().ToString());
+        var repository = new EmployeeRepository(dbContext);
+        var countBeforeDelete = await dbContext.Employees.CountAsync();
+        var empBeforeDelete = await dbContext.Employees.FindAsync(id);
+
+        countBeforeDelete.Should().NotBe(0);
+        empBeforeDelete.Should().NotBeNull();
+
+        // act
+        repository.Delete(empBeforeDelete);
+        await dbContext.SaveChangesAsync();
+        var countAfterDelete = await dbContext.Employees.CountAsync();
+        var empAfterDelete = await dbContext.Employees.FindAsync(id);
+
+        // assert
+        countAfterDelete.Should().Be(countBeforeDelete - 1);
+        empAfterDelete.Should().BeNull();
+    }
+
+
+    // delete unsuccessfull when unavailable
+
+    // update unsuccessfull when unavailable
 }
